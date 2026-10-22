@@ -1,36 +1,218 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8">
+<html lang="ko">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>sahmyook</title>
+<title>sahmyook · 돌봄과 인공지능</title>
+<meta name="description" content="삼육대학교 구성원이 함께 아이디어를 적고, AI와 함께 만들어 가는 돌봄 공동 플랫폼">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f7f7f5;--fg:#1d1d1b;--muted:#666;--card:#fff;--line:#e3e3df;--accent:#2f6f4f}
-@media (prefers-color-scheme:dark){:root{--bg:#141414;--fg:#eee;--muted:#aaa;--card:#1e1e1e;--line:#333;--accent:#6fbf94}}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.6}
-main{max-width:720px;margin:0 auto;padding:56px 16px}
-h1{font-size:2.4rem;margin:0 0 8px}
-p.lead{color:var(--muted);font-size:1.1rem;margin:0 0 32px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin-bottom:16px}
-.card h2{font-size:1rem;margin:0 0 8px;color:var(--accent)}
-ol{margin:0;padding-left:20px}
-.cta{border-color:var(--accent)}
-.btn{display:inline-block;margin-top:12px;padding:10px 18px;border-radius:8px;background:var(--accent);color:var(--bg);text-decoration:none;font-weight:600}
-.btn:hover{opacity:.9}
-footer{color:var(--muted);font-size:.85rem;margin-top:40px}
-</style></head>
-<body><main>
-<h1>sahmyook</h1>
-<p class="lead">삼육대학교 구성원이 함께 아이디어를 적고, AI와 함께 만들어 가는 공동 플랫폼입니다.</p>
-<div class="card cta"><h2>참여 방법</h2>
-<p style="margin:0">참여자가 Google 문서 <b>sahm_all</b>에 원하는 기능을 적으면 반영이 됩니다.</p>
-<a class="btn" href="https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit" target="_blank" rel="noopener">sahm_all 문서 열기 →</a></div>
-<div class="card"><h2>어떻게 만들어지나요?</h2>
-<ol>
-<li>참여자가 Google 문서 <b>sahm_all</b>에 원하는 기능을 적습니다.</li>
-<li>내용이 GitHub 저장소의 <b>sahm.txt</b>로 옮겨집니다.</li>
-<li>AI가 코드를 만들어 PR을 올리고, 사람이 검토·승인합니다.</li>
-<li>승인된 내용이 이 페이지(Google Cloud Run)에 반영됩니다.</li>
-</ol></div>
-<div class="card"><h2>개발자용</h2>
-<p style="margin:0">코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></p></div>
-<footer>v0.3 · 2026-10-22 삼육대학교 소개 문구 반영 (sahm_all 요청)</footer>
-</main></body></html>
+:root{
+  --bg:#fbf7f2; --bg2:#f3ece3; --fg:#2b2622; --muted:#6f655c;
+  --card:#ffffff; --line:#eadfd3;
+  --care:#e0795f;      /* 돌봄: 따뜻한 코랄 */
+  --care-soft:#fbe4dc;
+  --ai:#3f8f8a;        /* 인공지능: 차분한 청록 */
+  --ai-soft:#dcefed;
+  --on-accent:#ffffff;
+  --shadow:0 10px 30px rgba(80,55,35,.08);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#181614; --bg2:#211e1b; --fg:#f1ebe4; --muted:#b3a89c;
+    --card:#24211e; --line:#38322c;
+    --care:#f0937b; --care-soft:#3a2722;
+    --ai:#6cc3bc; --ai-soft:#1f3432;
+    --on-accent:#181614;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font-family:"Noto Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:var(--ai)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+
+/* 상단 */
+header.wrap{padding-top:22px;padding-bottom:22px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.1rem;letter-spacing:-.01em}
+.brand-mark{width:32px;height:32px}
+.brand small{font-weight:500;color:var(--muted);font-size:.85rem;margin-left:4px}
+
+/* 히어로 */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding-top:40px;padding-bottom:64px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:6px 14px;border-radius:999px;
+  background:var(--card);border:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+.eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--care)}
+.eyebrow .dot.ai{background:var(--ai)}
+h1{font-size:clamp(2.1rem,5vw,3.3rem);line-height:1.25;margin:18px 0 16px;letter-spacing:-.03em;font-weight:800}
+h1 .care{color:var(--care)} h1 .ai{color:var(--ai)}
+.lead{font-size:1.12rem;color:var(--muted);margin:0 0 28px;max-width:34em}
+.actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border-radius:14px;
+  font-weight:700;text-decoration:none;transition:transform .15s ease, box-shadow .15s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn.primary{background:var(--care);color:var(--on-accent);box-shadow:0 8px 20px rgba(224,121,95,.3)}
+.btn.ghost{background:var(--card);color:var(--fg);border:1px solid var(--line)}
+.hero-art{width:100%;max-width:420px;justify-self:center}
+
+/* 섹션 공통 */
+section.wrap{padding-top:40px;padding-bottom:40px}
+.section-title{font-size:1.6rem;font-weight:800;letter-spacing:-.02em;margin:0 0 8px}
+.section-sub{color:var(--muted);margin:0 0 32px}
+
+/* 가치 카드 */
+.values{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.value{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;box-shadow:var(--shadow)}
+.icon{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;margin-bottom:14px}
+.icon.care{background:var(--care-soft);color:var(--care)}
+.icon.ai{background:var(--ai-soft);color:var(--ai)}
+.icon.mix{background:linear-gradient(135deg,var(--care-soft),var(--ai-soft));color:var(--fg)}
+.icon svg{width:24px;height:24px}
+.value h3{margin:0 0 6px;font-size:1.1rem}
+.value p{margin:0;color:var(--muted);font-size:.95rem}
+
+/* 참여 CTA */
+.cta{background:linear-gradient(135deg,var(--care-soft),var(--ai-soft));border-radius:28px;padding:40px;
+  display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+.cta h2{margin:0 0 8px;font-size:1.5rem;letter-spacing:-.02em}
+.cta p{margin:0;color:var(--muted)}
+
+/* 흐름 */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s;list-style:none;padding:0;margin:0}
+.step{position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 20px}
+.step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;
+  background:var(--ai);color:var(--on-accent);font-weight:800;margin-bottom:12px}
+.step:nth-child(odd)::before{background:var(--care)}
+.step h3{margin:0 0 4px;font-size:1rem}
+.step p{margin:0;color:var(--muted);font-size:.92rem}
+
+/* 하단 */
+footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);font-size:.88rem}
+.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;padding-top:24px;padding-bottom:40px}
+  .hero-art{max-width:300px;order:-1}
+  .values{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .cta{grid-template-columns:1fr;padding:28px}
+}
+@media (max-width:520px){ .steps{grid-template-columns:1fr} }
+@media (prefers-reduced-motion:no-preference){
+  .pulse{animation:pulse 3.2s ease-in-out infinite;transform-origin:center}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  .node{animation:blink 2.4s ease-in-out infinite}
+  .node:nth-of-type(2){animation-delay:.4s}.node:nth-of-type(3){animation-delay:.8s}
+  .node:nth-of-type(4){animation-delay:1.2s}.node:nth-of-type(5){animation-delay:1.6s}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
+}
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M16 27s-10-6.2-10-13.2A5.6 5.6 0 0 1 16 10a5.6 5.6 0 0 1 10 3.8C26 20.8 16 27 16 27z" fill="var(--care)"/>
+      <circle cx="16" cy="16" r="3" fill="var(--bg)"/><circle cx="16" cy="16" r="1.6" fill="var(--ai)"/>
+    </svg>
+    sahmyook <small>돌봄 × 인공지능</small>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <span class="eyebrow"><span class="dot"></span>돌봄 <span class="dot ai"></span>인공지능</span>
+      <h1><span class="care">따뜻한 돌봄</span>에<br><span class="ai">똑똑한 AI</span>를 더하다</h1>
+      <p class="lead">삼육대학교 구성원이 함께 아이디어를 적고, AI와 함께 만들어 가는 공동 플랫폼입니다. 사람을 향한 돌봄의 마음을 기술로 이어 갑니다.</p>
+      <div class="actions">
+        <a class="btn primary" href="https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit" target="_blank" rel="noopener">아이디어 적으러 가기 →</a>
+        <a class="btn ghost" href="#how">어떻게 만들어지나요?</a>
+      </div>
+    </div>
+
+    <!-- 돌봄(두 손·하트)과 인공지능(연결된 노드)을 표현한 그림 -->
+    <svg class="hero-art" viewBox="0 0 400 400" role="img" aria-label="두 손이 감싼 하트와 AI 연결망 그림">
+      <circle cx="200" cy="200" r="180" fill="var(--ai-soft)"/>
+      <circle cx="200" cy="200" r="130" fill="var(--care-soft)"/>
+      <g stroke="var(--ai)" stroke-width="2" opacity=".55">
+        <line x1="200" y1="70" x2="310" y2="130"/><line x1="310" y1="130" x2="320" y2="250"/>
+        <line x1="200" y1="70" x2="90" y2="130"/><line x1="90" y1="130" x2="80" y2="250"/>
+        <line x1="200" y1="70" x2="200" y2="150"/>
+      </g>
+      <g fill="var(--ai)">
+        <circle class="node" cx="200" cy="70" r="9"/>
+        <circle class="node" cx="310" cy="130" r="8"/>
+        <circle class="node" cx="90" cy="130" r="8"/>
+        <circle class="node" cx="320" cy="250" r="7"/>
+        <circle class="node" cx="80" cy="250" r="7"/>
+      </g>
+      <g class="pulse">
+        <path d="M200 268s-62-38-62-82a34 34 0 0 1 62-19a34 34 0 0 1 62 19c0 44-62 82-62 82z" fill="var(--care)"/>
+        <circle cx="200" cy="196" r="14" fill="var(--bg)"/>
+        <circle cx="200" cy="196" r="7" fill="var(--ai)"/>
+      </g>
+      <!-- 감싸는 두 손 -->
+      <path d="M96 262c22 40 62 62 104 62v-24c-30 0-58-14-74-40l-10-18c-4-8-14-10-20-4s-6 14 0 24z" fill="var(--care)" opacity=".85"/>
+      <path d="M304 262c-22 40-62 62-104 62v-24c30 0 58-14 74-40l10-18c4-8 14-10 20-4s6 14 0 24z" fill="var(--care)" opacity=".85"/>
+    </svg>
+  </div>
+
+  <section class="wrap" aria-labelledby="values-title">
+    <h2 class="section-title" id="values-title">우리가 만드는 것</h2>
+    <p class="section-sub">돌봄이 필요한 사람과 돌보는 사람 모두를 위한 도구를 함께 만듭니다.</p>
+    <div class="values">
+      <div class="value">
+        <div class="icon care"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg></div>
+        <h3>사람 중심 돌봄</h3>
+        <p>어르신, 환자, 가족, 돌봄 종사자의 실제 필요에서 출발합니다.</p>
+      </div>
+      <div class="value">
+        <div class="icon ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="11" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 15h6"/></svg></div>
+        <h3>AI와 함께 만들기</h3>
+        <p>아이디어를 글로 적으면 AI가 코드로 옮기고, 사람이 확인합니다.</p>
+      </div>
+      <div class="value">
+        <div class="icon mix"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 20c0-3 2.2-5 5-5s5 2 5 5M11 20c0-3 2.2-5 5-5s5 2 5 5"/></svg></div>
+        <h3>모두의 공동 작업</h3>
+        <p>개발을 몰라도 누구나 한 줄의 아이디어로 참여할 수 있습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" aria-labelledby="cta-title">
+    <div class="cta">
+      <div>
+        <h2 id="cta-title">참여 방법</h2>
+        <p>참여자가 Google 문서 <b>sahm_all</b>에 원하는 기능을 적으면 반영이 됩니다.</p>
+      </div>
+      <a class="btn primary" href="https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit" target="_blank" rel="noopener">sahm_all 문서 열기 →</a>
+    </div>
+  </section>
+
+  <section class="wrap" id="how" aria-labelledby="how-title">
+    <h2 class="section-title" id="how-title">어떻게 만들어지나요?</h2>
+    <p class="section-sub">아이디어 한 줄이 서비스가 되기까지</p>
+    <ol class="steps">
+      <li class="step"><h3>아이디어 적기</h3><p>Google 문서 sahm_all에 원하는 기능을 적습니다.</p></li>
+      <li class="step"><h3>작업 지시로 정리</h3><p>내용이 GitHub 저장소의 sahm.txt로 옮겨집니다.</p></li>
+      <li class="step"><h3>AI가 만들고 사람이 확인</h3><p>AI가 코드를 만들어 PR을 올리고, 사람이 검토·승인합니다.</p></li>
+      <li class="step"><h3>서비스에 반영</h3><p>승인된 내용이 이 페이지(Google Cloud Run)에 반영됩니다.</p></li>
+    </ol>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>v0.4 · 2026-10-22 돌봄 × 인공지능 디자인 적용</span>
+    <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
