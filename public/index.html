@@ -12,11 +12,17 @@ p.lead{color:var(--muted);font-size:1.1rem;margin:0 0 32px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin-bottom:16px}
 .card h2{font-size:1rem;margin:0 0 8px;color:var(--accent)}
 ol{margin:0;padding-left:20px}
+.cta{border-color:var(--accent)}
+.btn{display:inline-block;margin-top:12px;padding:10px 18px;border-radius:8px;background:var(--accent);color:var(--bg);text-decoration:none;font-weight:600}
+.btn:hover{opacity:.9}
 footer{color:var(--muted);font-size:.85rem;margin-top:40px}
 </style></head>
 <body><main>
 <h1>sahmyook</h1>
 <p class="lead">여러 사람이 함께 아이디어를 적고, AI와 함께 만들어 가는 공동 플랫폼입니다.</p>
+<div class="card cta"><h2>참여 방법</h2>
+<p style="margin:0">참여자가 Google 문서 <b>sahm_all</b>에 원하는 기능을 적으면 반영이 됩니다.</p>
+<a class="btn" href="https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit" target="_blank" rel="noopener">sahm_all 문서 열기 →</a></div>
 <div class="card"><h2>어떻게 만들어지나요?</h2>
 <ol>
 <li>참여자가 Google 문서 <b>sahm_all</b>에 원하는 기능을 적습니다.</li>
@@ -24,7 +30,7 @@ footer{color:var(--muted);font-size:.85rem;margin-top:40px}
 <li>AI가 코드를 만들어 PR을 올리고, 사람이 검토·승인합니다.</li>
 <li>승인된 내용이 이 페이지(Google Cloud Run)에 반영됩니다.</li>
 </ol></div>
-<div class="card"><h2>참여하기</h2>
+<div class="card"><h2>개발자용</h2>
 <p style="margin:0">코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></p></div>
-<footer>v0.1 · 2026-10-22 첫 배포</footer>
+<footer>v0.2 · 2026-10-22 참여 안내 추가</footer>
 </main></body></html>
