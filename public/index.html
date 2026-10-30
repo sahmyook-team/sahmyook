@@ -94,6 +94,10 @@ section.wrap{padding-top:40px;padding-bottom:40px}
 /* 하단 */
 footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);font-size:.88rem}
 .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+/* 함께 만든 사람 */
+.people{display:flex;flex-wrap:wrap;gap:10px;list-style:none;padding:0;margin:0}
+.person{display:inline-flex;align-items:center;gap:8px;padding:8px 16px 8px 8px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-weight:700}
+.person .avatar{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;color:var(--on-accent);background:linear-gradient(135deg,var(--care),var(--ai))}
 
 @media (max-width:860px){
   .hero{grid-template-columns:1fr;padding-top:24px;padding-bottom:40px}
@@ -206,11 +210,18 @@ footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);f
       <li class="step"><h3>서비스에 반영</h3><p>승인된 내용이 이 페이지(Google Cloud Run)에 반영됩니다.</p></li>
     </ol>
   </section>
+  <section class="wrap" aria-labelledby="people-title">
+    <h2 class="section-title" id="people-title">함께 만든 사람</h2>
+    <p class="section-sub">sahm_all에 이름을 남겨 주신 분들입니다.</p>
+    <ul class="people">
+      <li class="person"><span class="avatar" aria-hidden="true">전</span>전경철</li>
+    </ul>
+  </section>
 </main>
 
 <footer>
   <div class="wrap foot">
-    <span>v0.5 · 2026-10-22 제목 변경: 돌봄과 인공지능</span>
+    <span>v0.6 · 2026-10-31 함께 만든 사람 추가 (sahm_all)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
