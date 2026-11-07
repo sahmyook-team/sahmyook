@@ -8,124 +8,29 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#fbf7f2; --bg2:#f3ece3; --fg:#2b2622; --muted:#6f655c;
-  --card:#ffffff; --line:#eadfd3;
-  --care:#e0795f;      /* 돌봄: 따뜻한 코랄 */
-  --care-soft:#fbe4dc;
-  --ai:#3f8f8a;        /* 인공지능: 차분한 청록 */
-  --ai-soft:#dcefed;
-  --on-accent:#ffffff;
-  --shadow:0 10px 30px rgba(80,55,35,.08);
-}
-@media (prefers-color-scheme:dark){
-  :root{
-    --bg:#181614; --bg2:#211e1b; --fg:#f1ebe4; --muted:#b3a89c;
-    --card:#24211e; --line:#38322c;
-    --care:#f0937b; --care-soft:#3a2722;
-    --ai:#6cc3bc; --ai-soft:#1f3432;
-    --on-accent:#181614;
-    --shadow:0 10px 30px rgba(0,0,0,.35);
-  }
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);
-  font-family:"Noto Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  line-height:1.7;-webkit-font-smoothing:antialiased}
-a{color:var(--ai)}
-.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
-
-/* 상단 */
-header.wrap{padding-top:22px;padding-bottom:22px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.1rem;letter-spacing:-.01em}
-.brand-mark{width:32px;height:32px}
-.brand small{font-weight:500;color:var(--muted);font-size:.85rem;margin-left:4px}
-
-/* 히어로 */
-.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding-top:40px;padding-bottom:64px}
-.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:6px 14px;border-radius:999px;
-  background:var(--card);border:1px solid var(--line);font-size:.85rem;color:var(--muted)}
-.eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--care)}
-.eyebrow .dot.ai{background:var(--ai)}
-h1{font-size:clamp(2.1rem,5vw,3.3rem);line-height:1.25;margin:18px 0 16px;letter-spacing:-.03em;font-weight:800}
-h1 .care{color:var(--care)} h1 .ai{color:var(--ai)}
-h1 .h1-sub{display:block;margin-top:10px;font-size:.5em;font-weight:700;letter-spacing:-.02em;color:var(--fg);line-height:1.4}
-.lead{font-size:1.12rem;color:var(--muted);margin:0 0 28px;max-width:34em}
-.actions{display:flex;gap:12px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border-radius:14px;
-  font-weight:700;text-decoration:none;transition:transform .15s ease, box-shadow .15s ease}
-.btn:hover{transform:translateY(-2px)}
-.btn.primary{background:var(--care);color:var(--on-accent);box-shadow:0 8px 20px rgba(224,121,95,.3)}
-.btn.ghost{background:var(--card);color:var(--fg);border:1px solid var(--line)}
-.hero-art{width:100%;max-width:420px;justify-self:center}
-
-/* 섹션 공통 */
-section.wrap{padding-top:40px;padding-bottom:40px}
-.section-title{font-size:1.6rem;font-weight:800;letter-spacing:-.02em;margin:0 0 8px}
-.section-sub{color:var(--muted);margin:0 0 32px}
-
-/* 가치 카드 */
-.values{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.value{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;box-shadow:var(--shadow)}
-.icon{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;margin-bottom:14px}
-.icon.care{background:var(--care-soft);color:var(--care)}
-.icon.ai{background:var(--ai-soft);color:var(--ai)}
-.icon.mix{background:linear-gradient(135deg,var(--care-soft),var(--ai-soft));color:var(--fg)}
-.icon svg{width:24px;height:24px}
-.value h3{margin:0 0 6px;font-size:1.1rem}
-.value p{margin:0;color:var(--muted);font-size:.95rem}
-
-/* 참여 CTA */
-.cta{background:linear-gradient(135deg,var(--care-soft),var(--ai-soft));border-radius:28px;padding:40px;
-  display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
-.cta h2{margin:0 0 8px;font-size:1.5rem;letter-spacing:-.02em}
-.cta p{margin:0;color:var(--muted)}
-
-/* 흐름 */
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s;list-style:none;padding:0;margin:0}
-.step{position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 20px}
-.step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;
-  background:var(--ai);color:var(--on-accent);font-weight:800;margin-bottom:12px}
-.step:nth-child(odd)::before{background:var(--care)}
-.step h3{margin:0 0 4px;font-size:1rem}
-.step p{margin:0;color:var(--muted);font-size:.92rem}
-
-/* 하단 */
-footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);font-size:.88rem}
-.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
-/* 함께 만든 사람 */
-.people{display:flex;flex-wrap:wrap;gap:10px;list-style:none;padding:0;margin:0}
-.person{display:inline-flex;align-items:center;gap:8px;padding:8px 16px 8px 8px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-weight:700}
-.person .avatar{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;color:var(--on-accent);background:linear-gradient(135deg,var(--care),var(--ai))}
-
-@media (max-width:860px){
-  .hero{grid-template-columns:1fr;padding-top:24px;padding-bottom:40px}
-  .hero-art{max-width:300px;order:-1}
-  .values{grid-template-columns:1fr}
-  .steps{grid-template-columns:1fr 1fr}
-  .cta{grid-template-columns:1fr;padding:28px}
-}
-@media (max-width:520px){ .steps{grid-template-columns:1fr} }
-@media (prefers-reduced-motion:no-preference){
-  .pulse{animation:pulse 3.2s ease-in-out infinite;transform-origin:center}
-  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-  .node{animation:blink 2.4s ease-in-out infinite}
-  .node:nth-of-type(2){animation-delay:.4s}.node:nth-of-type(3){animation-delay:.8s}
-  .node:nth-of-type(4){animation-delay:1.2s}.node:nth-of-type(5){animation-delay:1.6s}
-  @keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
-}
-</style>
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<header class="wrap">
-  <div class="brand">
-    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-      <path d="M16 27s-10-6.2-10-13.2A5.6 5.6 0 0 1 16 10a5.6 5.6 0 0 1 10 3.8C26 20.8 16 27 16 27z" fill="var(--care)"/>
-      <circle cx="16" cy="16" r="3" fill="var(--bg)"/><circle cx="16" cy="16" r="1.6" fill="var(--ai)"/>
-    </svg>
-    sahmyook <small>돌봄 × 인공지능</small>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 27s-10-6.2-10-13.2A5.6 5.6 0 0 1 16 10a5.6 5.6 0 0 1 10 3.8C26 20.8 16 27 16 27z" fill="var(--care)"/>
+        <circle cx="16" cy="16" r="3" fill="var(--bg)"/><circle cx="16" cy="16" r="1.6" fill="var(--ai)"/>
+      </svg>
+      sahmyook <small>돌봄 × 인공지능</small>
+    </a>
+    <nav class="site-nav" aria-label="주 메뉴">
+      <ul>
+        <li><a href="/" aria-current="page">홈</a></li>
+        <li><a href="/#values">우리가 만드는 것</a></li>
+        <li><a href="/#join">참여 방법</a></li>
+        <li><a href="/#how">만드는 과정</a></li>
+        <li><a href="/#people">함께 만든 사람</a></li>
+        <li><a href="/people/kyungcheol">전경철</a></li>
+      </ul>
+    </nav>
   </div>
 </header>
 
@@ -168,7 +73,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);f
     </svg>
   </div>
 
-  <section class="wrap" aria-labelledby="values-title">
+  <section class="wrap" id="values" aria-labelledby="values-title">
     <h2 class="section-title" id="values-title">우리가 만드는 것</h2>
     <p class="section-sub">돌봄이 필요한 사람과 돌보는 사람 모두를 위한 도구를 함께 만듭니다.</p>
     <div class="values">
@@ -190,7 +95,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);f
     </div>
   </section>
 
-  <section class="wrap" aria-labelledby="cta-title">
+  <section class="wrap" id="join" aria-labelledby="cta-title">
     <div class="cta">
       <div>
         <h2 id="cta-title">참여 방법</h2>
@@ -210,11 +115,11 @@ footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);f
       <li class="step"><h3>서비스에 반영</h3><p>승인된 내용이 이 페이지(Google Cloud Run)에 반영됩니다.</p></li>
     </ol>
   </section>
-  <section class="wrap" aria-labelledby="people-title">
+  <section class="wrap" id="people" aria-labelledby="people-title">
     <h2 class="section-title" id="people-title">함께 만든 사람</h2>
     <p class="section-sub">sahm_all에 이름을 남겨 주신 분들입니다.</p>
     <ul class="people">
-      <li class="person"><span class="avatar" aria-hidden="true">전</span>전경철</li>
+      <li><a class="person" href="/people/kyungcheol"><span class="avatar" aria-hidden="true">전</span>전경철</a></li>
       <li class="person"><span class="avatar" aria-hidden="true">전</span>전동규</li>
     </ul>
   </section>
@@ -222,7 +127,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);f
 
 <footer>
   <div class="wrap foot">
-    <span>v0.7 · 2026-11-02 함께 만든 사람에 전동규 추가 (sahm_all 요청 3)</span>
+    <span>v0.8 · 2026-11-07 상단 메뉴 추가, 전경철 개인 페이지 분리 (sahm_all 요청 4)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
