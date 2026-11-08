@@ -9,6 +9,7 @@ const routes = {
   '/': { type: HTML, body: pub('index.html') },
   '/index.html': { type: HTML, body: pub('index.html') },
   '/people/kyungcheol': { type: HTML, body: pub('people', 'kyungcheol.html') },
+  '/people/hyunjung': { type: HTML, body: pub('people', 'hyunjung.html') },
   '/style.css': { type: 'text/css; charset=utf-8', body: pub('style.css') },
 };
 
