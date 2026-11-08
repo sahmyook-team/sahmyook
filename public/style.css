@@ -143,3 +143,10 @@ a.person:hover{border-color:var(--care);transform:translateY(-2px)}
   .node:nth-of-type(4){animation-delay:1.2s}.node:nth-of-type(5){animation-delay:1.6s}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
 }
+
+/* important to 목록 */
+.imp-list{margin:8px 0 18px;padding-left:1.4em;display:grid;gap:12px}
+.imp-list li{padding-left:4px}
+.imp-list b{display:block;color:var(--care)}
+.imp-list span{display:block}
+.imp-note{font-size:.88rem;color:var(--muted)}
