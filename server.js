@@ -13,6 +13,7 @@ const routes = {
   '/people/hongjin': { type: HTML, body: pub('people', 'hongjin.html') },
   '/people/juyeon': { type: HTML, body: pub('people', 'juyeon.html') },
   '/people/jeongmin': { type: HTML, body: pub('people', 'jeongmin.html') },
+  '/people/youngsook': { type: HTML, body: pub('people', 'youngsook.html') },
   '/style.css': { type: 'text/css; charset=utf-8', body: pub('style.css') },
 };
 
