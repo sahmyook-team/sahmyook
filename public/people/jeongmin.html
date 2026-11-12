@@ -67,13 +67,49 @@
       <p>아직 소개 글이 없습니다. 소개 글은 Google 문서 <b>sahm_all</b>에 적어 주시면 이 페이지에 반영됩니다.</p>
       <a class="btn primary" href="https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit" target="_blank" rel="noopener">sahm_all 문서 열기 →</a>
     </div>
+    <article class="sermon imp" aria-labelledby="routine-title">
+      <p class="sermon-label">학습일지를 바탕으로 정리 · 가명</p>
+      <h2 id="routine-title">유바람님의 하루 일과</h2>
+      <ol class="imp-list">
+        <li><b>아침 · 일어나 아침 먹기</b><span>토스트, 누룽지, 계란 요리 같은 아침을 먹고 TV로 YTN 뉴스를 봅니다.</span></li>
+        <li><b>오전 · 은행과 우체국</b><span>하나은행과 송파우체국에서 1천 원씩 입금하고 통장을 정리합니다.</span></li>
+        <li><b>점심 · 김밥 2줄</b><span>늘 가는 김밥집에서 “김밥 2줄 주세요” 하고 먹습니다.</span></li>
+        <li><b>낮 · 출근</b><span>버스를 타고 근무지로 출근해 일하고, 4시쯤 퇴근합니다.</span></li>
+        <li><b>저녁 전 · 곰두리체육센터 수영</b><span>과자와 두유를 먹고 「우산 셋이 나란히」를 부른 뒤 수영합니다.</span></li>
+        <li><b>저녁 · 식사와 컴퓨터</b><span>집(숙소)에서 저녁을 먹고 컴퓨터로 좋아하는 것을 검색합니다.</span></li>
+        <li><b>밤 10시 · 약 먹고 잠자리</b><span>스스로 약을 챙겨 먹고 씻은 뒤 “잘 자요” 인사를 하고 잡니다.</span></li>
+      </ol>
+    </article>
+    <article class="chat" aria-labelledby="wish-title">
+      <p class="sermon-label">입력칸</p>
+      <h2 id="wish-title">바람님이 하고 싶은 일과 적기</h2>
+      <p>바람님이 하고 싶은 일(예: 농구 경기 보기, 다이소 가기, 돈까스 먹기)을 함께 이야기하고 적어 보세요. 적은 내용은 <b>이 기기의 브라우저에만</b> 저장되고 다른 사람에게 보이거나 서버로 보내지지 않습니다.</p>
+      <form class="chat-form" id="wish-form">
+        <label for="wish-input" style="position:absolute;left:-9999px">하고 싶은 일과</label>
+        <input id="wish-input" autocomplete="off" maxlength="80" placeholder="하고 싶은 일과를 적어 주세요">
+        <button type="submit">추가</button>
+      </form>
+      <ol class="imp-list" id="wish-list"></ol>
+      <p class="imp-note" id="wish-empty">아직 적은 일과가 없습니다.</p>
+      <p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. (sahm_all 요청 23)</p>
+    </article>
+    <script>
+    (function(){
+      var K='baram-wishes',list=document.getElementById('wish-list'),empty=document.getElementById('wish-empty'),items=[];
+      try{items=JSON.parse(localStorage.getItem(K)||'[]')||[];}catch(e){items=[];}
+      function save(){try{localStorage.setItem(K,JSON.stringify(items));}catch(e){}}
+      function draw(){list.innerHTML='';items.forEach(function(t,i){var li=document.createElement('li');var s=document.createElement('span');s.textContent=t+' ';var b=document.createElement('button');b.type='button';b.textContent='지우기';b.style.cssText='margin-left:6px;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:8px;cursor:pointer;font:inherit;font-size:.8rem';b.onclick=function(){items.splice(i,1);save();draw();};s.appendChild(b);li.appendChild(s);list.appendChild(li);});empty.style.display=items.length?'none':'';}
+      document.getElementById('wish-form').addEventListener('submit',function(e){e.preventDefault();var inp=document.getElementById('wish-input');var v=inp.value.trim();if(!v)return;items.push(v);inp.value='';save();draw();});
+      draw();
+    })();
+    </script>
     <a class="back" href="/#people">← 함께 만든 사람으로 돌아가기</a>
   </section>
 </main>
 
 <footer>
   <div class="wrap foot">
-    <span>v3.5 · 2026-11-12 김경희 페이지에 유바람님이 좋아하는·싫어하는 음식 추가 (sahm_all 요청 42)</span>
+    <span>v3.6 · 2026-11-12 이정민 페이지에 유바람님 하루 일과와 하고 싶은 일과 입력칸 추가 (sahm_all 요청 23)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
