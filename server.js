@@ -19,6 +19,7 @@ const routes = {
   '/people/kyunghee': { type: HTML, body: pub('people', 'kyunghee.html') },
   '/people/areum': { type: HTML, body: pub('people', 'areum.html') },
   '/people/hyejin': { type: HTML, body: pub('people', 'hyejin.html') },
+  '/people/dongseok': { type: HTML, body: pub('people', 'dongseok.html') },
   '/style.css': { type: 'text/css; charset=utf-8', body: pub('style.css') },
 };
 
