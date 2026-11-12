@@ -67,13 +67,53 @@
       <p>아직 소개 글이 없습니다. 소개 글은 Google 문서 <b>sahm_all</b>에 적어 주시면 이 페이지에 반영됩니다.</p>
       <a class="btn primary" href="https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit" target="_blank" rel="noopener">sahm_all 문서 열기 →</a>
     </div>
+    <article class="chat" aria-labelledby="heart-title">
+      <p class="sermon-label">속마음 창</p>
+      <h2 id="heart-title">바람님의 속마음 들어 주기</h2>
+      <p>바람님은 화나거나 불편한 마음을 말 대신 행동으로 보여 줄 때가 있습니다. 이 창에서 지금 마음을 <b>그림 버튼으로 고르거나</b> 짧게 적어 보세요. 지원인은 바람님이 고른 마음에 맞춰 어떻게 들어 주면 좋은지 안내를 볼 수 있습니다. 적은 내용은 저장되거나 전송되지 않습니다.</p>
+      <div class="chat-chips" id="heart-chips" aria-label="지금 마음">
+        <button type="button" data-k="good">😊 좋아요</button>
+        <button type="button" data-k="angry">😠 화나요</button>
+        <button type="button" data-k="sad">😢 슬퍼요</button>
+        <button type="button" data-k="scared">😨 무서워요</button>
+        <button type="button" data-k="tired">😪 피곤해요</button>
+        <button type="button" data-k="home">🏠 집에 가고 싶어요</button>
+        <button type="button" data-k="dad">👨 아빠 보고 싶어요</button>
+      </div>
+      <div class="chat-log" id="heart-log" role="log" aria-live="polite" style="height:260px">
+        <div class="chat-msg baram"><small>속마음 창</small>바람님, 지금 마음이 어때요? 버튼을 눌러도 되고 적어도 돼요.</div>
+      </div>
+      <form class="chat-form" id="heart-form">
+        <label for="heart-input" style="position:absolute;left:-9999px">속마음</label>
+        <input id="heart-input" autocomplete="off" maxlength="120" placeholder="마음을 적어 보세요">
+        <button type="submit">말하기</button>
+      </form>
+      <p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 이 창은 대화를 돕는 도구이며, 위급한 상황에서는 바로 지원인과 보호자에게 연락합니다. (sahm_all 요청 29)</p>
+    </article>
+    <script>
+    (function(){
+      var R={good:['좋아요! 바람님이 기분이 좋아서 나도 좋아요.','지원인 안내: 손깍지 끼고 몸을 흔드는 것도 기쁨의 표현이에요. 함께 기뻐해 주세요.'],
+        angry:['화가 났군요. 말해 줘서 고마워요.','지원인 안내: 질문을 쏟아내거나 몸을 만지지 말고, 안전한 거리에서 이름을 불러 주세요. 진정되면 물을 건네고 다음 일정을 짧게 알려 주세요.'],
+        sad:['슬펐군요. 괜찮아요, 옆에 있을게요.','지원인 안내: 조용히 곁에 있어 주고, 좋아하는 노래나 바나나우유처럼 익숙한 것으로 마음을 달래 주세요.'],
+        scared:['무서웠군요. 이제 괜찮아요.','지원인 안내: 길이나 일정이 갑자기 바뀌어 놀랐을 수 있어요. 지금 어디로 가는지, 다음에 무엇을 하는지 짧고 분명하게 알려 주세요.'],
+        tired:['피곤하군요. 조금 쉬어요.','지원인 안내: 쉬는 시간을 주고, 10시 약과 잠자리 순서를 지키도록 도와주세요.'],
+        home:['집에 가고 싶군요. 집이 제일 좋죠.','지원인 안내: 언제 집에 가는지 시간 순서로 알려 주세요. 예) "수영 끝나고 집에 가요."'],
+        dad:['아빠가 보고 싶군요.','지원인 안내: 아빠를 언제 만나는지 알려 주고, 필요하면 아버님과 통화할 수 있게 도와주세요.']};
+      var log=document.getElementById('heart-log');
+      function add(t,who,label){var d=document.createElement('div');d.className='chat-msg '+who;if(label){var s=document.createElement('small');s.textContent=label;d.appendChild(s);}d.appendChild(document.createTextNode(t));log.appendChild(d);log.scrollTop=log.scrollHeight;}
+      function guess(t){if(/좋|행복|신나/.test(t))return'good';if(/화|짜증|싫/.test(t))return'angry';if(/슬|울/.test(t))return'sad';if(/무서|놀라/.test(t))return'scared';if(/피곤|졸|잠/.test(t))return'tired';if(/집/.test(t))return'home';if(/아빠|아버/.test(t))return'dad';return null;}
+      function respond(k){var r=k?R[k]:['그랬군요. 더 이야기해 줘요.','지원인 안내: 두 가지 중에 고르게 물어보면 마음을 더 잘 알려 줘요. 예) "좋아요? 싫어요?"'];setTimeout(function(){add(r[0],'baram','속마음 창');add(r[1],'baram','지원인 안내');},400);}
+      Array.prototype.forEach.call(document.querySelectorAll('#heart-chips button'),function(b){b.addEventListener('click',function(){add(b.textContent,'me');respond(b.getAttribute('data-k'));});});
+      document.getElementById('heart-form').addEventListener('submit',function(e){e.preventDefault();var i=document.getElementById('heart-input');var v=i.value.trim();if(!v)return;add(v,'me');i.value='';respond(guess(v));});
+    })();
+    </script>
     <a class="back" href="/#people">← 함께 만든 사람으로 돌아가기</a>
   </section>
 </main>
 
 <footer>
   <div class="wrap foot">
-    <span>v3.9 · 2026-11-12 이현주 페이지에 유바람님이 좋아하는 것과 싫어하는 것 추가 (sahm_all 요청 28)</span>
+    <span>v4.0 · 2026-11-12 김용주 페이지에 바람님 속마음 창 추가 (sahm_all 요청 29)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
