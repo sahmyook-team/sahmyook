@@ -11,6 +11,7 @@ const routes = {
   '/people/kyungcheol': { type: HTML, body: pub('people', 'kyungcheol.html') },
   '/people/gyuwan': { type: HTML, body: pub('people', 'gyuwan.html') },
   '/people/hongjin': { type: HTML, body: pub('people', 'hongjin.html') },
+  '/people/juyeon': { type: HTML, body: pub('people', 'juyeon.html') },
   '/style.css': { type: 'text/css; charset=utf-8', body: pub('style.css') },
 };
 
