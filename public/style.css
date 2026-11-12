@@ -159,3 +159,22 @@ a.person:hover{border-color:var(--care);transform:translateY(-2px)}
 .people-nav a{display:block;white-space:nowrap;padding:3px 9px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:.86rem}
 .people-nav a:hover{background:var(--bg);color:var(--fg)}
 .people-nav a[aria-current="page"]{background:var(--care-soft);color:var(--care);font-weight:700}
+
+/* 유바람님 대화 연습창 */
+.chat{margin-top:32px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:clamp(18px,4vw,32px);box-shadow:var(--shadow)}
+.chat h2{margin:0 0 8px;font-size:clamp(1.3rem,3vw,1.7rem)}
+.chat-log{height:340px;overflow-y:auto;background:var(--bg2);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.chat-msg{max-width:80%;padding:9px 14px;border-radius:16px;line-height:1.55;overflow-wrap:anywhere}
+.chat-msg.me{align-self:flex-end;background:var(--ai);color:var(--on-accent);border-bottom-right-radius:4px}
+.chat-msg.baram{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
+.chat-msg.baram small{display:block;color:var(--muted);font-size:.78rem}
+.chat-form{display:flex;gap:8px}
+.chat-form input{flex:1;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:inherit}
+.chat-form button{flex:none;padding:12px 18px;border-radius:12px;border:0;background:var(--care);color:var(--on-accent);font:inherit;font-weight:700;cursor:pointer}
+.chat-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.chat-chips button{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:inherit;font-size:.86rem;cursor:pointer}
+.day-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:8px 0 18px}
+.day-card{border:1px solid var(--line);border-radius:16px;padding:18px;background:var(--bg)}
+.day-card h3{margin:0 0 8px!important}
+.day-card ul{margin:0;padding-left:1.2em}
+@media (max-width:860px){.day-grid{grid-template-columns:1fr}}

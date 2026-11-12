@@ -67,13 +67,66 @@
       <p>아직 소개 글이 없습니다. 소개 글은 Google 문서 <b>sahm_all</b>에 적어 주시면 이 페이지에 반영됩니다.</p>
       <a class="btn primary" href="https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit" target="_blank" rel="noopener">sahm_all 문서 열기 →</a>
     </div>
+    <article class="chat" aria-labelledby="chat-title">
+      <p class="sermon-label">학습일지를 바탕으로 만든 대화 연습 · 가명</p>
+      <h2 id="chat-title">유바람님과 대화해 보기</h2>
+      <p>학습일지에 기록된 바람님의 말투(짧은 대답, “좋아요”, “네~”, “아니요!”)와 좋아하는 것을 바탕으로 만든 <b>대화 연습창</b>입니다. 실제 바람님이 답하는 것이 아니라, 지원인이 바람님과 이야기하는 방법을 미리 연습해 보도록 만든 것입니다. 바람님은 “무엇을 먹고 싶어요?”처럼 열린 질문보다 “돈까스 먹을까요? 김밥 먹을까요?”처럼 <b>두 가지 중 고르는 질문</b>에 더 잘 답합니다.</p>
+      <div class="chat-chips" aria-label="질문 예시">
+        <button type="button">안녕하세요</button>
+        <button type="button">기분 어때요?</button>
+        <button type="button">돈까스 먹을까요?</button>
+        <button type="button">노래 불러요?</button>
+        <button type="button">수영 가요?</button>
+        <button type="button">고구마 먹을래요?</button>
+        <button type="button">오늘 일정 알려줄게요</button>
+      </div>
+      <div class="chat-log" id="chat-log" role="log" aria-live="polite">
+        <div class="chat-msg baram"><small>바람님(연습)</small>선생님 안녕하세요!</div>
+      </div>
+      <form class="chat-form" id="chat-form">
+        <label for="chat-input" class="sr-only" style="position:absolute;left:-9999px">메시지</label>
+        <input id="chat-input" autocomplete="off" placeholder="바람님에게 말을 걸어 보세요">
+        <button type="submit">보내기</button>
+      </form>
+      <p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 대화 내용은 이 브라우저 안에서만 쓰이고 어디에도 저장되지 않습니다. (sahm_all 요청 21)</p>
+    </article>
+    <script>
+    (function(){
+      var rules=[
+        [/안녕|반가|하이/, ['선생님 안녕하세요! (손을 내밀어 악수해요)','안녕하세요~']],
+        [/잘\s*자|안녕히\s*주무/, ['잘 자요. 안녕히 주무세요.']],
+        [/기분|어때|괜찮|행복/, ['좋아요!','괜찮아요.','집이 제일 좋아요.']],
+        [/고구마|생선/, ['안 먹어요.','아니요!']],
+        [/돈까스|돈가스|치즈/, ['좋아요! 돈까스 좋아요.','네~ 치즈돈까스요.']],
+        [/계란|햄|김치|고기|미트볼|김밥|햄버거|바나나|우유|두유|과자|먹/, ['좋아요.','네~ 먹어요.','김밥 2줄 주세요.']],
+        [/노래|합창|우산/, ['우산 셋이 나란히~ (노래를 불러요)','합창 좋아요.']],
+        [/수영|곰두리/, ['수영 가요. 물안경, 수영복 챙겨요.','곰두리 가요.']],
+        [/농구|경기/, ['아니요!','(영상을 보더니) 네~ 좋아요.']],
+        [/컴퓨터|검색|영상|tv|티비|뉴스/i, ['컴퓨터 해요.','뉴스 봐요.']],
+        [/약|10시|열\s*시|자요|잠/, ['10시예요. 약 먹어요.']],
+        [/일정|오늘|내일|뭐\s*해|어디/, ['은행, 우체국, 김밥, 출근해요.','어디 가? (궁금해해요)']],
+        [/집|숙소/, ['집에 가요. 집에 가요.','숙소 가요.']],
+        [/출근|일|근무|회사/, ['일하러 가요.','네! 출근해요.']],
+        [/아파|병원|검진/, ['건강검진! 건강검진!','괜찮아요.']],
+        [/싫|아니/, ['아니요.','싫어요.']]
+      ];
+      var log=document.getElementById('chat-log'),form=document.getElementById('chat-form'),input=document.getElementById('chat-input');
+      function add(text,who){var d=document.createElement('div');d.className='chat-msg '+who;if(who==='baram'){var s=document.createElement('small');s.textContent='바람님(연습)';d.appendChild(s);}d.appendChild(document.createTextNode(text));log.appendChild(d);log.scrollTop=log.scrollHeight;}
+      function reply(q){for(var i=0;i<rules.length;i++){if(rules[i][0].test(q)){var a=rules[i][1];return a[Math.floor(Math.random()*a.length)];}}
+        if(/\?|요$|까$/.test(q))return '……(대답이 없어요) 두 가지 중에 골라 보라고 물어보면 대답을 잘해요.';
+        return '네~';}
+      function send(q){q=q.trim();if(!q)return;add(q,'me');setTimeout(function(){add(reply(q),'baram');},450);}
+      form.addEventListener('submit',function(e){e.preventDefault();send(input.value);input.value='';});
+      Array.prototype.forEach.call(document.querySelectorAll('.chat-chips button'),function(b){b.addEventListener('click',function(){send(b.textContent);});});
+    })();
+    </script>
     <a class="back" href="/#people">← 함께 만든 사람으로 돌아가기</a>
   </section>
 </main>
 
 <footer>
   <div class="wrap foot">
-    <span>v2.9 · 2026-11-12 이현주 페이지 추가, 함께 만든 사람에 이현주 추가 (sahm_all 요청 20)</span>
+    <span>v3.0 · 2026-11-12 오홍진 페이지에 유바람님 대화 연습창 추가 (sahm_all 요청 21)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
