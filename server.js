@@ -15,8 +15,22 @@ const PEOPLE = [
   ['areum', '박아름'], ['hyejin', '김혜진'], ['dongseok', '최동석'],
   ['hyunju', '이현주'],
 ].map(([slug, name]) => ({ slug, name }));
-const bySlug = Object.fromEntries(PEOPLE.map((p) => [p.slug, p]));
-const byName = Object.fromEntries(PEOPLE.map((p) => [p.name, p]));
+const ADMIN = process.env.SAHM_ADMIN || '전경철'; // 새 사람 가입은 이 사람 페이지에서만
+const SHARED = { slug: 'careworld-in', name: 'careworld-in' }; // 메인페이지(공동 공간) 이름
+// 가입한 사람:  [member] slug | 이름 | YYYY-MM-DD HH:MM | 가입시킨 사람   (sahm.txt)
+let members = [];
+const allPeople = () => [...PEOPLE, ...members];
+const bySlug = (slug) => allPeople().find((p) => p.slug === slug);
+const byNameFn = (name) => allPeople().find((p) => p.name === name);
+function loadMembers(text) {
+  const seen = new Set(PEOPLE.flatMap((p) => [p.slug, p.name]));
+  const list = [];
+  for (const raw of text.split('\n')) {
+    const m = raw.trim().match(/^\[member\]\s+([a-z0-9-]+)\s*\|\s*([^|]+?)\s*\|/);
+    if (m && !seen.has(m[1]) && !seen.has(m[2])) { seen.add(m[1]); seen.add(m[2]); list.push({ slug: m[1], name: m[2], member: true }); }
+  }
+  members = list;
+}
 
 const routes = {
   '/': { type: HTML, body: pub('index.html') },
@@ -26,6 +40,13 @@ const routes = {
   '/app.js': { type: 'text/javascript; charset=utf-8', body: pub('app.js') },
 };
 for (const p of PEOPLE) routes[`/people/${p.slug}`] = { type: HTML, body: pub('people', `${p.slug}.html`) };
+const TEMPLATE = pub('people', '_template.html').toString('utf8');
+const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function memberPage(p) { // 가입한 사람: 페이지 파일이 있으면 그것, 없으면 기본 틀
+  const f = path.join(__dirname, 'public', 'people', `${p.slug}.html`);
+  if (fs.existsSync(f)) return fs.readFileSync(f);
+  return TEMPLATE.replaceAll('{{NAME}}', esc(p.name)).replaceAll('{{INITIAL}}', esc([...p.name][0])).replaceAll('{{SLUG}}', p.slug);
+}
 
 // ── 설정 (Cloud Run 환경 변수) ──────────────────────────────────────────
 // SESSION_SECRET : 로그인 쿠키와 PIN 저장값(HMAC)을 만드는 비밀 문자열 — 바뀌면 모든 PIN을 다시 정해야 함
@@ -72,7 +93,7 @@ function readSession(req) {
   if (sig.length !== expect.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expect))) return null;
   if (Date.now() > Number(exp)) return null;
   const name = Buffer.from(n, 'base64url').toString();
-  return byName[name] ? name : null;
+  return name;
 }
 const cookie = (req, value, maxAge) => {
   const secure = (req.headers['x-forwarded-proto'] || '').includes('https') ? '; Secure' : '';
@@ -111,14 +132,17 @@ async function readSahm(fresh = false) {
       fs.mkdirSync(path.dirname(LOCAL_FILE), { recursive: true });
       fs.copyFileSync(path.join(__dirname, 'sahm.txt'), LOCAL_FILE);
     }
-    return { text: fs.readFileSync(LOCAL_FILE, 'utf8'), sha: null };
+    const text = fs.readFileSync(LOCAL_FILE, 'utf8');
+    loadMembers(text);
+    return { text, sha: null };
   }
-  if (mode === 'none') return { text: fs.readFileSync(path.join(__dirname, 'sahm.txt'), 'utf8'), sha: null };
+  if (mode === 'none') { const text = fs.readFileSync(path.join(__dirname, 'sahm.txt'), 'utf8'); loadMembers(text); return { text, sha: null }; }
   if (!fresh && cache.text !== null && Date.now() - cache.at < 15e3) return cache;
   const r = await gh(`sahm.txt?ref=${BRANCH}`);
   if (!r.ok) throw new Error(`GitHub 읽기 실패 (${r.status})`);
   const j = await r.json();
   cache = { text: Buffer.from(j.content, 'base64').toString('utf8'), sha: j.sha, at: Date.now() };
+  loadMembers(cache.text);
   return cache;
 }
 
@@ -186,21 +210,25 @@ async function savePin(name, hash, { onlyIfEmpty }) {
   }
   throw new Error('다른 저장과 겹쳐 저장하지 못했습니다. 잠시 뒤 다시 해 주세요.');
 }
-const bySlugName = (name) => (byName[name] ? byName[name].slug : 'unknown');
+const bySlugName = (name) => (byNameFn(name) ? byNameFn(name).slug : 'unknown');
 const badPin = (pin) => !/^\d{4}$/.test(pin) ? 'PIN은 숫자 4자리입니다.'
   : /^(\d)\1{3}$/.test(pin) || '0123456789'.includes(pin) || '9876543210'.includes(pin) ? '1111, 1234처럼 쉬운 숫자는 쓸 수 없어요. 다른 4자리를 정해 주세요.' : null;
 const sameHash = (a, b) => a && b && a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
 
 // 웹 프롬프트 줄:   [todo] W<id> | 2026-11-15 14:03 | 전경철 | 프롬프트
 // 결과 줄(예약작업): [done] W<id> | 2026-11-15 | 결과 요약   /  [skipped] W<id> | 날짜 | 이유
-function parseLog(text, name) {
+// careworld-in 공동 프롬프트: [todo] C<id> | 시각 | 이름 | 프롬프트  (결과도 같은 C<id> 로)
+function parseLog(text, name, prefix = 'W') {
   const prompts = [];
   const results = {};
   for (const raw of text.split('\n')) {
     const line = raw.trim();
-    let m = line.match(/^\[todo\]\s+(W\w+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*(.*)$/);
-    if (m) { if (m[3] === name) prompts.push({ id: m[1], at: m[2], text: m[4] }); continue; }
-    m = line.match(/^\[(done|skipped|running)\]\s+(W\w+)\s*\|\s*([^|]+?)\s*\|\s*(.*)$/);
+    let m = line.match(/^\[todo\]\s+([WC]\w+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*(.*)$/);
+    if (m) {
+      if (m[1][0] === prefix && (prefix === 'C' || m[3] === name)) prompts.push({ id: m[1], at: m[2], by: m[3], text: m[4] });
+      continue;
+    }
+    m = line.match(/^\[(done|skipped|running)\]\s+([WC]\w+)\s*\|\s*([^|]+?)\s*\|\s*(.*)$/);
     if (m) results[m[2]] = { status: m[1], at: m[3], note: m[4] };
   }
   return prompts.map((p) => ({ ...p, result: results[p.id] || null }));
@@ -224,7 +252,7 @@ async function fireRoutine(name) {
       'anthropic-version': '2023-06-01',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ text: `웹 사이트 실행 버튼 (${name}, ${kst()} KST): sahm.txt 의 [todo] W 프롬프트를 지금 처리해 주세요.` }),
+    body: JSON.stringify({ text: `웹 사이트 실행 버튼 (${name}, ${kst()} KST): sahm.txt 의 [todo] W·C 프롬프트를 지금 처리해 주세요.` }),
   });
   const body = await r.json().catch(() => ({}));
   if (!r.ok) { lastFire = 0; throw new Error(`실행 요청 실패 (${r.status}) ${body.error?.message || ''}`.trim()); }
@@ -240,21 +268,24 @@ async function fireRoutine(name) {
 
 // ── API ─────────────────────────────────────────────────────────────────
 async function api(req, res, url) {
-  const me = readSession(req);
+  let me = readSession(req);
   try {
+    if (me && !byNameFn(me)) { await readSahm(); if (!byNameFn(me)) me = null; }
     if (url === '/api/people' && req.method === 'GET') {
+      await readSahm();
       const { data } = await readPins();
-      return send(res, 200, { people: PEOPLE.map((p) => ({ ...p, hasPin: !!data[p.name] })) });
+      return send(res, 200, { people: allPeople().map((p) => ({ ...p, hasPin: !!data[p.name] })), admin: ADMIN, shared: SHARED });
     }
     if (url === '/api/me' && req.method === 'GET') {
       return send(res, 200, {
-        name: me, slug: me ? byName[me].slug : null,
+        name: me, slug: me ? byNameFn(me).slug : null, isAdmin: me === ADMIN, admin: ADMIN,
         storage: storageMode(), canRun: !!process.env.ROUTINE_TOKEN,
       });
     }
     if (url === '/api/login' && req.method === 'POST') {
       const { name, pin } = await readBody(req);
-      if (!byName[name]) return send(res, 400, { error: '이름을 목록에서 골라 주세요.' });
+      await readSahm();
+      if (!byNameFn(name)) return send(res, 400, { error: '이름을 목록에서 골라 주세요.' });
       const { data } = await readPins(true);
       if (!data[name]) return send(res, 409, { error: '아직 PIN을 정하지 않았습니다. 사용할 PIN을 먼저 정해 주세요.', needSetup: true });
       if (tooMany(name)) return send(res, 429, { error: 'PIN을 여러 번 틀렸습니다. 15분 뒤에 다시 해 주세요.' });
@@ -263,16 +294,17 @@ async function api(req, res, url) {
         return send(res, 401, { error: 'PIN이 맞지 않습니다.' });
       }
       failures.delete(name);
-      return send(res, 200, { name, slug: byName[name].slug }, { 'Set-Cookie': cookie(req, makeSession(name), 30 * 86400) });
+      return send(res, 200, { name, slug: byNameFn(name).slug }, { 'Set-Cookie': cookie(req, makeSession(name), 30 * 86400) });
     }
     if (url === '/api/pin/setup' && req.method === 'POST') { // 처음 한 번: 내 PIN 정하기
       const { name, pin, pin2 } = await readBody(req);
-      if (!byName[name]) return send(res, 400, { error: '이름을 목록에서 골라 주세요.' });
+      await readSahm();
+      if (!byNameFn(name)) return send(res, 400, { error: '이름을 목록에서 골라 주세요.' });
       const why = badPin(String(pin || ''));
       if (why) return send(res, 400, { error: why });
       if (String(pin) !== String(pin2)) return send(res, 400, { error: '두 번 넣은 PIN이 서로 다릅니다.' });
       await savePin(name, pinHash(name, String(pin)), { onlyIfEmpty: true });
-      return send(res, 200, { name, slug: byName[name].slug }, { 'Set-Cookie': cookie(req, makeSession(name), 30 * 86400) });
+      return send(res, 200, { name, slug: byNameFn(name).slug }, { 'Set-Cookie': cookie(req, makeSession(name), 30 * 86400) });
     }
     if (url === '/api/pin/change' && req.method === 'POST') { // 로그인한 본인: PIN 바꾸기
       if (!me) return send(res, 401, { error: '먼저 로그인해 주세요.' });
@@ -291,22 +323,43 @@ async function api(req, res, url) {
     }
     if (url === '/api/log' && req.method === 'GET') {
       const slug = new URL(req.url, 'http://x').searchParams.get('person');
-      const p = bySlug[slug];
-      if (!p) return send(res, 404, { error: '없는 페이지입니다.' });
       const { text } = await readSahm();
+      if (slug === SHARED.slug) return send(res, 200, { person: SHARED, prompts: parseLog(text, null, 'C'), runs: runs.slice(0, 10) });
+      const p = bySlug(slug);
+      if (!p) return send(res, 404, { error: '없는 페이지입니다.' });
       return send(res, 200, { person: p, prompts: parseLog(text, p.name), runs: runs.slice(0, 10) });
     }
     if (url === '/api/prompt' && req.method === 'POST') {
       if (!me) return send(res, 401, { error: '먼저 로그인해 주세요.' });
       const { person, text } = await readBody(req);
-      const p = bySlug[person];
-      if (!p) return send(res, 404, { error: '없는 페이지입니다.' });
-      if (p.name !== me) return send(res, 403, { error: '프롬프트는 본인 페이지에서만 보낼 수 있습니다.' });
       const body = clean(text, 1500);
       if (!body) return send(res, 400, { error: '프롬프트 내용을 적어 주세요.' });
+      if (person === SHARED.slug) { // careworld-in 공동 프롬프트: 로그인한 누구나
+        const id = `C${Date.now().toString(36)}`;
+        await appendSahm(`[todo] ${id} | ${kst()} | ${me} | ${body}`, `careworld-in prompt ${id}`);
+        return send(res, 200, { id });
+      }
+      const p = bySlug(person);
+      if (!p) return send(res, 404, { error: '없는 페이지입니다.' });
+      if (p.name !== me) return send(res, 403, { error: '프롬프트는 본인 페이지에서만 보낼 수 있습니다.' });
       const id = `W${Date.now().toString(36)}`;
       await appendSahm(`[todo] ${id} | ${kst()} | ${me} | ${body}`, `web prompt ${id}: ${p.slug}`);
       return send(res, 200, { id });
+    }
+    if (url === '/api/member' && req.method === 'POST') { // 새 사람 가입 — 관리자(전경철)만
+      if (!me) return send(res, 401, { error: '먼저 로그인해 주세요.' });
+      if (me !== ADMIN) return send(res, 403, { error: `가입은 ${ADMIN}님 페이지에서만 할 수 있습니다.` });
+      const b = await readBody(req);
+      const name = clean(b.name, 20);
+      const slug = String(b.slug || '').trim().toLowerCase();
+      if (!/^[가-힣A-Za-z][가-힣A-Za-z0-9 ]{0,19}$/.test(name)) return send(res, 400, { error: '이름은 한글이나 영문으로 1~20자로 적어 주세요.' });
+      if (!/^[a-z][a-z0-9-]{1,19}$/.test(slug) || slug === SHARED.slug) return send(res, 400, { error: '페이지 주소는 영문 소문자로 시작하는 2~20자(소문자·숫자·-)로 적어 주세요. 예) minsu' });
+      await readSahm(true);
+      if (byNameFn(name)) return send(res, 409, { error: `${name}님은 이미 가입되어 있습니다.` });
+      if (bySlug(slug)) return send(res, 409, { error: `/people/${slug} 주소는 이미 쓰이고 있습니다.` });
+      await appendSahm(`[member] ${slug} | ${name} | ${kst()} | ${me}`, `add member ${slug}`);
+      await readSahm(true);
+      return send(res, 200, { slug, name, url: `/people/${slug}` });
     }
     if (url === '/api/run' && req.method === 'POST') {
       if (!me) return send(res, 401, { error: '먼저 로그인해 주세요.' });
@@ -326,6 +379,15 @@ http.createServer((req, res) => {
   if (url === '/healthz') { res.writeHead(200); return res.end('ok'); }
   if (url.startsWith('/api/')) return api(req, res, url);
   const r = routes[url];
+  const mm = !r && url.match(/^\/people\/([a-z0-9-]+)$/);
+  if (mm) {
+    return readSahm().catch(() => {}).then(() => {
+      const p = members.find((x) => x.slug === mm[1]);
+      if (!p) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end('페이지를 찾을 수 없습니다. / Not found'); }
+      res.writeHead(200, { 'Content-Type': HTML });
+      res.end(memberPage(p));
+    });
+  }
   if (!r) {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
     return res.end('페이지를 찾을 수 없습니다. / Not found');

@@ -124,30 +124,74 @@
   }
 
   // ── 사람 페이지: 프롬프트 창 · 실행 버튼 · 터미널 ─────────────────────
+  // ── 새 사람 가입 (관리자 페이지에서만) ──────────────────────────────
+  function signupBox() {
+    const name = h('input', { type: 'text', maxlength: '20', placeholder: '이름 (예: 홍길동)', 'aria-label': '새 사람 이름', class: 'term-input join-input' });
+    const slug = h('input', { type: 'text', maxlength: '20', placeholder: '페이지 주소 영문 (예: gildong)', 'aria-label': '페이지 주소', class: 'term-input join-input', autocapitalize: 'off', spellcheck: 'false' });
+    const msg = h('p', { class: 'term-status', role: 'status' });
+    const btn = h('button', { type: 'button', class: 'btn primary' }, '가입시키기');
+    slug.addEventListener('input', () => { slug.value = slug.value.toLowerCase().replace(/[^a-z0-9-]/g, ''); });
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      msg.classList.remove('bad');
+      msg.textContent = 'sahm.txt에 저장하는 중…';
+      try {
+        const r = await api('/api/member', { method: 'POST', body: { name: name.value.trim(), slug: slug.value.trim() } });
+        msg.textContent = '';
+        msg.append(`${r.name}님을 가입시켰습니다. 페이지: `, h('a', { href: r.url }, r.url), ` — ${r.name}님이 로그인 페이지에서 처음 PIN을 정하면 바로 쓸 수 있습니다.`);
+        name.value = slug.value = '';
+      } catch (e) { msg.textContent = e.message; msg.classList.add('bad'); }
+      btn.disabled = false;
+    });
+    return h('section', { class: 'wrap term join', 'aria-labelledby': 'join-title' },
+      h('h2', { id: 'join-title' }, '새 사람 가입'),
+      h('p', { class: 'term-note' }, `가입은 ${me.admin}님 페이지에서만 할 수 있습니다. 이름과 페이지 주소(영문)를 넣으면 sahm.txt에 [member] 한 줄이 저장되고, 그 사람의 페이지와 로그인이 바로 생깁니다.`),
+      h('div', { class: 'join-form' }, name, slug, btn),
+      msg);
+  }
+
+  // ── 사람 메뉴에 새로 가입한 사람 추가 ────────────────────────────────
+  async function addMembersToNav() {
+    const ul = $('.people-nav ul');
+    if (!ul) return;
+    try {
+      const { people } = await api('/api/people');
+      const have = new Set([...ul.querySelectorAll('a')].map((a) => a.getAttribute('href')));
+      for (const p of people) {
+        const href = `/people/${p.slug}`;
+        if (have.has(href)) continue;
+        ul.append(h('li', {}, h('a', { href, 'aria-current': location.pathname === href ? 'page' : false }, p.name)));
+      }
+    } catch { /* 메뉴는 없어도 페이지는 동작 */ }
+  }
+
   function initConsole() {
-    const m = location.pathname.match(/^\/people\/([a-z0-9]+)\/?$/);
+    const m = location.pathname.match(/^\/people\/([a-z0-9-]+)\/?$/);
+    const isShared = location.pathname === '/' || location.pathname === '/index.html'; // careworld-in (메인페이지)
     const main = $('main');
-    if (!m || !main) return;
-    const slug = m[1];
-    const isOwner = me.slug === slug;
+    if ((!m && !isShared) || !main) return;
+    const slug = isShared ? 'careworld-in' : m[1];
+    const isOwner = isShared ? !!me.name : me.slug === slug; // 공동 창은 로그인한 누구나
 
     const term = h('pre', { class: 'term-out', 'aria-live': 'polite', tabindex: '0', 'aria-label': '진행 상황 터미널' });
     const status = h('p', { class: 'term-status', role: 'status' });
     const input = h('textarea', {
       class: 'term-input', rows: '4', maxlength: '1500',
-      placeholder: isOwner ? '예) 내 페이지에 유바람님이 좋아하는 노래 목록을 만들어줘' : '',
+      placeholder: !isOwner ? '' : isShared ? '예) careworld-in에 이번 주 모임 소식을 넣어줘' : '예) 내 페이지에 유바람님이 좋아하는 노래 목록을 만들어줘',
       'aria-label': '프롬프트', disabled: !isOwner,
     });
     const sendBtn = h('button', { type: 'button', class: 'btn primary', disabled: !isOwner }, '프롬프트 보냄');
     const runBtn = h('button', { type: 'button', class: 'btn ghost', disabled: !isOwner }, '프롬프트 실행');
 
     let note;
-    if (isOwner) note = '이 페이지는 내 공간입니다. 프롬프트로는 내 페이지만 바꿀 수 있고, 메인페이지와 공용 부분은 sahm_all 문서로 요청합니다. [프롬프트 보냄]을 누르면 sahm.txt에 저장되어 매시 14분 예약 실행 때 처리되고, [프롬프트 실행]을 누르면 지금 바로 실행합니다.';
+    if (isShared && isOwner) note = 'careworld-in은 모두가 함께 쓰는 공동 공간입니다. 로그인한 누구나 여기서 careworld-in(메인페이지)을 고치는 프롬프트를 보낼 수 있습니다. [프롬프트 보냄]을 누르면 sahm.txt에 저장되어 매시 14분 예약 실행 때 처리되고, [프롬프트 실행]을 누르면 지금 바로 실행합니다.';
+    else if (isShared) note = h('span', {}, 'careworld-in은 모두가 함께 쓰는 공동 공간입니다. ', h('a', { href: '/login' }, '로그인'), '하면 여기서 careworld-in을 고치는 프롬프트를 보낼 수 있습니다.');
+    else if (isOwner) note = '이 페이지는 내 공간입니다. 프롬프트로는 내 페이지만 바꿀 수 있고, careworld-in(메인페이지)은 그곳의 공동 프롬프트 창으로 요청합니다. [프롬프트 보냄]을 누르면 sahm.txt에 저장되어 매시 14분 예약 실행 때 처리되고, [프롬프트 실행]을 누르면 지금 바로 실행합니다.';
     else if (me.name) note = `${me.name}님으로 로그인되어 있습니다. 프롬프트는 본인 페이지에서만 보낼 수 있어요. 아래 터미널에서 이 페이지의 진행 상황은 볼 수 있습니다.`;
     else note = h('span', {}, h('a', { href: '/login' }, '로그인'), '하면 내 페이지에서 프롬프트를 보내고 실행할 수 있습니다. 아래 터미널에서 진행 상황은 누구나 볼 수 있습니다.');
 
     const box = h('section', { class: 'wrap term', 'aria-labelledby': 'term-title' },
-      h('h2', { id: 'term-title' }, '프롬프트 창 · 터미널'),
+      h('h2', { id: 'term-title' }, isShared ? 'careworld-in 공동 프롬프트 창 · 터미널' : '프롬프트 창 · 터미널'),
       h('p', { class: 'term-note' }, note),
       h('div', { class: 'term-form' }, input, h('div', { class: 'term-actions' }, sendBtn, runBtn)),
       status,
@@ -156,6 +200,7 @@
         term),
     );
     main.append(box);
+    if (!isShared && me.isAdmin && me.slug === slug) main.append(signupBox());
 
     const say = (t, bad) => { status.textContent = t; status.classList.toggle('bad', !!bad); };
     const nextRun = () => { // 예약 실행 시각(매시 14분)을 한국시간으로 표시
@@ -171,8 +216,8 @@
     async function refresh() {
       try {
         const log = await api(`/api/log?person=${slug}`);
-        const lines = [`$ sahmyook terminal · ${log.person.name} 페이지`, `  다음 예약 실행: ${nextRun()} (매시 14분)`, ''];
-        const mine = log.runs.filter((r) => r.by === log.person.name);
+        const lines = [`$ sahmyook terminal · ${isShared ? 'careworld-in 공동 공간' : `${log.person.name} 페이지`}`, `  다음 예약 실행: ${nextRun()} (매시 14분)`, ''];
+        const mine = isShared ? log.runs : log.runs.filter((r) => r.by === log.person.name);
         for (const r of mine.slice(0, 3)) {
           lines.push(`▶ ${r.at} 실행 요청 (${r.by})`);
           if (r.sessionUrl) lines.push(`  ↳ 실행 세션: ${r.sessionUrl}`);
@@ -180,7 +225,7 @@
         if (mine.length) lines.push('');
         if (!log.prompts.length) lines.push('  아직 보낸 프롬프트가 없습니다.');
         for (const p of log.prompts.slice(-15)) {
-          lines.push(`> ${p.at}  ${p.text}`);
+          lines.push(isShared ? `> ${p.at}  [${p.by}] ${p.text}` : `> ${p.at}  ${p.text}`);
           if (!p.result) lines.push('  … 대기 중 — 다음 실행 때 처리됩니다');
           else if (p.result.status === 'running') lines.push(`  ⟳ 처리 중 (${p.result.at}) ${p.result.note}`);
           else if (p.result.status === 'done') lines.push(`  ✓ 완료 (${p.result.at}) ${p.result.note}`);
@@ -238,6 +283,7 @@
   (async () => {
     try { me = await api('/api/me'); } catch { me = { name: null }; }
     renderNav();
+    addMembersToNav();
     initLogin().catch((e) => { const m = $('#login-msg'); if (m) m.textContent = e.message; });
     initConsole();
   })();
