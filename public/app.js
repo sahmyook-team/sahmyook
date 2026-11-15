@@ -24,6 +24,12 @@
   };
 
   let me = { name: null };
+  const DOC_URL = 'https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit';
+  const notReady = () => me.storage === 'none'; // 서버에 저장소(GITHUB_TOKEN)가 아직 없음
+  const readyNote = () => h('p', { class: 'ready-note', role: 'note' },
+    '로그인·프롬프트 저장 기능은 아직 준비 중입니다. 지금은 ', h('a', { href: DOC_URL, target: '_blank', rel: 'noopener' }, 'sahm_all 문서'),
+    '에 요청을 적어 주세요. 매시 14분에 처리되어 사이트에 반영됩니다.');
+
 
   // ── 위쪽 메뉴에 로그인 상태 ──────────────────────────────────────────
   function renderNav() {
@@ -72,6 +78,7 @@
       who.textContent = `지금 ${me.name}님으로 로그인되어 있습니다. 다른 이름으로 바꾸려면 이름을 고르세요.`;
       $('#pin-change').hidden = false;
     }
+    if (notReady()) { form.before(readyNote()); }
     const { people } = await api('/api/people');
     for (const p of people) {
       list.append(h('li', {}, h('button', {
@@ -79,7 +86,8 @@
         onclick: (e) => {
           chosen = p;
           list.querySelectorAll('.login-name').forEach((b) => b.setAttribute('aria-pressed', String(b === e.currentTarget)));
-          pin.disabled = btn.disabled = false;
+          pin.disabled = btn.disabled = notReady();
+          pin2.disabled = notReady();
           pin.value = pin2.value = '';
           msg.textContent = '';
           mode(!p.hasPin);
@@ -172,6 +180,7 @@
     if ((!m && !isShared) || !main) return;
     const slug = isShared ? 'careworld-in' : m[1];
     const isOwner = isShared ? !!me.name : me.slug === slug; // 공동 창은 로그인한 누구나
+    const ready = !notReady();
 
     const term = h('pre', { class: 'term-out', 'aria-live': 'polite', tabindex: '0', 'aria-label': '진행 상황 터미널' });
     const status = h('p', { class: 'term-status', role: 'status' });
@@ -199,6 +208,7 @@
         h('div', { class: 'term-bar' }, h('span'), h('span'), h('span'), h('b', {}, `sahmyook — ${slug}`)),
         term),
     );
+    if (!ready) box.querySelector('.term-note').after(readyNote());
     main.append(box);
     if (!isShared && me.isAdmin && me.slug === slug) main.append(signupBox());
 
