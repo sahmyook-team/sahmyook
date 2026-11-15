@@ -69,6 +69,7 @@
       pin2.required = isSetup;
       pin.placeholder = isSetup ? '새 PIN' : '••••';
       btn.textContent = isSetup ? 'PIN 정하고 로그인' : '로그인';
+      if (notReady()) { who.textContent = `${chosen.name}님, 로그인은 준비가 끝나면 바로 쓸 수 있습니다.`; return; }
       who.textContent = isSetup
         ? `${chosen.name}님은 처음이시네요. 앞으로 쓸 PIN 4자리를 정해서 두 번 넣어 주세요. (1111, 1234처럼 쉬운 숫자는 안 돼요)`
         : `${chosen.name}님의 PIN 4자리를 넣어 주세요.`;
