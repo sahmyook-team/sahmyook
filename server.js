@@ -49,9 +49,9 @@ function memberPage(p) { // 가입한 사람: 페이지 파일이 있으면 그�
 }
 
 // ── 설정 (Cloud Run 환경 변수) ──────────────────────────────────────────
-// SESSION_SECRET : 로그인 쿠키와 PIN 저장값(HMAC)을 만드는 비밀 문자열 — 바뀌면 모든 PIN을 다시 정해야 함
+// SESSION_SECRET : (선택) 로그인 쿠키와 PIN 저장값(HMAC)용 비밀 문자열. 없으면 GITHUB_TOKEN 에서 만듦
 // GITHUB_TOKEN   : sahmyook-team/sahmyook Contents 읽기·쓰기 권한 토큰 (sahm.txt, pins.json 저장용)
-// ROUTINE_TOKEN  : 예약 작업(sahm_all 자동 반영)의 API 트리거 토큰 (실행 버튼용)
+// ROUTINE_TOKEN  : (선택) 예약 작업의 API 트리거 토큰 — 없으면 [프롬프트 실행] 대신 매시 14분 예약 실행으로 처리
 const ON_CLOUD_RUN = !!process.env.K_SERVICE;
 const REPO = process.env.GITHUB_REPO || 'sahmyook-team/sahmyook';
 const BRANCH = process.env.GITHUB_BRANCH || 'main';
@@ -59,8 +59,11 @@ const ROUTINE_ID = process.env.ROUTINE_ID || 'trig_01P9zA8BMadXpTpabwJjtNTy';
 const ROUTINE_FIRE_URL = process.env.ROUTINE_FIRE_URL ||
   `https://api.anthropic.com/v1/claude_code/routines/${ROUTINE_ID}/fire`;
 const ROUTINE_BETA = process.env.ROUTINE_BETA || 'experimental-cc-routine-2026-04-01';
-const SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
-const SECRET_OK = !!process.env.SESSION_SECRET || !ON_CLOUD_RUN; // Cloud Run 에서는 고정 비밀값이 있어야 PIN 이 유지됨
+// 서명 비밀값: SESSION_SECRET 이 있으면 그것, 없으면 GITHUB_TOKEN 에서 만든 값(토큰을 바꾸면 PIN 을 다시 정해야 함)
+const SECRET = process.env.SESSION_SECRET
+  || (process.env.GITHUB_TOKEN && crypto.createHash('sha256').update(`sahmyook-session:${process.env.GITHUB_TOKEN}`).digest('hex'))
+  || crypto.randomBytes(32).toString('hex');
+const SECRET_OK = !!(process.env.SESSION_SECRET || process.env.GITHUB_TOKEN) || !ON_CLOUD_RUN; // Cloud Run 에서는 고정 비밀값이 있어야 PIN 이 유지됨
 
 // ── 공통 도우미 ─────────────────────────────────────────────────────────
 const kst = (d = new Date()) => {
