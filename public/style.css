@@ -277,3 +277,8 @@ a.person:hover{border-color:var(--care);transform:translateY(-2px)}
 .term-out{margin:0;background:#1b1a18;color:#e9e3da;padding:14px 16px;min-height:160px;max-height:420px;overflow:auto;
   font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word}
 .term-out a{color:#6cc3bc}
+.login-new{font-size:.75rem;font-weight:700;color:var(--care);margin-left:2px}
+.login-name[aria-pressed="true"] .login-new{color:inherit}
+.login-change{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:20px}
+.login-change h2{margin:0 0 14px;font-size:1.05rem}
+.login-change input{font-size:1.1rem;letter-spacing:.2em;width:9em}

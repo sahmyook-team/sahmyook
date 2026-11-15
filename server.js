@@ -28,9 +28,8 @@ const routes = {
 for (const p of PEOPLE) routes[`/people/${p.slug}`] = { type: HTML, body: pub('people', `${p.slug}.html`) };
 
 // ── 설정 (Cloud Run 환경 변수) ──────────────────────────────────────────
-// SAHM_PINS      : {"전경철":"1234", ...}  사람별 4자리 PIN (저장소에 넣지 않음)
-// SESSION_SECRET : 로그인 쿠키 서명용 임의 문자열
-// GITHUB_TOKEN   : sahmyook-team/sahmyook Contents 읽기·쓰기 권한 토큰 (sahm.txt 저장용)
+// SESSION_SECRET : 로그인 쿠키와 PIN 저장값(HMAC)을 만드는 비밀 문자열 — 바뀌면 모든 PIN을 다시 정해야 함
+// GITHUB_TOKEN   : sahmyook-team/sahmyook Contents 읽기·쓰기 권한 토큰 (sahm.txt, pins.json 저장용)
 // ROUTINE_TOKEN  : 예약 작업(sahm_all 자동 반영)의 API 트리거 토큰 (실행 버튼용)
 const ON_CLOUD_RUN = !!process.env.K_SERVICE;
 const REPO = process.env.GITHUB_REPO || 'sahmyook-team/sahmyook';
@@ -40,8 +39,7 @@ const ROUTINE_FIRE_URL = process.env.ROUTINE_FIRE_URL ||
   `https://api.anthropic.com/v1/claude_code/routines/${ROUTINE_ID}/fire`;
 const ROUTINE_BETA = process.env.ROUTINE_BETA || 'experimental-cc-routine-2026-04-01';
 const SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
-let PINS = {};
-try { PINS = JSON.parse(process.env.SAHM_PINS || '{}'); } catch { console.error('SAHM_PINS is not valid JSON'); }
+const SECRET_OK = !!process.env.SESSION_SECRET || !ON_CLOUD_RUN; // Cloud Run 에서는 고정 비밀값이 있어야 PIN 이 유지됨
 
 // ── 공통 도우미 ─────────────────────────────────────────────────────────
 const kst = (d = new Date()) => {
@@ -146,6 +144,53 @@ async function appendSahm(line, message) {
   throw new Error('다른 저장과 겹쳐 저장하지 못했습니다. 잠시 뒤 다시 보내 주세요.');
 }
 
+// ── PIN 저장 (각자 정한 PIN — 원문이 아니라 HMAC 값만 pins.json 에 저장) ──
+const LOCAL_PINS = path.join(path.dirname(LOCAL_FILE), 'pins.json');
+let pinCache = { data: null, sha: null, at: 0 };
+const pinHash = (name, pin) => crypto.createHmac('sha256', SECRET).update(`pin:${name}:${pin}`).digest('hex');
+
+async function readPins(fresh = false) {
+  const mode = storageMode();
+  if (mode === 'local') return { data: fs.existsSync(LOCAL_PINS) ? JSON.parse(fs.readFileSync(LOCAL_PINS, 'utf8')) : {}, sha: null };
+  if (mode === 'none') return { data: {}, sha: null };
+  if (!fresh && pinCache.data && Date.now() - pinCache.at < 15e3) return pinCache;
+  const r = await gh(`pins.json?ref=${BRANCH}`);
+  if (r.status === 404) { pinCache = { data: {}, sha: null, at: Date.now() }; return pinCache; }
+  if (!r.ok) throw new Error(`GitHub 읽기 실패 (${r.status})`);
+  const j = await r.json();
+  pinCache = { data: JSON.parse(Buffer.from(j.content, 'base64').toString('utf8') || '{}'), sha: j.sha, at: Date.now() };
+  return pinCache;
+}
+
+async function savePin(name, hash, { onlyIfEmpty }) {
+  const mode = storageMode();
+  if (mode === 'none') throw Object.assign(new Error('저장소 연결(GITHUB_TOKEN)이 아직 설정되지 않아 PIN을 저장할 수 없습니다. 관리자에게 알려 주세요.'), { code: 503 });
+  if (!SECRET_OK) throw Object.assign(new Error('SESSION_SECRET 이 설정되지 않아 PIN을 저장할 수 없습니다. 관리자에게 알려 주세요.'), { code: 503 });
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data, sha } = await readPins(true);
+    if (onlyIfEmpty && data[name]) throw Object.assign(new Error(`${name}님의 PIN은 이미 정해져 있습니다. 로그인해 주세요.`), { code: 409 });
+    const next = { ...data, [name]: { h: hash, at: kst() } };
+    const text = JSON.stringify(next, null, 2) + '\n';
+    if (mode === 'local') {
+      fs.mkdirSync(path.dirname(LOCAL_PINS), { recursive: true });
+      fs.writeFileSync(LOCAL_PINS, text);
+      return;
+    }
+    const r = await gh('pins.json', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `set PIN: ${bySlugName(name)}`, content: Buffer.from(text).toString('base64'), ...(sha ? { sha } : {}), branch: BRANCH }),
+    });
+    if (r.ok) { pinCache.at = 0; return; }
+    if (r.status !== 409 && r.status !== 422) throw new Error(`GitHub 저장 실패 (${r.status})`);
+  }
+  throw new Error('다른 저장과 겹쳐 저장하지 못했습니다. 잠시 뒤 다시 해 주세요.');
+}
+const bySlugName = (name) => (byName[name] ? byName[name].slug : 'unknown');
+const badPin = (pin) => !/^\d{4}$/.test(pin) ? 'PIN은 숫자 4자리입니다.'
+  : /^(\d)\1{3}$/.test(pin) || '0123456789'.includes(pin) || '9876543210'.includes(pin) ? '1111, 1234처럼 쉬운 숫자는 쓸 수 없어요. 다른 4자리를 정해 주세요.' : null;
+const sameHash = (a, b) => a && b && a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+
 // 웹 프롬프트 줄:   [todo] W<id> | 2026-11-15 14:03 | 전경철 | 프롬프트
 // 결과 줄(예약작업): [done] W<id> | 2026-11-15 | 결과 요약   /  [skipped] W<id> | 날짜 | 이유
 function parseLog(text, name) {
@@ -198,7 +243,8 @@ async function api(req, res, url) {
   const me = readSession(req);
   try {
     if (url === '/api/people' && req.method === 'GET') {
-      return send(res, 200, { people: PEOPLE.map((p) => ({ ...p, hasPin: !!PINS[p.name] })) });
+      const { data } = await readPins();
+      return send(res, 200, { people: PEOPLE.map((p) => ({ ...p, hasPin: !!data[p.name] })) });
     }
     if (url === '/api/me' && req.method === 'GET') {
       return send(res, 200, {
@@ -209,13 +255,36 @@ async function api(req, res, url) {
     if (url === '/api/login' && req.method === 'POST') {
       const { name, pin } = await readBody(req);
       if (!byName[name]) return send(res, 400, { error: '이름을 목록에서 골라 주세요.' });
-      if (!PINS[name]) return send(res, 403, { error: `${name}님의 PIN이 아직 등록되지 않았습니다. 관리자에게 알려 주세요.` });
+      const { data } = await readPins(true);
+      if (!data[name]) return send(res, 409, { error: '아직 PIN을 정하지 않았습니다. 사용할 PIN을 먼저 정해 주세요.', needSetup: true });
       if (tooMany(name)) return send(res, 429, { error: 'PIN을 여러 번 틀렸습니다. 15분 뒤에 다시 해 주세요.' });
-      const ok = /^\d{4}$/.test(String(pin)) && crypto.timingSafeEqual(
-        Buffer.from(sign(`pin:${pin}`)), Buffer.from(sign(`pin:${PINS[name]}`)));
-      if (!ok) { noteFailure(name); return send(res, 401, { error: 'PIN이 맞지 않습니다.' }); }
+      if (!/^\d{4}$/.test(String(pin)) || !sameHash(pinHash(name, String(pin)), data[name].h)) {
+        noteFailure(name);
+        return send(res, 401, { error: 'PIN이 맞지 않습니다.' });
+      }
       failures.delete(name);
       return send(res, 200, { name, slug: byName[name].slug }, { 'Set-Cookie': cookie(req, makeSession(name), 30 * 86400) });
+    }
+    if (url === '/api/pin/setup' && req.method === 'POST') { // 처음 한 번: 내 PIN 정하기
+      const { name, pin, pin2 } = await readBody(req);
+      if (!byName[name]) return send(res, 400, { error: '이름을 목록에서 골라 주세요.' });
+      const why = badPin(String(pin || ''));
+      if (why) return send(res, 400, { error: why });
+      if (String(pin) !== String(pin2)) return send(res, 400, { error: '두 번 넣은 PIN이 서로 다릅니다.' });
+      await savePin(name, pinHash(name, String(pin)), { onlyIfEmpty: true });
+      return send(res, 200, { name, slug: byName[name].slug }, { 'Set-Cookie': cookie(req, makeSession(name), 30 * 86400) });
+    }
+    if (url === '/api/pin/change' && req.method === 'POST') { // 로그인한 본인: PIN 바꾸기
+      if (!me) return send(res, 401, { error: '먼저 로그인해 주세요.' });
+      const { oldPin, pin, pin2 } = await readBody(req);
+      const { data } = await readPins(true);
+      if (tooMany(me)) return send(res, 429, { error: 'PIN을 여러 번 틀렸습니다. 15분 뒤에 다시 해 주세요.' });
+      if (!data[me] || !sameHash(pinHash(me, String(oldPin || '')), data[me].h)) { noteFailure(me); return send(res, 401, { error: '지금 PIN이 맞지 않습니다.' }); }
+      const why = badPin(String(pin || ''));
+      if (why) return send(res, 400, { error: why });
+      if (String(pin) !== String(pin2)) return send(res, 400, { error: '두 번 넣은 새 PIN이 서로 다릅니다.' });
+      await savePin(me, pinHash(me, String(pin)), { onlyIfEmpty: false });
+      return send(res, 200, { ok: true });
     }
     if (url === '/api/logout' && req.method === 'POST') {
       return send(res, 200, { ok: true }, { 'Set-Cookie': cookie(req, '', 0) });

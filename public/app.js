@@ -50,11 +50,27 @@
   async function initLogin() {
     const list = $('#login-names');
     if (!list) return;
-    const form = $('#login-form'), pin = $('#login-pin'), btn = $('#login-submit');
+    const form = $('#login-form'), pin = $('#login-pin'), pin2 = $('#login-pin2'), btn = $('#login-submit');
     const who = $('#login-who'), msg = $('#login-msg');
     let chosen = null;
+    let setup = false; // 처음: 내 PIN 정하기
+    const digits = (el) => el.addEventListener('input', () => { el.value = el.value.replace(/\D/g, '').slice(0, 4); });
+    [pin, pin2, $('#change-old'), $('#change-new'), $('#change-new2')].forEach((el) => el && digits(el));
+
+    const mode = (isSetup) => {
+      setup = isSetup;
+      pin2.hidden = !isSetup;
+      pin2.required = isSetup;
+      pin.placeholder = isSetup ? '새 PIN' : '••••';
+      btn.textContent = isSetup ? 'PIN 정하고 로그인' : '로그인';
+      who.textContent = isSetup
+        ? `${chosen.name}님은 처음이시네요. 앞으로 쓸 PIN 4자리를 정해서 두 번 넣어 주세요. (1111, 1234처럼 쉬운 숫자는 안 돼요)`
+        : `${chosen.name}님의 PIN 4자리를 넣어 주세요.`;
+    };
+
     if (me.name) {
-      who.textContent = `이미 ${me.name}님으로 로그인되어 있습니다.`;
+      who.textContent = `지금 ${me.name}님으로 로그인되어 있습니다. 다른 이름으로 바꾸려면 이름을 고르세요.`;
+      $('#pin-change').hidden = false;
     }
     const { people } = await api('/api/people');
     for (const p of people) {
@@ -63,30 +79,47 @@
         onclick: (e) => {
           chosen = p;
           list.querySelectorAll('.login-name').forEach((b) => b.setAttribute('aria-pressed', String(b === e.currentTarget)));
-          who.textContent = p.hasPin ? `${p.name}님의 4자리 PIN을 넣어 주세요.` : `${p.name}님의 PIN이 아직 등록되지 않았습니다. 관리자에게 알려 주세요.`;
-          pin.disabled = btn.disabled = !p.hasPin;
+          pin.disabled = btn.disabled = false;
+          pin.value = pin2.value = '';
           msg.textContent = '';
-          pin.value = '';
-          if (p.hasPin) pin.focus();
+          mode(!p.hasPin);
+          pin.focus();
         },
-      }, p.name)));
+      }, p.name, p.hasPin ? null : h('small', { class: 'login-new' }, ' 처음'))));
     }
-    pin.addEventListener('input', () => { pin.value = pin.value.replace(/\D/g, '').slice(0, 4); });
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!chosen) return;
       if (!/^\d{4}$/.test(pin.value)) { msg.textContent = 'PIN은 숫자 4자리입니다.'; return; }
+      if (setup && pin.value !== pin2.value) { msg.textContent = '두 번 넣은 PIN이 서로 다릅니다.'; return; }
       btn.disabled = true;
-      msg.textContent = '확인하는 중…';
+      msg.textContent = setup ? 'PIN을 저장하는 중…' : '확인하는 중…';
       try {
-        const r = await api('/api/login', { method: 'POST', body: { name: chosen.name, pin: pin.value } });
+        const r = setup
+          ? await api('/api/pin/setup', { method: 'POST', body: { name: chosen.name, pin: pin.value, pin2: pin2.value } })
+          : await api('/api/login', { method: 'POST', body: { name: chosen.name, pin: pin.value } });
         msg.textContent = `${r.name}님, 환영합니다. 내 페이지로 이동합니다.`;
         location.href = `/people/${r.slug}`;
       } catch (err) {
         msg.textContent = err.message;
         btn.disabled = false;
+        if (/아직 PIN을 정하지/.test(err.message)) { chosen.hasPin = false; mode(true); }
+        if (/이미 정해져/.test(err.message)) { chosen.hasPin = true; mode(false); }
         pin.select();
       }
+    });
+
+    const change = $('#change-form');
+    if (change) change.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const cm = $('#change-msg');
+      cm.textContent = '바꾸는 중…';
+      try {
+        await api('/api/pin/change', { method: 'POST', body: { oldPin: $('#change-old').value, pin: $('#change-new').value, pin2: $('#change-new2').value } });
+        cm.textContent = 'PIN을 바꿨습니다. 다음 로그인부터 새 PIN을 쓰세요.';
+        change.reset();
+      } catch (err) { cm.textContent = err.message; }
     });
   }
 

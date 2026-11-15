@@ -57,7 +57,7 @@
 <main>
   <section class="wrap login" aria-labelledby="login-title">
     <h1 id="login-title">로그인</h1>
-    <p class="section-sub">메인페이지에 이름이 있는 참여자는 <b>이름</b>을 고르고 <b>4자리 PIN</b>을 넣으면 로그인됩니다. 로그인하면 내 페이지에서 프롬프트를 보내고 바로 실행할 수 있습니다.</p>
+    <p class="section-sub">메인페이지에 이름이 있는 참여자는 <b>이름</b>을 고르고 <b>4자리 PIN</b>을 넣으면 로그인됩니다. <b>처음이면 내가 쓸 PIN을 직접 정합니다.</b> 로그인하면 내 페이지에서 프롬프트를 보내고 바로 실행할 수 있습니다.</p>
     <ol class="login-steps">
       <li>
         <h2>1. 내 이름 고르기</h2>
@@ -68,18 +68,29 @@
         <form id="login-form" class="login-form" autocomplete="off">
           <p class="login-who" id="login-who">이름을 먼저 골라 주세요.</p>
           <input id="login-pin" name="pin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="••••" aria-label="4자리 PIN" disabled required>
+          <input id="login-pin2" name="pin2" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="한 번 더" aria-label="PIN 한 번 더" hidden>
           <button class="btn primary" type="submit" id="login-submit" disabled>로그인</button>
           <p class="login-msg" id="login-msg" role="status" aria-live="polite"></p>
         </form>
       </li>
     </ol>
-    <p class="login-help">PIN을 모르거나 잊었으면 관리자(전경철)에게 알려 주세요. PIN을 5번 틀리면 15분 동안 로그인할 수 없습니다.</p>
+    <section class="login-change" id="pin-change" hidden aria-labelledby="pin-change-title">
+      <h2 id="pin-change-title">PIN 바꾸기</h2>
+      <form id="change-form" class="login-form" autocomplete="off">
+        <input id="change-old" type="password" inputmode="numeric" maxlength="4" placeholder="지금 PIN" aria-label="지금 PIN" required>
+        <input id="change-new" type="password" inputmode="numeric" maxlength="4" placeholder="새 PIN" aria-label="새 PIN" required>
+        <input id="change-new2" type="password" inputmode="numeric" maxlength="4" placeholder="새 PIN 한 번 더" aria-label="새 PIN 한 번 더" required>
+        <button class="btn ghost" type="submit">PIN 바꾸기</button>
+        <p class="login-msg" id="change-msg" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+    <p class="login-help">처음 로그인할 때 정한 PIN으로 다음부터 로그인합니다. PIN을 잊었으면 관리자(전경철)에게 초기화를 부탁해 주세요. PIN을 5번 틀리면 15분 동안 로그인할 수 없습니다.</p>
   </section>
 </main>
 
 <footer>
   <div class="wrap foot">
-    <span>v4.8 · 2026-11-15 로그인(이름 + 4자리 PIN)·사람 페이지 프롬프트 창·실행 버튼·터미널 추가</span>
+    <span>v4.9 · 2026-11-15 로그인 PIN을 각자 처음 로그인할 때 직접 정하도록 변경 (PIN 바꾸기 추가)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
