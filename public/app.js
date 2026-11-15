@@ -1,0 +1,211 @@
+// sahmyook v4.8 — 로그인 표시, 로그인 페이지, 사람 페이지 프롬프트 창·실행 버튼·터미널
+(() => {
+  const $ = (sel, el = document) => el.querySelector(sel);
+  const h = (tag, attrs = {}, ...kids) => {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === 'class') el.className = v;
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else if (v !== false && v != null) el.setAttribute(k, v === true ? '' : v);
+    }
+    for (const k of kids.flat()) if (k != null) el.append(k.nodeType ? k : document.createTextNode(k));
+    return el;
+  };
+  const api = async (url, opt = {}) => {
+    const r = await fetch(url, {
+      credentials: 'same-origin',
+      headers: opt.body ? { 'Content-Type': 'application/json' } : {},
+      ...opt,
+      body: opt.body ? JSON.stringify(opt.body) : undefined,
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || `오류 (${r.status})`);
+    return j;
+  };
+
+  let me = { name: null };
+
+  // ── 위쪽 메뉴에 로그인 상태 ──────────────────────────────────────────
+  function renderNav() {
+    const ul = $('.site-nav ul');
+    if (!ul) return;
+    const old = $('#nav-auth');
+    if (old) old.remove();
+    const li = h('li', { id: 'nav-auth', class: 'nav-auth' });
+    if (me.name) {
+      li.append(
+        h('a', { href: `/people/${me.slug}`, class: 'nav-me' }, `${me.name}님`),
+        h('button', { type: 'button', class: 'nav-logout', onclick: async () => {
+          await api('/api/logout', { method: 'POST' }).catch(() => {});
+          location.reload();
+        } }, '로그아웃'),
+      );
+    } else {
+      li.append(h('a', { href: '/login', 'aria-current': location.pathname === '/login' ? 'page' : false }, '로그인'));
+    }
+    ul.append(li);
+  }
+
+  // ── 로그인 페이지 ────────────────────────────────────────────────────
+  async function initLogin() {
+    const list = $('#login-names');
+    if (!list) return;
+    const form = $('#login-form'), pin = $('#login-pin'), btn = $('#login-submit');
+    const who = $('#login-who'), msg = $('#login-msg');
+    let chosen = null;
+    if (me.name) {
+      who.textContent = `이미 ${me.name}님으로 로그인되어 있습니다.`;
+    }
+    const { people } = await api('/api/people');
+    for (const p of people) {
+      list.append(h('li', {}, h('button', {
+        type: 'button', class: 'login-name', 'data-name': p.name, 'aria-pressed': 'false',
+        onclick: (e) => {
+          chosen = p;
+          list.querySelectorAll('.login-name').forEach((b) => b.setAttribute('aria-pressed', String(b === e.currentTarget)));
+          who.textContent = p.hasPin ? `${p.name}님의 4자리 PIN을 넣어 주세요.` : `${p.name}님의 PIN이 아직 등록되지 않았습니다. 관리자에게 알려 주세요.`;
+          pin.disabled = btn.disabled = !p.hasPin;
+          msg.textContent = '';
+          pin.value = '';
+          if (p.hasPin) pin.focus();
+        },
+      }, p.name)));
+    }
+    pin.addEventListener('input', () => { pin.value = pin.value.replace(/\D/g, '').slice(0, 4); });
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!chosen) return;
+      if (!/^\d{4}$/.test(pin.value)) { msg.textContent = 'PIN은 숫자 4자리입니다.'; return; }
+      btn.disabled = true;
+      msg.textContent = '확인하는 중…';
+      try {
+        const r = await api('/api/login', { method: 'POST', body: { name: chosen.name, pin: pin.value } });
+        msg.textContent = `${r.name}님, 환영합니다. 내 페이지로 이동합니다.`;
+        location.href = `/people/${r.slug}`;
+      } catch (err) {
+        msg.textContent = err.message;
+        btn.disabled = false;
+        pin.select();
+      }
+    });
+  }
+
+  // ── 사람 페이지: 프롬프트 창 · 실행 버튼 · 터미널 ─────────────────────
+  function initConsole() {
+    const m = location.pathname.match(/^\/people\/([a-z0-9]+)\/?$/);
+    const main = $('main');
+    if (!m || !main) return;
+    const slug = m[1];
+    const isOwner = me.slug === slug;
+
+    const term = h('pre', { class: 'term-out', 'aria-live': 'polite', tabindex: '0', 'aria-label': '진행 상황 터미널' });
+    const status = h('p', { class: 'term-status', role: 'status' });
+    const input = h('textarea', {
+      class: 'term-input', rows: '4', maxlength: '1500',
+      placeholder: isOwner ? '예) 내 페이지에 유바람님이 좋아하는 노래 목록을 만들어줘' : '',
+      'aria-label': '프롬프트', disabled: !isOwner,
+    });
+    const sendBtn = h('button', { type: 'button', class: 'btn primary', disabled: !isOwner }, '프롬프트 보냄');
+    const runBtn = h('button', { type: 'button', class: 'btn ghost', disabled: !isOwner }, '프롬프트 실행');
+
+    let note;
+    if (isOwner) note = '프롬프트를 적고 [프롬프트 보냄]을 누르면 sahm.txt에 저장됩니다. 매시 14분 예약 실행 때 처리되고, [프롬프트 실행]을 누르면 지금 바로 실행합니다.';
+    else if (me.name) note = `${me.name}님으로 로그인되어 있습니다. 프롬프트는 본인 페이지에서만 보낼 수 있어요. 아래 터미널에서 이 페이지의 진행 상황은 볼 수 있습니다.`;
+    else note = h('span', {}, h('a', { href: '/login' }, '로그인'), '하면 내 페이지에서 프롬프트를 보내고 실행할 수 있습니다. 아래 터미널에서 진행 상황은 누구나 볼 수 있습니다.');
+
+    const box = h('section', { class: 'wrap term', 'aria-labelledby': 'term-title' },
+      h('h2', { id: 'term-title' }, '프롬프트 창 · 터미널'),
+      h('p', { class: 'term-note' }, note),
+      h('div', { class: 'term-form' }, input, h('div', { class: 'term-actions' }, sendBtn, runBtn)),
+      status,
+      h('div', { class: 'term-window' },
+        h('div', { class: 'term-bar' }, h('span'), h('span'), h('span'), h('b', {}, `sahmyook — ${slug}`)),
+        term),
+    );
+    main.append(box);
+
+    const say = (t, bad) => { status.textContent = t; status.classList.toggle('bad', !!bad); };
+    const nextRun = () => { // 예약 실행 시각(매시 14분)을 한국시간으로 표시
+      const d = new Date();
+      const n = new Date(d);
+      n.setUTCMinutes(14, 0, 0);
+      if (n <= d) n.setUTCHours(n.getUTCHours() + 1);
+      return `${String((n.getUTCHours() + 9) % 24).padStart(2, '0')}:14`;
+    };
+
+    let timer = null;
+    let lastRunAt = 0;
+    async function refresh() {
+      try {
+        const log = await api(`/api/log?person=${slug}`);
+        const lines = [`$ sahmyook terminal · ${log.person.name} 페이지`, `  다음 예약 실행: ${nextRun()} (매시 14분)`, ''];
+        const mine = log.runs.filter((r) => r.by === log.person.name);
+        for (const r of mine.slice(0, 3)) {
+          lines.push(`▶ ${r.at} 실행 요청 (${r.by})`);
+          if (r.sessionUrl) lines.push(`  ↳ 실행 세션: ${r.sessionUrl}`);
+        }
+        if (mine.length) lines.push('');
+        if (!log.prompts.length) lines.push('  아직 보낸 프롬프트가 없습니다.');
+        for (const p of log.prompts.slice(-15)) {
+          lines.push(`> ${p.at}  ${p.text}`);
+          if (!p.result) lines.push('  … 대기 중 — 다음 실행 때 처리됩니다');
+          else if (p.result.status === 'running') lines.push(`  ⟳ 처리 중 (${p.result.at}) ${p.result.note}`);
+          else if (p.result.status === 'done') lines.push(`  ✓ 완료 (${p.result.at}) ${p.result.note}`);
+          else lines.push(`  ✗ 반영 안 함 (${p.result.at}) ${p.result.note}`);
+          lines.push('');
+        }
+        term.textContent = '';
+        for (const l of lines) {
+          const url = l.match(/https:\/\/\S+/);
+          if (url) {
+            const [a, b] = l.split(url[0]);
+            term.append(a, h('a', { href: url[0], target: '_blank', rel: 'noopener' }, url[0]), b, '\n');
+          } else term.append(l + '\n');
+        }
+        term.scrollTop = term.scrollHeight;
+        const pending = log.prompts.some((p) => !p.result || p.result.status === 'running');
+        clearTimeout(timer);
+        timer = setTimeout(refresh, pending && Date.now() - lastRunAt < 20 * 60e3 ? 5000 : 20000);
+      } catch (e) {
+        term.textContent = `터미널을 불러오지 못했습니다: ${e.message}`;
+        clearTimeout(timer);
+        timer = setTimeout(refresh, 30000);
+      }
+    }
+
+    sendBtn.addEventListener('click', async () => {
+      const text = input.value.trim();
+      if (!text) { say('프롬프트 내용을 적어 주세요.', true); input.focus(); return; }
+      sendBtn.disabled = true;
+      say('sahm.txt에 저장하는 중…');
+      try {
+        await api('/api/prompt', { method: 'POST', body: { person: slug, text } });
+        input.value = '';
+        say(`저장했습니다. ${nextRun()} 예약 실행 때 처리되며, 지금 바로 하려면 [프롬프트 실행]을 누르세요.`);
+        refresh();
+      } catch (e) { say(e.message, true); }
+      sendBtn.disabled = false;
+    });
+
+    runBtn.addEventListener('click', async () => {
+      runBtn.disabled = true;
+      say('실행을 요청하는 중…');
+      try {
+        await api('/api/run', { method: 'POST' });
+        lastRunAt = Date.now();
+        say('실행을 시작했습니다. 처리 결과는 몇 분 안에 터미널에 표시됩니다.');
+        refresh();
+      } catch (e) { say(e.message, true); }
+      runBtn.disabled = false;
+    });
+
+    refresh();
+  }
+
+  (async () => {
+    try { me = await api('/api/me'); } catch { me = { name: null }; }
+    renderNav();
+    initLogin().catch((e) => { const m = $('#login-msg'); if (m) m.textContent = e.message; });
+    initConsole();
+  })();
+})();

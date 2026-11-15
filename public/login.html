@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>로그인 · sahmyook</title>
+<meta name="description" content="sahmyook 참여자 로그인 (이름 + 4자리 PIN)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 27s-10-6.2-10-13.2A5.6 5.6 0 0 1 16 10a5.6 5.6 0 0 1 10 3.8C26 20.8 16 27 16 27z" fill="var(--care)"/>
+        <circle cx="16" cy="16" r="3" fill="var(--bg)"/><circle cx="16" cy="16" r="1.6" fill="var(--ai)"/>
+      </svg>
+      sahmyook <small>돌봄 × 인공지능</small>
+    </a>
+    <nav class="site-nav" aria-label="주 메뉴">
+      <ul>
+        <li><a href="/">홈</a></li>
+        <li><a href="/#values">우리가 만드는 것</a></li>
+        <li><a href="/#join">참여 방법</a></li>
+        <li><a href="/#how">만드는 과정</a></li>
+        <li><a href="/#people">함께 만든 사람</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<nav class="people-nav" aria-label="사람 페이지">
+  <div class="wrap">
+    <span class="people-nav-label">사람</span>
+    <ul>
+      <li><a href="/people/kyungcheol">전경철</a></li>
+      <li><a href="/people/gyuwan">임규완</a></li>
+      <li><a href="/people/hongjin">오홍진</a></li>
+      <li><a href="/people/juyeon">김주연</a></li>
+      <li><a href="/people/jeongmin">이정민</a></li>
+      <li><a href="/people/youngsook">김영숙</a></li>
+      <li><a href="/people/yongju">김용주</a></li>
+      <li><a href="/people/seongwon">왕성원</a></li>
+      <li><a href="/people/kyunghee">김경희</a></li>
+      <li><a href="/people/areum">박아름</a></li>
+      <li><a href="/people/hyejin">김혜진</a></li>
+      <li><a href="/people/dongseok">최동석</a></li>
+      <li><a href="/people/hyunju">이현주</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <section class="wrap login" aria-labelledby="login-title">
+    <h1 id="login-title">로그인</h1>
+    <p class="section-sub">메인페이지에 이름이 있는 참여자는 <b>이름</b>을 고르고 <b>4자리 PIN</b>을 넣으면 로그인됩니다. 로그인하면 내 페이지에서 프롬프트를 보내고 바로 실행할 수 있습니다.</p>
+    <ol class="login-steps">
+      <li>
+        <h2>1. 내 이름 고르기</h2>
+        <ul class="login-names" id="login-names" aria-label="참여자 이름"></ul>
+      </li>
+      <li>
+        <h2>2. PIN 4자리</h2>
+        <form id="login-form" class="login-form" autocomplete="off">
+          <p class="login-who" id="login-who">이름을 먼저 골라 주세요.</p>
+          <input id="login-pin" name="pin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="••••" aria-label="4자리 PIN" disabled required>
+          <button class="btn primary" type="submit" id="login-submit" disabled>로그인</button>
+          <p class="login-msg" id="login-msg" role="status" aria-live="polite"></p>
+        </form>
+      </li>
+    </ol>
+    <p class="login-help">PIN을 모르거나 잊었으면 관리자(전경철)에게 알려 주세요. PIN을 5번 틀리면 15분 동안 로그인할 수 없습니다.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>v4.8 · 2026-11-15 로그인(이름 + 4자리 PIN)·사람 페이지 프롬프트 창·실행 버튼·터미널 추가</span>
+    <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
+  </div>
+</footer>
+
+<script src="/app.js" defer></script>
+</body>
+</html>
