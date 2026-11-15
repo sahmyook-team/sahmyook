@@ -78,3 +78,4 @@
 [running] Wmwhwdnq9 | 22:57 | 처리 중 — 전경철 페이지 하단에 copyright carebuy 문구 추가
 [done] Wmwhwdnq9 | 2026-11-15 | 전경철 페이지 하단(푸터)에 'Copyright © carebuy' 문구를 넣고 버전 줄을 내 페이지 변경으로 바꿨습니다 (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/kyungcheol)
 [todo] Wmwhx7dcz | 2026-11-15 23:19 | 전경철 | copy right 행 지원줘. 실행해줘
+[running] Wmwhx7dcz | 23:19 | 처리 중 — 전경철 페이지 하단의 copyright 줄 삭제
