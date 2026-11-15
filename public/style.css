@@ -285,3 +285,6 @@ a.person:hover{border-color:var(--care);transform:translateY(-2px)}
 .join-form{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .join-form .join-input{flex:1 1 200px;width:auto}
 .join-form .btn{border:0;font:inherit;font-weight:700;cursor:pointer}
+.drive-folder{padding-top:8px;padding-bottom:8px}
+.drive-folder h2{margin:0 0 6px;font-size:1.3rem}
+.drive-folder p{margin:0 0 12px;color:var(--muted)}
