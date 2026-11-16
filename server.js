@@ -376,20 +376,14 @@ async function api(req, res, url) {
   }
 }
 
-// ── 결재검토 (careworld-in 과 분리: /approval 페이지, /api/approval/* API, 별도 계정·쿠키) ──
-const approvalApi = require('./approval/server-approval')({
-  send, readBody, sign, cookie, readSahm, readPins, savePin, badPin, sameHash, tooMany, noteFailure, kst,
-  storageMode, ON_CLOUD_RUN, SECRET_OK, fireRoutine,
-});
+// 결재검토: careworld-in 과 따로 떨어진 안내 페이지(링크만). 검토는 예약작업이 Drive 결재 폴더에서 함 (approval/ROUTINE.md)
 routes['/approval'] = { type: HTML, body: pub('approval', 'index.html') };
-routes['/approval/app.js'] = { type: 'text/javascript; charset=utf-8', body: pub('approval', 'approval.js') };
 routes['/approval/style.css'] = { type: 'text/css; charset=utf-8', body: pub('approval', 'approval.css') };
 
 http.createServer((req, res) => {
   let url = req.url.split('?')[0].split('#')[0];
   if (url.length > 1 && url.endsWith('/')) url = url.slice(0, -1);
   if (url === '/healthz') { res.writeHead(200); return res.end('ok'); }
-  if (url.startsWith('/api/approval/')) return approvalApi(req, res, url);
   if (url.startsWith('/api/')) return api(req, res, url);
   const r = routes[url];
   const mm = !r && url.match(/^\/people\/([a-z0-9-]+)$/);

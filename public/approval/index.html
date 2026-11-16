@@ -14,67 +14,36 @@
 <header class="ap-head">
   <div class="ap-wrap ap-head-in">
     <span class="ap-brand"><span class="ap-mark" aria-hidden="true">✓</span>결재검토</span>
-    <span class="ap-user" id="ap-user"></span>
   </div>
 </header>
 
 <main class="ap-wrap">
-  <section id="ap-login" class="ap-card ap-login" hidden aria-labelledby="ap-login-title">
-    <h1 id="ap-login-title">결재검토 담당자 로그인</h1>
-    <p class="ap-muted">결재검토 담당자로 등록된 <b>id</b>와 <b>4자리 PIN</b>으로 로그인합니다. 처음이면 쓸 PIN을 직접 정합니다.</p>
-    <form id="ap-login-form" autocomplete="off">
-      <label>id <input id="ap-id" autocapitalize="off" spellcheck="false" required></label>
-      <label>PIN <input id="ap-pin" type="password" inputmode="numeric" maxlength="4" required></label>
-      <label id="ap-pin2-wrap" hidden>PIN 한 번 더 <input id="ap-pin2" type="password" inputmode="numeric" maxlength="4"></label>
-      <button class="ap-btn primary" type="submit">로그인</button>
-      <p class="ap-msg" id="ap-login-msg" role="status" aria-live="polite"></p>
-    </form>
+  <section class="ap-card" aria-labelledby="ap-links-title">
+    <h1 id="ap-links-title">바로가기</h1>
+    <div class="ap-links">
+      <a class="ap-link" href="https://drive.google.com/drive/folders/1niB7h-8MpRySPdhMHMGa5ZU79G64remY" target="_blank" rel="noopener">
+        <b>결재 폴더</b><span>검토할 결재 zip 파일을 여기에 올립니다</span>
+      </a>
+      <a class="ap-link" href="https://drive.google.com/drive/folders/13Y5w9t2ijPW-gYSexvNY34Pk1DP1RLTi" target="_blank" rel="noopener">
+        <b>보고서 폴더</b><span>검토가 끝나면 보고서가 여기에 생깁니다</span>
+      </a>
+      <a class="ap-link" href="https://app.slack.com/client" target="_blank" rel="noopener">
+        <b>Slack</b><span>팀 대화방 열기</span>
+      </a>
+    </div>
   </section>
 
-  <div id="ap-app" hidden>
-    <section class="ap-card" aria-labelledby="ap-up-title">
-      <h2 id="ap-up-title">1. 결재 파일 올리기</h2>
-      <p class="ap-muted">전자결재에서 내려받은 <b>zip</b> 파일을 그대로 끌어다 놓으세요(1건 = zip 1개, 한 번에 최대 10건, 파일당 30MB까지). [검토 실행]을 누르면 서버가 개인정보를 가린 자료만 비공개 결재 폴더에 올리고 AI 검토를 바로 시작합니다. 올린 zip 원본은 서버에서 바로 지워집니다.</p>
-      <label class="ap-drop" id="ap-drop">
-        <input type="file" id="ap-file" accept=".zip,application/zip" multiple hidden>
-        <span>여기에 zip 파일을 끌어다 놓거나 <u>눌러서 고르기</u></span>
-      </label>
-      <ul class="ap-files" id="ap-files"></ul>
-      <div class="ap-actions">
-        <button class="ap-btn primary" id="ap-run" type="button" disabled>검토 실행</button>
-        <span class="ap-msg" id="ap-run-msg" role="status" aria-live="polite"></span>
-      </div>
-    </section>
-
-    <section class="ap-card" id="ap-jobs-card" hidden aria-labelledby="ap-jobs-title">
-      <h2 id="ap-jobs-title">AI 검토 진행</h2>
-      <p class="ap-muted">AI 검토는 보통 5~10분 걸립니다. 이 창을 닫아도 검토는 계속되고, 다시 들어오면 결과가 보고서로 정리됩니다.</p>
-      <ul class="ap-jobs" id="ap-jobs"></ul>
-    </section>
-
-    <section class="ap-card" id="ap-report-card" hidden aria-labelledby="ap-rep-title">
-      <div class="ap-row">
-        <h2 id="ap-rep-title">2. 검토 보고서</h2>
-        <div class="ap-actions">
-          <button class="ap-btn" id="ap-word" type="button">Word로 내려받기</button>
-          <button class="ap-btn" id="ap-pdf" type="button">PDF로 저장(인쇄)</button>
-        </div>
-      </div>
-      <article class="ap-report" id="ap-report"></article>
-    </section>
-
-    <section class="ap-card" aria-labelledby="ap-past-title">
-      <h2 id="ap-past-title">지난 보고서</h2>
-      <p class="ap-muted" id="ap-keep"></p>
-      <table class="ap-table">
-        <thead><tr><th>날짜</th><th>건수</th><th>확인 필요</th><th></th></tr></thead>
-        <tbody id="ap-past"><tr><td colspan="4">불러오는 중…</td></tr></tbody>
-      </table>
-    </section>
-  </div>
+  <section class="ap-card" aria-labelledby="ap-how-title">
+    <h2 id="ap-how-title">쓰는 방법</h2>
+    <ol class="ap-steps">
+      <li>전자결재에서 내려받은 <b>zip</b> 파일(1건 = zip 1개)을 <b>결재 폴더</b>에 그대로 올립니다.</li>
+      <li>매시 14분에 자동으로 검토가 시작됩니다. 개인정보(주민번호·면허번호 등)를 먼저 가린 뒤 AI가 결재 검토 규칙대로 확인합니다.</li>
+      <li>검토가 끝나면 <b>보고서 폴더</b>에 보고서가 생기고, 검토한 zip 파일은 결재 폴더에서 지워집니다.</li>
+    </ol>
+    <p class="ap-muted">결재 폴더와 보고서 폴더는 비공개입니다. 폴더 권한이 있는 사람만 열 수 있습니다. 보고서는 90일 동안 보관됩니다.</p>
+  </section>
 </main>
 
-<footer class="ap-wrap ap-foot">결재검토 · 검토 기준: 결재 검토 규칙(GSC 나에안식 / 주거유지지원사업) · 주민등록번호·면허번호·주소는 보고서에 남기지 않습니다</footer>
-<script src="/approval/app.js" defer></script>
+<footer class="ap-wrap ap-foot">결재검토 · careworld-in과 별도로 운영됩니다 · 주민등록번호·면허번호·주소는 보고서에 남기지 않습니다</footer>
 </body>
 </html>
