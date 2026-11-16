@@ -2,7 +2,9 @@
 // - 담당자 계정: sahm.txt 의 "[reviewer] 영문id | 이름 | 시각 | 등록한 사람" 줄. careworld-in 사람 목록과 섞이지 않음
 // - 로그인: 영문 id + 4자리 PIN (처음엔 직접 정함). PIN 은 pins.json 의 "reviewer:<id>" 키에 HMAC 값만 저장
 // - 세션 쿠키도 따로(appr_session). careworld-in 로그인으로는 결재검토 API 에 들어올 수 없음
-// - 결재 파일은 요청 하나 안에서 검토하고 바로 지움. 보고서는 Google Drive 비공개 폴더(REVIEW_FOLDER_ID)에만 90일 보관
+// - 검토 방식(루틴): 서버가 zip 을 풀어 개인정보를 가린 자료만 Drive 결재 폴더의 작업 폴더에 올리고,
+//   예약작업(루틴)을 바로 실행 → 루틴이 검토해 result.json 을 쓰면 서버가 보고서로 만들고 작업 폴더를 지움
+// - 업로드 원본 zip 은 요청 안에서 바로 지움. 보고서는 Google Drive 비공개 폴더(REVIEW_FOLDER_ID)에만 90일 보관
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -11,10 +13,12 @@ const { spawn } = require('child_process');
 
 const KEEP_DAYS = Number(process.env.REVIEW_KEEP_DAYS || 90);
 const MAX_ZIP = 30 * 1024 * 1024; // Cloud Run 요청 크기 한도(32MiB) 안쪽
-const FOLDER = process.env.REVIEW_FOLDER_ID || '';
+const FOLDER = process.env.REVIEW_FOLDER_ID || '1niB7h-8MpRySPdhMHMGa5ZU79G64remY'; // work/결재 (공유 드라이브에 있어야 서비스 계정이 파일을 만들 수 있음)
 const WORKER = path.join(__dirname, 'review.py');
 const PY = process.env.PYTHON || 'python3';
 const LOCAL_REPORTS = path.join(__dirname, '..', 'data', 'approval-reports');
+const LOCAL_JOBS = path.join(__dirname, '..', 'data', 'approval-jobs');
+const JOB_TTL = 2 * 864e5; // 결과 없이 이틀 지난 작업 폴더는 지움
 const RRN = /\d{6}\s*-?\s*[1-8]\d{6}/g;
 const LICENSE = /\d{2}\s*-\s*\d{6}\s*-\s*\d{2}/g;
 const scrub = (t) => String(t || '').replace(RRN, '[주민번호 가림]').replace(LICENSE, '[면허번호 가림]');
@@ -68,7 +72,7 @@ module.exports = function approval(d) {
     tok = { value: j.access_token, exp: Date.now() + j.expires_in * 1000 };
     return tok.value;
   }
-  const storeMode = () => (FOLDER && d.ON_CLOUD_RUN ? 'drive' : d.ON_CLOUD_RUN ? 'none' : 'local');
+  const storeMode = () => (process.env.APPROVAL_STORE || (FOLDER && d.ON_CLOUD_RUN ? 'drive' : d.ON_CLOUD_RUN ? 'none' : 'local'));
   const DRIVE = 'https://www.googleapis.com/drive/v3/files';
   async function drive(url, opt = {}) {
     const r = await fetch(url, { ...opt, headers: { Authorization: `Bearer ${await driveToken()}`, ...(opt.headers || {}) } });
@@ -130,6 +134,131 @@ module.exports = function approval(d) {
     return (await drive(`${DRIVE}/${it.fileId}?alt=media&supportsAllDrives=true`)).text();
   }
 
+
+  // ── 검토 작업 (루틴이 읽는 가린 자료 꾸러미) ───────────────────────────
+  // Drive: REVIEW_FOLDER_ID 안에 "결재검토작업_<jid>" 폴더 (appProperties kind=approval-job, owner, jid)
+  //   NN_case.json, NN_imgMM.png  ← 서버가 올림 (가린 자료만)
+  //   request.json                ← 서버가 [검토 실행] 때 씀 (건 목록)
+  //   running.txt / result.json   ← 루틴이 씀
+  const newJid = () => `J${Date.now().toString(36)}${crypto.randomBytes(3).toString('hex')}`;
+  async function driveUpload(parent, name, mime, buf, appProperties) {
+    const boundary = `b${crypto.randomBytes(8).toString('hex')}`;
+    const meta = JSON.stringify({ name, parents: [parent], mimeType: mime, ...(appProperties ? { appProperties } : {}) });
+    const body = Buffer.concat([
+      Buffer.from(`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: ${mime}\r\n\r\n`),
+      buf, Buffer.from(`\r\n--${boundary}--`)]);
+    const r = await drive('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true&fields=id', {
+      method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body,
+    });
+    return (await r.json()).id;
+  }
+  async function driveList(q, fields = 'files(id,name,mimeType,createdTime,appProperties)') {
+    const r = await drive(`${DRIVE}?q=${encodeURIComponent(q)}&fields=${encodeURIComponent(fields)}&pageSize=200`
+      + '&supportsAllDrives=true&includeItemsFromAllDrives=true');
+    return (await r.json()).files || [];
+  }
+  async function driveText(f) {
+    const url = f.mimeType === 'application/vnd.google-apps.document'
+      ? `${DRIVE}/${f.id}/export?mimeType=text/plain` : `${DRIVE}/${f.id}?alt=media&supportsAllDrives=true`;
+    return (await drive(url)).text();
+  }
+
+  async function createJob(owner) {
+    const jid = newJid();
+    const created = new Date().toISOString();
+    if (storeMode() === 'local') {
+      fs.mkdirSync(path.join(LOCAL_JOBS, jid), { recursive: true });
+      fs.writeFileSync(path.join(LOCAL_JOBS, jid, '.meta.json'), JSON.stringify({ owner, jid, created }));
+      return jid;
+    }
+    if (storeMode() === 'none') throw Object.assign(new Error('결재 폴더(REVIEW_FOLDER_ID)가 아직 설정되지 않았습니다. 관리자에게 알려 주세요.'), { code: 503 });
+    const r = await drive(`${DRIVE}?supportsAllDrives=true&fields=id`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: `결재검토작업_${jid}`, mimeType: 'application/vnd.google-apps.folder', parents: [FOLDER],
+        appProperties: { kind: 'approval-job', owner, jid, created } }),
+    });
+    await r.json();
+    return jid;
+  }
+  // 작업 목록 (owner 의 것만). 각 항목: { jid, created, ref, files: [{name, ...}] }
+  async function listJobs(owner, onlyJid) {
+    const out = [];
+    if (storeMode() === 'local') {
+      if (!fs.existsSync(LOCAL_JOBS)) return out;
+      for (const jid of fs.readdirSync(LOCAL_JOBS)) {
+        if (onlyJid && jid !== onlyJid) continue;
+        const dir = path.join(LOCAL_JOBS, jid);
+        let meta;
+        try { meta = JSON.parse(fs.readFileSync(path.join(dir, '.meta.json'), 'utf8')); } catch { continue; }
+        if (meta.owner !== owner) continue;
+        out.push({ jid, created: meta.created, ref: dir, files: fs.readdirSync(dir).filter((n) => n !== '.meta.json').map((name) => ({ name })) });
+      }
+      return out;
+    }
+    if (storeMode() !== 'drive') return out;
+    let q = `'${FOLDER}' in parents and trashed=false and mimeType='application/vnd.google-apps.folder'`
+      + ` and appProperties has { key='kind' and value='approval-job' } and appProperties has { key='owner' and value='${owner}' }`;
+    if (onlyJid) q += ` and appProperties has { key='jid' and value='${onlyJid}' }`;
+    for (const f of await driveList(q)) {
+      const files = await driveList(`'${f.id}' in parents and trashed=false`, 'files(id,name,mimeType)');
+      out.push({ jid: f.appProperties.jid, created: f.appProperties.created || f.createdTime, ref: f.id, files });
+    }
+    return out;
+  }
+  async function jobPut(job, name, mime, buf) {
+    if (storeMode() === 'local') return fs.writeFileSync(path.join(job.ref, name), buf);
+    return driveUpload(job.ref, name, mime, buf);
+  }
+  async function jobRead(job, name) {
+    const f = job.files.find((x) => x.name === name || x.name === name.replace(/\.json$/, ''));
+    if (!f) return null;
+    if (storeMode() === 'local') return fs.readFileSync(path.join(job.ref, f.name), 'utf8');
+    return driveText(f);
+  }
+  async function jobDelete(job) {
+    if (storeMode() === 'local') return fs.rmSync(job.ref, { recursive: true, force: true });
+    await drive(`${DRIVE}/${job.ref}?supportsAllDrives=true`, { method: 'DELETE' });
+  }
+  const has = (job, name) => job.files.some((x) => x.name === name || x.name === name.replace(/\.json$/, ''));
+
+  // 작업 상태를 보고, 루틴 결과가 있으면 보고서로 만들고 작업 폴더를 지운다
+  async function settle(owner, job) {
+    const age = Date.now() - new Date(job.created).getTime();
+    if (has(job, 'result.json')) {
+      let res;
+      try { res = JSON.parse(String(await jobRead(job, 'result.json')).replace(/^﻿/, '').trim()); } catch {
+        return { jid: job.jid, status: 'running', created: job.created };
+      }
+      const req = JSON.parse((await jobRead(job, 'request.json')) || '{}');
+      const byN = new Map((res.cases || []).map((c) => [Number(c.n), c]));
+      const cases = (req.cases || []).map((c) => {
+        const r = byN.get(Number(c.n));
+        return r ? { ...r, file: c.file } : { file: c.file, failed: true, error: 'AI 검토 결과가 없음 - 직접 확인 필요' };
+      }).concat((req.failed || []).map((f) => ({ file: f.file, failed: true, error: f.error })));
+      const clean = cleanCases(cases);
+      const { markdown, flagged } = buildReport(clean, scrub(res.summary || '').slice(0, 300));
+      const rid = await saveReport(owner, { count: clean.length, flagged }, markdown);
+      await jobDelete(job).catch((e) => console.error('approval job delete:', e.message));
+      return { jid: job.jid, status: 'done', created: job.created, report: rid, markdown, count: clean.length, flagged };
+    }
+    if (age > JOB_TTL || (!has(job, 'request.json') && age > 6 * 3600e3)) { // 버려진 작업
+      await jobDelete(job).catch(() => {});
+      return { jid: job.jid, status: 'expired', created: job.created };
+    }
+    if (!has(job, 'request.json')) return { jid: job.jid, status: 'preparing', created: job.created };
+    return { jid: job.jid, status: has(job, 'running.txt') ? 'running' : 'waiting', created: job.created };
+  }
+
+  function cleanCases(cases) {
+    return cases.slice(0, 50).map((c) => ({
+      file: scrub(c.file).slice(0, 200), title: scrub(c.title).slice(0, 300), drafter: scrub(c.drafter).slice(0, 100),
+      amount: scrub(c.amount).slice(0, 100), needs_check: !!c.needs_check, ok_note: scrub(c.ok_note).slice(0, 500),
+      issues: (Array.isArray(c.issues) ? c.issues : []).slice(0, 30).map((x) => scrub(x).slice(0, 800)),
+      pii_notes: (Array.isArray(c.pii_notes) ? c.pii_notes : []).slice(0, 30).map((x) => scrub(x).slice(0, 300)),
+      failed: !!c.failed, error: scrub(c.error).slice(0, 300),
+    }));
+  }
+
   // ── 보고서 형식 (규칙.md 의 결과 형식) ────────────────────────────────
   function buildReport(cases, summary) {
     const day = d.kst().slice(0, 10);
@@ -179,7 +308,7 @@ module.exports = function approval(d) {
       if (url === '/api/approval/me' && req.method === 'GET') {
         const id = readSession(req);
         const r = id ? await findReviewer(id) : null;
-        return d.send(res, 200, { id: r ? r.id : null, name: r ? r.name : null, ready: d.storageMode() !== 'none' && d.SECRET_OK, store: storeMode(), keepDays: KEEP_DAYS });
+        return d.send(res, 200, { id: r ? r.id : null, name: r ? r.name : null, ready: d.storageMode() !== 'none' && d.SECRET_OK, store: storeMode(), keepDays: KEEP_DAYS, canRun: !!process.env.ROUTINE_TOKEN });
       }
       if (url === '/api/approval/login' && req.method === 'POST') {
         const { id, pin, pin2 } = await d.readBody(req);
@@ -208,9 +337,22 @@ module.exports = function approval(d) {
       const me = readSession(req);
       if (!me || !(await findReviewer(me))) return d.send(res, 403, { error: '결재검토 담당자만 쓸 수 있습니다.' });
 
-      if (url === '/api/approval/review' && req.method === 'POST') { // zip 1개 = 결재 1건
+      if (url === '/api/approval/jobs' && req.method === 'POST') { // 새 검토 작업
+        const jid = await createJob(me);
+        return d.send(res, 200, { job: jid });
+      }
+      if (url === '/api/approval/jobs' && req.method === 'GET') { // 내 진행 중 작업 (끝난 것은 보고서로 정리)
+        const out = [];
+        for (const job of await listJobs(me)) out.push(await settle(me, job));
+        return d.send(res, 200, { jobs: out.filter((j) => j.status !== 'expired').map(({ markdown, ...j }) => j) });
+      }
+      if (url === '/api/approval/upload' && req.method === 'POST') { // zip 1개 = 결재 1건 → 가린 자료 꾸러미
         const fname = decodeURIComponent(String(req.headers['x-file-name'] || 'upload.zip')).replace(/[\\/]/g, '_').slice(0, 200);
+        const n = Number(req.headers['x-case-index']);
         if (!/\.zip$/i.test(fname)) return d.send(res, 400, { error: 'zip 파일만 올릴 수 있습니다.' });
+        if (!Number.isInteger(n) || n < 1 || n > 50) return d.send(res, 400, { error: '건 번호가 잘못되었습니다.' });
+        const [job] = await listJobs(me, String(req.headers['x-job'] || ''));
+        if (!job || has(job, 'request.json')) return d.send(res, 404, { error: '검토 작업을 찾을 수 없습니다. 다시 시작해 주세요.' });
         const work = fs.mkdtempSync(path.join(os.tmpdir(), 'appr-'));
         try {
           const zpath = path.join(work, 'in.zip');
@@ -225,36 +367,63 @@ module.exports = function approval(d) {
           res.writeHead(200, { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-store', 'X-Accel-Buffering': 'no' });
           const fixed = path.join(work, fname);
           fs.renameSync(zpath, fixed);
-          let gotCase = false;
-          await runWorker(['case', fixed, work], null, (o) => {
-            if (o.type === 'case') gotCase = true;
+          const pkg = path.join(work, 'pkg');
+          let ok = false;
+          let doneLine = null;
+          await runWorker(['prep', fixed, path.join(work, 'w'), pkg], null, (o) => {
+            if (o.type === 'prepared') { ok = true; return; }
+            if (o.type === 'stage' && o.stage === 'done') { doneLine = o; return; } // 올리기까지 끝나야 완료
             res.write(JSON.stringify(o) + '\n');
           });
-          if (!gotCase) res.write(JSON.stringify({ type: 'error', msg: '검토하지 못했습니다.' }) + '\n');
+          if (!ok) { res.write(JSON.stringify({ type: 'error', msg: '자료를 준비하지 못했습니다.' }) + '\n'); return res.end(); }
+          res.write(JSON.stringify({ type: 'stage', stage: 'upload', msg: '결재 폴더에 올리기' }) + '\n');
+          const pre = String(n).padStart(2, '0');
+          for (const f of fs.readdirSync(pkg).sort()) {
+            await jobPut(job, `${pre}_${f}`, f.endsWith('.png') ? 'image/png' : 'application/json', fs.readFileSync(path.join(pkg, f)));
+          }
+          res.write(JSON.stringify(doneLine || { type: 'stage', stage: 'done' }) + '\n');
+          res.write(JSON.stringify({ type: 'prepared', n, file: fname }) + '\n');
           return res.end();
         } catch (e) {
           if (!res.headersSent) return d.send(res, 400, { error: e.message });
           res.write(JSON.stringify({ type: 'error', msg: e.message }) + '\n');
           return res.end();
         } finally {
-          fs.rmSync(work, { recursive: true, force: true }); // 원본·중간 파일 즉시 삭제
+          fs.rmSync(work, { recursive: true, force: true }); // 원본 zip·중간 파일 즉시 삭제
         }
       }
-      if (url === '/api/approval/report' && req.method === 'POST') { // 건별 결과 → 보고서 저장
-        const { cases } = await d.readBody(req, 2_000_000);
-        if (!Array.isArray(cases) || !cases.length) return d.send(res, 400, { error: '검토 결과가 없습니다.' });
-        const clean = cases.slice(0, 50).map((c) => ({
-          file: scrub(c.file).slice(0, 200), title: scrub(c.title).slice(0, 300), drafter: scrub(c.drafter).slice(0, 100),
-          amount: scrub(c.amount).slice(0, 100), needs_check: !!c.needs_check, ok_note: scrub(c.ok_note).slice(0, 500),
-          issues: (c.issues || []).slice(0, 30).map((s) => scrub(s).slice(0, 800)),
-          pii_notes: (c.pii_notes || []).slice(0, 30).map((s) => scrub(s).slice(0, 300)),
-          failed: !!c.failed, error: scrub(c.error).slice(0, 300),
-        }));
-        let summary = '';
-        await runWorker(['summary'], JSON.stringify(clean.filter((c) => !c.failed)), (o) => { if (o.type === 'summary') summary = o.text; });
-        const { markdown, flagged } = buildReport(clean, summary);
-        const rid = await saveReport(me, { count: clean.length, flagged }, markdown);
-        return d.send(res, 200, { id: rid, markdown, count: clean.length, flagged });
+      if (url === '/api/approval/submit' && req.method === 'POST') { // 준비된 건들로 검토 실행 → 루틴 바로 실행
+        const { job: jid, cases, failed } = await d.readBody(req, 200_000);
+        const [job] = await listJobs(me, String(jid || ''));
+        if (!job) return d.send(res, 404, { error: '검토 작업을 찾을 수 없습니다.' });
+        const list = (Array.isArray(cases) ? cases : []).slice(0, 50)
+          .filter((c) => Number.isInteger(c.n) && has(job, `${String(c.n).padStart(2, '0')}_case.json`))
+          .map((c) => ({ n: c.n, file: scrub(c.file).slice(0, 200) }));
+        const bad = (Array.isArray(failed) ? failed : []).slice(0, 50).map((f) => ({ file: scrub(f.file).slice(0, 200), error: scrub(f.error).slice(0, 300) }));
+        if (!list.length && !bad.length) return d.send(res, 400, { error: '검토할 건이 없습니다.' });
+        await jobPut(job, 'request.json', 'application/json', Buffer.from(JSON.stringify({
+          job: job.jid, owner: me, created: job.created, submitted: new Date().toISOString(), cases: list, failed: bad,
+          how: 'sahmyook 저장소 approval/ROUTINE.md 의 방법대로 검토하고 이 폴더에 result.json 을 쓴다',
+        })));
+        if (!list.length) { // 모두 실패 → AI 없이 바로 보고서
+          const [j2] = await listJobs(me, job.jid);
+          await jobPut(j2, 'result.json', 'application/json', Buffer.from(JSON.stringify({ cases: [], summary: '' })));
+          const [j3] = await listJobs(me, job.jid);
+          return d.send(res, 200, await settle(me, j3));
+        }
+        let fired = false;
+        let note = '';
+        try {
+          await d.fireRoutine(me, `결재검토 실행 버튼 (${me}, ${d.kst()} KST): Drive 결재 폴더의 결재검토작업_${job.jid} 을 지금 검토해 주세요.`, 'approval');
+          fired = true;
+        } catch (e) { note = `${e.code === 503 ? '실행 연결(ROUTINE_TOKEN)이 설정되지 않았습니다.' : e.message} 다음 매시 14분 예약 실행 때 검토됩니다.`; }
+        return d.send(res, 200, { jid: job.jid, status: 'waiting', fired, note, count: list.length });
+      }
+      const jm = url.match(/^\/api\/approval\/jobs\/(J[a-z0-9]+)$/);
+      if (jm && req.method === 'GET') {
+        const [job] = await listJobs(me, jm[1]);
+        if (!job) return d.send(res, 404, { error: '검토 작업을 찾을 수 없습니다.' });
+        return d.send(res, 200, await settle(me, job));
       }
       if (url === '/api/approval/reports' && req.method === 'GET') {
         const list = await listReports(me);

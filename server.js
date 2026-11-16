@@ -239,14 +239,14 @@ function parseLog(text, name, prefix = 'W') {
 
 // ── 실행 버튼 → 예약 작업 즉시 실행 ─────────────────────────────────────
 const runs = []; // 최근 실행 기록 (서버 메모리)
-let lastFire = 0;
-async function fireRoutine(name) {
+const lastFire = {}; // 실행 칸별(사이트 / 결재검토) 마지막 실행 시각
+async function fireRoutine(name, text, slot = 'site') {
   if (!process.env.ROUTINE_TOKEN) {
     throw Object.assign(new Error('실행 연결(ROUTINE_TOKEN)이 아직 설정되지 않았습니다. 보낸 프롬프트는 매시 14분 예약 실행 때 처리됩니다.'), { code: 503 });
   }
-  const wait = 90e3 - (Date.now() - lastFire);
+  const wait = (slot === 'site' ? 90e3 : 30e3) - (Date.now() - (lastFire[slot] || 0));
   if (wait > 0) throw Object.assign(new Error(`방금 실행했습니다. ${Math.ceil(wait / 1000)}초 뒤에 다시 눌러 주세요.`), { code: 429 });
-  lastFire = Date.now();
+  lastFire[slot] = Date.now();
   const r = await fetch(ROUTINE_FIRE_URL, {
     method: 'POST',
     headers: {
@@ -255,10 +255,10 @@ async function fireRoutine(name) {
       'anthropic-version': '2023-06-01',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ text: `웹 사이트 실행 버튼 (${name}, ${kst()} KST): sahm.txt 의 [todo] W·C 프롬프트를 지금 처리해 주세요.` }),
+    body: JSON.stringify({ text: text || `웹 사이트 실행 버튼 (${name}, ${kst()} KST): sahm.txt 의 [todo] W·C 프롬프트를 지금 처리해 주세요.` }),
   });
   const body = await r.json().catch(() => ({}));
-  if (!r.ok) { lastFire = 0; throw new Error(`실행 요청 실패 (${r.status}) ${body.error?.message || ''}`.trim()); }
+  if (!r.ok) { lastFire[slot] = 0; throw new Error(`실행 요청 실패 (${r.status}) ${body.error?.message || ''}`.trim()); }
   const run = {
     at: kst(), by: name,
     sessionUrl: body.claude_code_session_url || body.session_url || null,
@@ -379,7 +379,7 @@ async function api(req, res, url) {
 // ── 결재검토 (careworld-in 과 분리: /approval 페이지, /api/approval/* API, 별도 계정·쿠키) ──
 const approvalApi = require('./approval/server-approval')({
   send, readBody, sign, cookie, readSahm, readPins, savePin, badPin, sameHash, tooMany, noteFailure, kst,
-  storageMode, ON_CLOUD_RUN, SECRET_OK,
+  storageMode, ON_CLOUD_RUN, SECRET_OK, fireRoutine,
 });
 routes['/approval'] = { type: HTML, body: pub('approval', 'index.html') };
 routes['/approval/app.js'] = { type: 'text/javascript; charset=utf-8', body: pub('approval', 'approval.js') };

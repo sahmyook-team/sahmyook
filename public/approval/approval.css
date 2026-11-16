@@ -44,3 +44,9 @@ input{font:inherit;padding:10px 12px;border-radius:10px;border:1px solid var(--l
 .ap-table th,.ap-table td:not(:first-child),.ap-table .ap-btn{white-space:nowrap}
 .ap-foot{color:var(--muted);font-size:.85rem;padding-bottom:32px}
 @media print{.ap-head,.ap-foot,#ap-app>section:not(#ap-report-card),.ap-actions{display:none!important}.ap-card{border:0;margin:0;padding:0}body{background:#fff;color:#000}}
+.ap-jobs{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
+.ap-jobs li{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ap-dot{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.ap-dot.running,.ap-dot.waiting,.ap-dot.preparing{background:var(--acc);animation:ap-pulse 1.2s ease-in-out infinite}
+@keyframes ap-pulse{50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.ap-dot{animation:none!important}}

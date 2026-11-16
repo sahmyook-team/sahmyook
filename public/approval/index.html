@@ -34,7 +34,7 @@
   <div id="ap-app" hidden>
     <section class="ap-card" aria-labelledby="ap-up-title">
       <h2 id="ap-up-title">1. 결재 파일 올리기</h2>
-      <p class="ap-muted">전자결재에서 내려받은 <b>zip</b> 파일을 그대로 끌어다 놓으세요(1건 = zip 1개, 한 번에 최대 10건, 파일당 30MB까지). 올린 파일은 검토가 끝나면 서버에서 바로 지워집니다.</p>
+      <p class="ap-muted">전자결재에서 내려받은 <b>zip</b> 파일을 그대로 끌어다 놓으세요(1건 = zip 1개, 한 번에 최대 10건, 파일당 30MB까지). [검토 실행]을 누르면 서버가 개인정보를 가린 자료만 비공개 결재 폴더에 올리고 AI 검토를 바로 시작합니다. 올린 zip 원본은 서버에서 바로 지워집니다.</p>
       <label class="ap-drop" id="ap-drop">
         <input type="file" id="ap-file" accept=".zip,application/zip" multiple hidden>
         <span>여기에 zip 파일을 끌어다 놓거나 <u>눌러서 고르기</u></span>
@@ -44,6 +44,12 @@
         <button class="ap-btn primary" id="ap-run" type="button" disabled>검토 실행</button>
         <span class="ap-msg" id="ap-run-msg" role="status" aria-live="polite"></span>
       </div>
+    </section>
+
+    <section class="ap-card" id="ap-jobs-card" hidden aria-labelledby="ap-jobs-title">
+      <h2 id="ap-jobs-title">AI 검토 진행</h2>
+      <p class="ap-muted">AI 검토는 보통 5~10분 걸립니다. 이 창을 닫아도 검토는 계속되고, 다시 들어오면 결과가 보고서로 정리됩니다.</p>
+      <ul class="ap-jobs" id="ap-jobs"></ul>
     </section>
 
     <section class="ap-card" id="ap-report-card" hidden aria-labelledby="ap-rep-title">

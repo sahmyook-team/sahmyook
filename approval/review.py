@@ -3,6 +3,7 @@
 
 사용법
   python3 -I review.py case <zip경로> <작업폴더>   결재 1건(zip 1개)을 검토하고 진행 상황·결과를 JSON 줄로 출력
+  python3 -I review.py prep <zip경로> <작업폴더> <꾸러미폴더>   AI 호출 없이 가린 자료만 꾸러미로 저장(루틴 방식)
   python3 -I review.py summary                      표준입력의 건별 결과(JSON 배열)로 전체 한 줄 요약을 만듦
 
 출력은 한 줄에 JSON 하나:
@@ -161,6 +162,26 @@ def mask_image(path, work, accounts):
     return (info["masked_image"] if info.get("safe_to_view") else None), info
 
 
+def write_package(content, pii_notes, name, outdir):
+    """AI 로 보낼 내용(이미 가린 텍스트·이미지)을 outdir 에 case.json + imgNN.png 로 저장."""
+    os.makedirs(outdir, exist_ok=True)
+    text, images, label = "", [], ""
+    for c in content:
+        if c["type"] == "text":
+            if c["text"].startswith("[이미지: "):
+                label = c["text"][len("[이미지: "):-1]
+            elif not text:
+                text = c["text"]
+        elif c["type"] == "image":
+            fn = f"img{len(images) + 1:02d}.png"
+            with open(os.path.join(outdir, fn), "wb") as f:
+                f.write(base64.b64decode(c["source"]["data"]))
+            images.append({"label": scrub(label), "file": fn})
+    pkg = {"file": name, "text": text, "images": images, "pii_notes": [scrub(x) for x in pii_notes]}
+    with open(os.path.join(outdir, "case.json"), "w", encoding="utf-8") as f:
+        json.dump(pkg, f, ensure_ascii=False)
+
+
 # ── 4. 건별 검토 ───────────────────────────────────────────────────────
 CASE_SCHEMA = {
     "type": "object",
@@ -209,7 +230,7 @@ def call_claude(content, schema=None, max_tokens=16000):
     return "".join(b.text for b in msg.content if b.type == "text")
 
 
-def review_case(zpath, work):
+def review_case(zpath, work, outdir=None):
     name = os.path.basename(zpath)
     stage("unzip", "압축 해제")
     files = safe_unzip(zpath, os.path.join(work, "unz"))
@@ -276,6 +297,13 @@ def review_case(zpath, work):
     content.insert(0, {"type": "text", "text": doc})
     content.append({"type": "text", "text": "위 결재 1건을 점검 항목대로 검토해 JSON 으로 답하세요."})
 
+    if outdir:  # 루틴 방식: 가린 자료만 꾸러미로 저장하고 끝 (AI 호출은 루틴이 함)
+        stage("pack", "가린 자료 꾸러미 만들기")
+        write_package(content, pii_notes, name, outdir)
+        stage("done", "완료")
+        emit({"type": "prepared", "file": name})
+        return
+
     stage("review", "검토 중")
     result = json.loads(call_claude(content, CASE_SCHEMA))
     result["pii_notes"] = sorted(set(result.get("pii_notes", []) + pii_notes))
@@ -304,8 +332,13 @@ if __name__ == "__main__":
     try:
         if sys.argv[1] == "case":
             review_case(sys.argv[2], sys.argv[3])
+        elif sys.argv[1] == "prep":
+            review_case(sys.argv[2], sys.argv[3], sys.argv[4])
         elif sys.argv[1] == "summary":
             summary()
+    except zipfile.BadZipFile:
+        emit({"type": "error", "msg": "zip 파일이 아니거나 깨져 있습니다"})
+        sys.exit(1)
     except Exception as e:  # 원문 노출 없이 짧은 이유만
         emit({"type": "error", "msg": scrub(str(e))[:300]})
         sys.exit(1)

@@ -19,7 +19,7 @@
   };
   const MAX_FILES = 10;
   const MAX_SIZE = 30 * 1024 * 1024;
-  const STAGES = [['unzip', '압축 해제'], ['extract', '본문 추출'], ['attach', '첨부 분석'], ['review', '검토 중'], ['done', '완료']];
+  const STAGES = [['unzip', '압축 해제'], ['extract', '본문 추출'], ['attach', '첨부 분석'], ['pack', '개인정보 가림'], ['upload', '폴더에 올림'], ['done', '준비 완료']];
   let files = [];
   let currentMd = '';
   let running = false;
@@ -32,6 +32,7 @@
     $('#ap-app').hidden = false;
     $('#ap-keep').textContent = `보고서는 ${me.keepDays}일 동안 보관되고 그 뒤에는 자동으로 지워집니다. 본인이 만든 보고서만 보입니다.`;
     loadPast();
+    loadJobs();
   }
   function showLogin(me) {
     $('#ap-login').hidden = false;
@@ -94,15 +95,16 @@
   ['dragleave', 'drop'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
   drop.addEventListener('drop', (e) => addFiles(e.dataTransfer.files));
 
-  // ── 검토 실행 (건별로 서버에 보내고 진행 상태를 받음) ────────────────
-  async function reviewOne(x) {
+  // ── 검토 실행: 건별로 가린 자료를 올리고 → 루틴(AI) 바로 실행 ─────────
+  async function prepOne(x, job, n) {
     x.state = 'run'; x.stage = 'unzip'; x.error = ''; renderFiles();
-    const r = await fetch('/api/approval/review', { method: 'POST', credentials: 'same-origin', headers: { 'X-File-Name': encodeURIComponent(x.file.name), 'Content-Type': 'application/zip' }, body: x.file });
+    const r = await fetch('/api/approval/upload', { method: 'POST', credentials: 'same-origin',
+      headers: { 'X-File-Name': encodeURIComponent(x.file.name), 'X-Job': job, 'X-Case-Index': String(n), 'Content-Type': 'application/zip' }, body: x.file });
     if (!r.ok || !r.body) { const j = await r.json().catch(() => ({})); throw new Error(j.error || `오류 (${r.status})`); }
     const reader = r.body.getReader();
     const dec = new TextDecoder();
     let buf = '';
-    let result = null;
+    let ok = false;
     for (;;) {
       const { value, done } = await reader.read();
       if (done) break;
@@ -113,35 +115,60 @@
         if (!line.trim()) continue;
         const o = JSON.parse(line);
         if (o.type === 'stage') { x.stage = o.stage; renderFiles(); }
-        if (o.type === 'case') result = o.result;
+        if (o.type === 'prepared') ok = true;
         if (o.type === 'error') throw new Error(o.msg);
       }
     }
-    if (!result) throw new Error('검토 결과를 받지 못했습니다.');
+    if (!ok) throw new Error('자료를 준비하지 못했습니다.');
     x.state = 'done'; x.stage = 'done'; renderFiles();
-    return result;
   }
   $('#ap-run').addEventListener('click', async () => {
     if (running || !files.length) return;
     running = true; renderFiles();
     const say = $('#ap-run-msg');
     say.classList.remove('bad');
-    const cases = [];
-    for (const [n, x] of files.entries()) {
-      say.textContent = `${n + 1}/${files.length}건 검토 중… (건마다 1~3분 걸릴 수 있어요. 창을 닫지 마세요)`;
-      try { cases.push(await reviewOne(x)); }
-      catch (e) { x.state = 'fail'; x.error = e.message; renderFiles(); cases.push({ file: x.file.name, failed: true, error: e.message }); }
-    }
-    say.textContent = '보고서를 만드는 중…';
     try {
-      const rep = await api('/api/approval/report', { method: 'POST', body: { cases } });
-      showReport(rep.markdown);
-      say.textContent = `보고서를 저장했습니다. ${rep.count}건 중 확인 필요 ${rep.flagged}건.`;
-      files = [];
-      loadPast();
+      const { job } = await api('/api/approval/jobs', { method: 'POST' });
+      const cases = [];
+      const failed = [];
+      for (const [i, x] of files.entries()) {
+        say.textContent = `${i + 1}/${files.length}건 개인정보를 가리고 올리는 중… (창을 닫지 마세요)`;
+        try { await prepOne(x, job, i + 1); cases.push({ n: i + 1, file: x.file.name }); }
+        catch (e) { x.state = 'fail'; x.error = e.message; renderFiles(); failed.push({ file: x.file.name, error: e.message }); }
+      }
+      say.textContent = 'AI 검토를 시작하는 중…';
+      const r = await api('/api/approval/submit', { method: 'POST', body: { job, cases, failed } });
+      if (r.status === 'done') { showReport(r.markdown); say.textContent = '모든 건이 준비 단계에서 실패해 보고서만 만들었습니다.'; loadPast(); }
+      else {
+        say.textContent = r.fired ? `${r.count}건 AI 검토를 시작했습니다. 아래 'AI 검토 진행'에서 확인하세요.` : `${r.count}건 접수했습니다. ${r.note}`;
+        files = [];
+        loadJobs();
+      }
     } catch (e) { say.classList.add('bad'); say.textContent = e.message; }
     running = false; renderFiles();
   });
+
+  // ── AI 검토 진행 상황 (15초마다 확인, 끝나면 보고서 표시) ─────────────
+  const JOB_LABEL = { preparing: '자료 올리는 중', waiting: 'AI 검토 대기 중', running: 'AI 검토 중', done: '완료' };
+  let pollTimer = null;
+  const ago = (t) => { const m = Math.max(0, Math.round((Date.now() - new Date(t)) / 60000)); return m < 1 ? '방금' : `${m}분 전`; };
+  async function loadJobs() {
+    clearTimeout(pollTimer);
+    let jobs = [];
+    try { ({ jobs } = await api('/api/approval/jobs')); } catch (e) { return; }
+    const finished = jobs.filter((j) => j.status === 'done');
+    const open = jobs.filter((j) => j.status !== 'done');
+    $('#ap-jobs-card').hidden = !open.length;
+    $('#ap-jobs').replaceChildren(...open.map((j) => h('li', {},
+      h('span', { class: `ap-dot ${j.status}` }), h('span', {}, `${JOB_LABEL[j.status] || j.status}`), h('span', { class: 'ap-muted' }, ` · 시작 ${ago(j.created)}`))));
+    if (finished.length) {
+      const last = finished[finished.length - 1];
+      showReport((await api(`/api/approval/reports/${last.report}`)).markdown);
+      $('#ap-run-msg').textContent = `AI 검토가 끝나 보고서를 저장했습니다. ${last.count}건 중 확인 필요 ${last.flagged}건.`;
+      loadPast();
+    }
+    if (open.length) pollTimer = setTimeout(loadJobs, 15000);
+  }
 
   // ── 보고서 보기·내려받기 ─────────────────────────────────────────────
   function mdToNodes(md) {

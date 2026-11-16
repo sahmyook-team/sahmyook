@@ -1,9 +1,9 @@
 FROM node:20-slim
-# 결재검토용 도구: PDF(poppler), OCR(tesseract + 한국어), 이미지(Pillow), Claude API(anthropic)
+# 결재검토용 도구: PDF(poppler), OCR(tesseract + 한국어), 이미지(Pillow). AI 검토는 루틴(approval/ROUTINE.md)이 함
 RUN apt-get update \
  && apt-get install -y --no-install-recommends python3 python3-pip python3-pil python3-lxml \
       poppler-utils tesseract-ocr tesseract-ocr-kor ca-certificates \
- && pip3 install --no-cache-dir --break-system-packages pytesseract anthropic olefile cryptography six \
+ && pip3 install --no-cache-dir --break-system-packages pytesseract olefile cryptography six \
  && rm -rf /var/lib/apt/lists/*
 # HWP(pyhwp): 설치 스크립트가 최신 setuptools에서 깨져서 소스만 받아 그대로 씀. 실패해도 빌드는 계속(HWP는 '직접 확인'으로 표시)
 RUN mkdir -p /opt/pyhwp && cd /opt/pyhwp \
