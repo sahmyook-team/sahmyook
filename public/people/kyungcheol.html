@@ -16,6 +16,17 @@
 .memo-list{margin:12px 0 0;padding-left:1.4em;display:grid;gap:10px;line-height:1.6}
 .memo-list li{overflow-wrap:anywhere}
 .memo-tag{display:inline-block;margin-left:4px;padding:1px 8px;border-radius:999px;font-size:.8em;border:1px solid currentColor;opacity:.75;white-space:nowrap}
+/* 내 페이지 전용: 하루 일과 그림을 시계 모양(24시간 생활계획표)으로 (웹 프롬프트 Wmwj012ab) */
+.clock-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:2cqw;min-height:0}
+.clock-svg{width:86cqw;height:auto;max-width:100%;display:block}
+.clock-svg .num{font-size:13px;fill:#666;font-weight:700}
+.clock-svg .num.main{font-size:16px;fill:#333}
+.clock-svg .tm{font-size:10px;fill:#c0563c;font-weight:800}
+.clock-legend{list-style:none;margin:0;padding:0;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:1cqw 2cqw;font-size:2.3cqw;line-height:1.3}
+.clock-legend li{display:flex;gap:1cqw;align-items:center;min-width:0}
+.clock-legend .dot{flex:none;width:2.4cqw;height:2.4cqw;border-radius:50%;border:1px solid #bbb}
+.clock-legend b{color:#c0563c;margin-right:.6cqw}
+.clock-legend span{min-width:0;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -108,7 +119,7 @@
         <div class="a4" id="pl-sheet" aria-live="polite"></div>
       </div>
 
-      <p class="imp-note" style="margin-top:18px">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 체크한 내용은 저장·전송되지 않고 이 화면에서만 쓰입니다. 음성은 브라우저의 읽어 주기 기능을 사용합니다. 실제 일정은 당일 컨디션과 지원인의 판단에 따라 조정합니다. (sahm_all 요청 53)</p>
+      <p class="imp-note" style="margin-top:18px">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 체크한 내용은 저장·전송되지 않고 이 화면에서만 쓰입니다. 음성은 브라우저의 읽어 주기 기능을 사용합니다. 실제 일정은 당일 컨디션과 지원인의 판단에 따라 조정합니다. (sahm_all 요청 53) '그림(시계)'을 고르면 하루 일과가 24시간 시계 모양으로 그려지고, 가운데 바늘은 지금 시각을 가리킵니다.</p>
     </article>
     <a class="back" href="/#people">← 함께 만든 사람으로 돌아가기</a>
   </section>
@@ -176,7 +187,7 @@
     ]}
   };
   var ORDER = ['normal','good','hard'];
-  var MODES = [['pic','그림'],['text','텍스트'],['both','그림+텍스트'],['voice','음성']];
+  var MODES = [['pic','그림(시계)'],['text','텍스트'],['both','그림+텍스트'],['voice','음성']];
   var cols = document.getElementById('pl-cols');
   var state = {day:'normal', mode:'both', made:null};
 
@@ -217,6 +228,47 @@
     }).join('');
   }
 
+  var CLR = ['#fde2d6','#d9efec','#fff1c7','#e4e2f7','#dcefd9','#fbe0ea'];
+  function toMin(t){ var a=t.split(':'); return (+a[0])*60+(+a[1]); }
+  function pt(min, r){ var a=(min/1440)*2*Math.PI-Math.PI/2; return [200+r*Math.cos(a), 200+r*Math.sin(a)]; }
+  function f(n){ return n.toFixed(1); }
+  function clockHTML(list){
+    var R=170, out=[], marks=[];
+    out.push('<circle cx="200" cy="200" r="'+R+'" fill="#fff" stroke="#e0795f" stroke-width="4"/>');
+    if (list.length){
+      var mins=list.map(function(it){return toMin(it[0]);});
+      list.forEach(function(it,i){
+        var s=mins[i], e=(i+1<list.length)?mins[i+1]:mins[0]+1440; if (e<=s) e=s+30;
+        var p1=pt(s,R), p2=pt(e,R), big=(e-s)>720?1:0;
+        out.push('<path d="M200 200L'+f(p1[0])+' '+f(p1[1])+'A'+R+' '+R+' 0 '+big+' 1 '+f(p2[0])+' '+f(p2[1])+'Z" fill="'+CLR[i%CLR.length]+'" stroke="#fff" stroke-width="1.5"><title>'+esc(it[0]+' '+it[2])+'</title></path>');
+        var span=e-s, mid=s+Math.min(span,90)/2;
+        var prevGap = i>0 ? s-mins[i-1] : 999;
+        var r = (prevGap<60 && marks.length && marks[marks.length-1].r===128) ? 88 : 128;
+        marks.push({min:mid, r:r, ic:it[1], t:it[0]});
+        if (i+1===list.length && span>=300) marks.push({min:s+span/2, r:110, ic:'😴', t:''});
+      });
+    }
+    for (var h=0; h<24; h++){
+      var a=pt(h*60,R), b=pt(h*60,R-(h%6?7:13));
+      out.push('<line x1="'+f(a[0])+'" y1="'+f(a[1])+'" x2="'+f(b[0])+'" y2="'+f(b[1])+'" stroke="#999" stroke-width="'+(h%6?1:2.5)+'"/>');
+      var n=pt(h*60,R+15);
+      out.push('<text class="num'+(h%6?'':' main')+'" x="'+f(n[0])+'" y="'+f(n[1])+'" text-anchor="middle" dominant-baseline="central">'+h+'</text>');
+    }
+    marks.forEach(function(m){
+      var p=pt(m.min,m.r);
+      out.push('<text x="'+f(p[0])+'" y="'+f(p[1]-4)+'" font-size="24" text-anchor="middle" dominant-baseline="central">'+m.ic+'</text>');
+      if (m.t) out.push('<text class="tm" x="'+f(p[0])+'" y="'+f(p[1]+15)+'" text-anchor="middle">'+m.t+'</text>');
+    });
+    var now=new Date(), nm=now.getHours()*60+now.getMinutes(), hp=pt(nm,R-30);
+    out.push('<line x1="200" y1="200" x2="'+f(hp[0])+'" y2="'+f(hp[1])+'" stroke="#2f6f6a" stroke-width="4" stroke-linecap="round" opacity=".8"><title>지금</title></line>');
+    out.push('<circle cx="200" cy="200" r="7" fill="#2f6f6a"/>');
+    var legend = list.map(function(it,i){
+      return '<li><i class="dot" style="background:'+CLR[i%CLR.length]+'"></i><span><b>'+it[0]+'</b>'+it[1]+' '+esc(it[2])+'</span></li>';
+    }).join('');
+    return '<div class="clock-wrap"><svg class="clock-svg" viewBox="0 0 400 400" role="img" aria-label="24시간 시계 모양 하루 일과">'+out.join('')+'</svg>'+
+      (list.length?'<ul class="clock-legend">'+legend+'</ul>':'<p>체크한 항목이 없습니다. 위에서 넣을 것을 골라 주세요.</p>')+'</div>';
+  }
+
   function renderSheet(){
     buttons(document.getElementById('pl-tabs'), ORDER.map(function(k){return [k, DAYS[k].name+' ('+state.made[k].length+')'];}), 'day');
     buttons(document.getElementById('pl-modes'), MODES, 'mode');
@@ -237,7 +289,7 @@
     }).join('') : '<li class="a4-item"><span class="a4-tx">체크한 항목이 없습니다. 위에서 넣을 것을 골라 주세요.</span></li>';
     document.getElementById('pl-sheet').innerHTML =
       '<div class="a4-head"><h4>유바람님의 '+d.name+'</h4><span>'+date+'</span></div>'+
-      '<ul class="'+cls+'">'+body+'</ul>'+
+      (m==='pic' ? clockHTML(list) : '<ul class="'+cls+'">'+body+'</ul>')+
       '<div class="a4-foot">'+d.note+' · 가명으로 작성되었으며 본인 동의를 받은 자료를 바탕으로 함 · sahmyook</div>';
   }
 
@@ -271,7 +323,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>v5.1 · 2026-11-16</span>
+    <span>v5.1 · 2026-11-16 내 페이지: 하루 일과 그림을 시계 모양으로 (웹 프롬프트 Wmwj012ab)</span>
     <span>황경아</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
