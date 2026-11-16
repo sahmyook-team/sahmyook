@@ -74,9 +74,9 @@ const send = (res, code, obj, headers = {}) => {
   res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...headers });
   res.end(JSON.stringify(obj));
 };
-const readBody = (req) => new Promise((resolve, reject) => {
+const readBody = (req, limit = 20000) => new Promise((resolve, reject) => {
   let b = '';
-  req.on('data', (c) => { b += c; if (b.length > 20000) { reject(new Error('too large')); req.destroy(); } });
+  req.on('data', (c) => { b += c; if (b.length > limit) { reject(new Error('too large')); req.destroy(); } });
   req.on('end', () => { try { resolve(b ? JSON.parse(b) : {}); } catch { reject(new Error('bad json')); } });
 });
 const clean = (s, max) => String(s || '').replace(/[\r\n|]+/g, ' ').trim().slice(0, max);
@@ -376,10 +376,20 @@ async function api(req, res, url) {
   }
 }
 
+// ── 결재검토 (careworld-in 과 분리: /approval 페이지, /api/approval/* API, 별도 계정·쿠키) ──
+const approvalApi = require('./approval/server-approval')({
+  send, readBody, sign, cookie, readSahm, readPins, savePin, badPin, sameHash, tooMany, noteFailure, kst,
+  storageMode, ON_CLOUD_RUN, SECRET_OK,
+});
+routes['/approval'] = { type: HTML, body: pub('approval', 'index.html') };
+routes['/approval/app.js'] = { type: 'text/javascript; charset=utf-8', body: pub('approval', 'approval.js') };
+routes['/approval/style.css'] = { type: 'text/css; charset=utf-8', body: pub('approval', 'approval.css') };
+
 http.createServer((req, res) => {
   let url = req.url.split('?')[0].split('#')[0];
   if (url.length > 1 && url.endsWith('/')) url = url.slice(0, -1);
   if (url === '/healthz') { res.writeHead(200); return res.end('ok'); }
+  if (url.startsWith('/api/approval/')) return approvalApi(req, res, url);
   if (url.startsWith('/api/')) return api(req, res, url);
   const r = routes[url];
   const mm = !r && url.match(/^\/people\/([a-z0-9-]+)$/);
