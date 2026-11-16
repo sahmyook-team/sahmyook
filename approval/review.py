@@ -2,8 +2,10 @@
 """결재 검토 작업기 (Cloud Run 서버가 불러 씀).
 
 사용법
-  python3 -I review.py case <zip경로> <작업폴더>   결재 1건(zip 1개)을 검토하고 진행 상황·결과를 JSON 줄로 출력
-  python3 -I review.py prep <zip경로> <작업폴더> <꾸러미폴더>   AI 호출 없이 가린 자료만 꾸러미로 저장(루틴 방식)
+  python3 -I review.py case <파일경로> <작업폴더>   결재 1건(zip 1개 또는 낱개 파일 1개)을 검토하고 진행 상황·결과를 JSON 줄로 출력
+  python3 -I review.py prep <파일경로> <작업폴더> <꾸러미폴더>   AI 호출 없이 가린 자료만 꾸러미로 저장(루틴 방식)
+  파일경로가 .zip 이면 풀어서 안의 본문(.mht)·첨부를 보고, 아니면(PDF·HWP·HWPX·XLSX·DOCX·이미지·TXT·CSV 등)
+  그 파일 하나를 1건으로 봅니다(예산서처럼 낱개로 올린 서류).
   python3 -I review.py summary                      표준입력의 건별 결과(JSON 배열)로 전체 한 줄 요약을 만듦
 
 출력은 한 줄에 JSON 하나:
@@ -29,6 +31,9 @@ RRN = re.compile(r"\d{6}\s*-?\s*[1-8]\d{6}")
 LICENSE = re.compile(r"\d{2}\s*-\s*\d{6}\s*-\s*\d{2}")
 ACCOUNT = re.compile(r"\d{2,6}(?:\s*-\s*\d{2,8}){1,3}")
 IMG_EXT = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp"}
+OOXML_EXT = {".xlsx", ".xlsm", ".docx", ".hwpx"}   # 안이 XML 인 zip 형식 문서
+TEXT_EXT = {".txt", ".csv", ".tsv", ".md"}
+OLD_EXT = {".xls", ".doc", ".ppt", ".pptx", ".cell", ".show"}  # 글자를 뽑지 못하는 형식 → 직접 확인
 
 
 def emit(obj):
@@ -111,12 +116,20 @@ def run(cmd, timeout=120):
         return ""
 
 
+PDF_PAGES = 8  # 스캔 PDF 를 그림으로 볼 최대 쪽수
+
+
+def pdf_pages(path):
+    m = re.search(r"Pages:\s+(\d+)", run(["pdfinfo", path]))
+    return int(m.group(1)) if m else 0
+
+
 def pdf_attach(path, work):
     text = run(["pdftotext", "-layout", path, "-"]).strip()
     images = []
     if len(text) < 30:  # 글자가 없는 스캔 PDF → 그림으로
         prefix = os.path.join(work, "pdfimg_" + re.sub(r"\W", "_", os.path.basename(path))[:40])
-        run(["pdftoppm", "-r", "70", "-png", "-l", "4", path, prefix])
+        run(["pdftoppm", "-r", "70", "-png", "-l", str(PDF_PAGES), path, prefix])
         images = sorted(f for f in (os.path.join(work, x) for x in os.listdir(work)) if f.startswith(prefix))
     return text, images
 
@@ -137,6 +150,90 @@ def hwp_attach(path, work):
         imgs = [os.path.join(bindata, f) for f in sorted(os.listdir(bindata))
                 if os.path.splitext(f)[1].lower() in IMG_EXT]
     return text, imgs
+
+
+def _zip_xml(path, pattern):
+    """xlsx·docx·hwpx 안의 XML 중 pattern 에 맞는 것들을 (이름, 내용) 으로 돌려준다(크기 제한 포함)."""
+    out = []
+    with zipfile.ZipFile(path) as z:
+        infos = [i for i in z.infolist() if re.search(pattern, i.filename)]
+        if sum(i.file_size for i in z.infolist()) > MAX_TOTAL:
+            raise ValueError("문서를 풀면 너무 커서 읽지 않습니다")
+        for i in sorted(infos, key=lambda i: [int(n) if n.isdigit() else n for n in re.split(r"(\d+)", i.filename)]):
+            out.append((i.filename, z.read(i).decode("utf-8", "replace")))
+    return out
+
+
+def _xml_text(x):
+    return html.unescape(re.sub(r"<[^>]+>", "", x))
+
+
+def xlsx_attach(path):
+    """엑셀(.xlsx): 시트마다 '행: 셀 | 셀 | …' 형태 글자. 수식은 계산된 값과 함께 [=수식] 으로 보여 준다."""
+    parts = dict(_zip_xml(path, r"^xl/(sharedStrings|workbook)\.xml$|^xl/worksheets/sheet\d+\.xml$"))
+    shared = [_xml_text(si) for si in re.findall(r"(?s)<si>(.*?)</si>", parts.get("xl/sharedStrings.xml", ""))]
+    names = re.findall(r'<sheet [^>]*name="([^"]*)"', parts.get("xl/workbook.xml", ""))
+    lines = []
+    sheets = sorted((k for k in parts if k.startswith("xl/worksheets/")), key=lambda k: int(re.sub(r"\D", "", k)))
+    for n, key in enumerate(sheets):
+        lines.append(f"[시트: {html.unescape(names[n]) if n < len(names) else key}]")
+        for row in re.findall(r"(?s)<row[^>]*>(.*?)</row>", parts[key]):
+            cells = []
+            for attrs, inner in re.findall(r"(?s)<c([^>]*?)(?:/>|>(.*?)</c>)", row):
+                ref = re.search(r'r="([A-Z]+\d+)"', attrs)
+                v = re.search(r"(?s)<v>(.*?)</v>", inner or "")
+                f = re.search(r"(?s)<f[^>]*>(.*?)</f>", inner or "")
+                val = ""
+                if 't="s"' in attrs and v:
+                    i = int(v.group(1))
+                    val = shared[i] if i < len(shared) else ""
+                elif 't="inlineStr"' in attrs:
+                    val = _xml_text(inner or "")
+                elif v:
+                    val = html.unescape(v.group(1))
+                if f:
+                    val += f" [={html.unescape(f.group(1))}]"
+                if val.strip():
+                    cells.append(f"{ref.group(1) if ref else ''}={val.strip()}")
+            if cells:
+                lines.append(" | ".join(cells))
+    return "\n".join(lines)
+
+
+def docx_attach(path):
+    xml = "".join(x for _, x in _zip_xml(path, r"^word/document\.xml$"))
+    xml = re.sub(r"</w:p>", "\n", xml)
+    xml = re.sub(r"</w:tc>", " | ", xml)
+    return re.sub(r"\n\s*\n+", "\n", _xml_text(xml)).strip()
+
+
+def hwpx_attach(path, work):
+    """한글 2014 이후 .hwpx (zip 안 Contents/section*.xml)."""
+    xml = "".join(x for _, x in _zip_xml(path, r"^Contents/section\d+\.xml$"))
+    xml = re.sub(r"</hp:p>", "\n", xml)
+    xml = re.sub(r"</hp:tc>", " | ", xml)
+    text = re.sub(r"\n\s*\n+", "\n", _xml_text(xml)).strip()
+    imgs = []
+    with zipfile.ZipFile(path) as z:
+        for i in z.infolist():
+            if i.filename.startswith("BinData/") and os.path.splitext(i.filename)[1].lower() in IMG_EXT \
+                    and i.file_size < 30 * 1024 * 1024:
+                dst = os.path.join(work, "hwpx_" + re.sub(r"\W", "_", os.path.basename(path))[:30] + "_"
+                                   + re.sub(r"[^\w.]", "_", os.path.basename(i.filename)))
+                with z.open(i) as a, open(dst, "wb") as b:
+                    shutil.copyfileobj(a, b)
+                imgs.append(dst)
+    return text, imgs
+
+
+def plain_attach(path):
+    raw = open(path, "rb").read(5 * 1024 * 1024)
+    for enc in ("utf-8-sig", "cp949"):
+        try:
+            return raw.decode(enc)
+        except UnicodeDecodeError:
+            pass
+    return raw.decode("utf-8", "replace")
 
 
 def to_png_b64(path, max_side=1568):
@@ -232,24 +329,62 @@ def call_claude(content, schema=None, max_tokens=16000):
 
 def review_case(zpath, work, outdir=None):
     name = os.path.basename(zpath)
-    stage("unzip", "압축 해제")
-    files = safe_unzip(zpath, os.path.join(work, "unz"))
+    single = not name.lower().endswith(".zip")
+    if single:  # zip 이 아닌 낱개 파일 1개 = 1건
+        stage("unzip", "낱개 파일 준비")
+        os.makedirs(os.path.join(work, "one"), exist_ok=True)
+        dst = os.path.join(work, "one", re.sub(r"[/\\]", "_", name) or "file")
+        shutil.copyfile(zpath, dst)
+        files = [dst]
+    else:
+        stage("unzip", "압축 해제")
+        files = safe_unzip(zpath, os.path.join(work, "unz"))
 
     stage("extract", "본문 추출")
     bodies = [mht_text(f) for f in files if f.lower().endswith(".mht")]
     body = "\n\n".join(b for b in bodies if b)
-    body_accounts = sorted({re.sub(r"\s", "", m.group()) for m in ACCOUNT.finditer(body)
-                            if 10 <= len(re.sub(r"\D", "", m.group())) <= 16})
 
     stage("attach", "첨부 분석")
     texts, images, pii_notes = [], [], []
     for f in files:
         base = os.path.basename(f)
         ext = os.path.splitext(f)[1].lower()
-        if ext == ".pdf":
+        try:
+            if ext in (".xlsx", ".xlsm"):
+                t = xlsx_attach(f)
+                texts.append(f"[첨부 엑셀: {base}]\n{t}" if t else "")
+                if not t:
+                    pii_notes.append(f"{base}: 엑셀 글자를 읽지 못함 - 직접 확인 필요")
+                continue
+            if ext == ".docx":
+                t = docx_attach(f)
+                texts.append(f"[첨부 워드: {base}]\n{t}" if t else "")
+                if not t:
+                    pii_notes.append(f"{base}: 워드 글자를 읽지 못함 - 직접 확인 필요")
+                continue
+            if ext == ".hwpx":
+                t, imgs = hwpx_attach(f, work)
+                texts.append(f"[첨부 HWPX: {base}]\n{t}" if t else "")
+                if not t and not imgs:
+                    pii_notes.append(f"{base}: HWPX 파일을 읽지 못함 - 직접 확인 필요")
+                for im in imgs:
+                    images.append((f"{base} 안 그림", im, bool(PII_NAME.search(base))))
+                continue
+        except (zipfile.BadZipFile, ValueError, KeyError):
+            pii_notes.append(f"{base}: 파일이 깨졌거나 너무 커서 읽지 못함 - 직접 확인 필요")
+            continue
+        if ext in TEXT_EXT:
+            texts.append(f"[첨부 텍스트: {base}]\n{plain_attach(f)}")
+        elif ext in OLD_EXT:
+            pii_notes.append(f"{base}: 이 형식({ext})은 글자를 읽지 못함 - PDF·XLSX·HWP 로 다시 올리거나 직접 확인 필요")
+        elif ext == ".pdf":
             t, imgs = pdf_attach(f, work)
             if t:
                 texts.append(f"[첨부 PDF: {base}]\n{t}")
+            elif not imgs:
+                pii_notes.append(f"{base}: PDF 를 읽지 못함 - 직접 확인 필요")
+            if imgs and pdf_pages(f) > len(imgs):
+                pii_notes.append(f"{base}: 스캔 PDF {pdf_pages(f)}쪽 중 앞 {len(imgs)}쪽만 검토함 - 나머지 쪽 직접 확인 필요")
             for im in imgs:
                 images.append((f"{base} (스캔 쪽)", im, bool(PII_NAME.search(base))))
         elif ext in (".hwp", ".hwpx"):
@@ -262,6 +397,14 @@ def review_case(zpath, work, outdir=None):
                 images.append((f"{base} 안 그림", im, bool(PII_NAME.search(base))))
         elif ext in IMG_EXT:
             images.append((base, f, True if PII_NAME.search(base) else None))
+        elif single and ext not in (".mht",):
+            pii_notes.append(f"{base}: 읽을 수 없는 형식 - 직접 확인 필요")
+
+    texts = [t for t in texts if t]
+    # 통장사본 대조용 계좌번호: 본문(.mht), 낱개 파일이면 그 글자에서
+    acc_src = body if body else "\n".join(texts)
+    body_accounts = sorted({re.sub(r"\s", "", m.group()) for m in ACCOUNT.finditer(acc_src)
+                            if 10 <= len(re.sub(r"\D", "", m.group())) <= 16})
 
     content, sent = [], 0
     for label, path, pii in images:
@@ -290,7 +433,11 @@ def review_case(zpath, work, outdir=None):
         except Exception:
             pii_notes.append(f"{label}: 이미지를 열 수 없음 - 직접 확인 필요")
 
-    doc = f"[결재 파일: {name}]\n[본문]\n{body or '(본문 .mht 를 찾지 못함)'}\n\n" + "\n\n".join(texts)
+    if single and not body:
+        head = f"[결재 파일: {name}]\n[낱개 파일 1건 — 전자결재 본문(.mht) 없이 올린 서류입니다. 아래 내용이 그 파일입니다]\n\n"
+    else:
+        head = f"[결재 파일: {name}]\n[본문]\n{body or '(본문 .mht 를 찾지 못함)'}\n\n"
+    doc = head + "\n\n".join(texts)
     doc = scrub(doc)[:MAX_TEXT]
     if pii_notes:
         doc += "\n\n[서버 개인정보 처리 메모]\n" + "\n".join("- " + p for p in pii_notes)

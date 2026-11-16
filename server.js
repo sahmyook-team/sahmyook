@@ -389,7 +389,7 @@ async function api(req, res, url) {
       if (!me) return send(res, 401, { error: '먼저 로그인해 주세요.' });
       if (me !== ADMIN) return send(res, 403, { error: `결재검토 실행은 ${ADMIN}님만 할 수 있습니다.` });
       const aid = `A${Date.now().toString(36)}`;
-      const run = await fireRoutine(me, `결재검토 실행 버튼 (${me}, ${kst()} KST, 실행번호 ${aid}): Drive 결재 폴더의 zip 을 approval/ROUTINE.md 대로 지금 검토해 주세요.`, 'approval');
+      const run = await fireRoutine(me, `결재검토 실행 버튼 (${me}, ${kst()} KST, 실행번호 ${aid}): Drive 결재 폴더의 결재 파일(zip·낱개 파일)을 approval/ROUTINE.md 대로 지금 검토해 주세요.`, 'approval');
       approvalRuns.unshift({ id: aid, sessionUrl: run.sessionUrl });
       approvalRuns.length = Math.min(approvalRuns.length, 20);
       await appendSahm(`[approval] ${aid} | ${kst()} | 요청 | ${me}님이 검토 실행`, `approval ${aid}: requested`).catch((e) => console.error('approval log:', e.message));
