@@ -27,9 +27,15 @@
       <a class="ap-link" href="https://drive.google.com/drive/folders/13Y5w9t2ijPW-gYSexvNY34Pk1DP1RLTi" target="_blank" rel="noopener">
         <b>보고서 폴더</b><span>검토가 끝나면 보고서가 여기에 생깁니다</span>
       </a>
-      <a class="ap-link" href="https://app.slack.com/client" target="_blank" rel="noopener">
-        <b>Slack</b><span>팀 대화방 열기</span>
-      </a>
+    </div>
+  </section>
+
+  <section class="ap-card" aria-labelledby="ap-run-title">
+    <h2 id="ap-run-title">검토 실행</h2>
+    <p class="ap-muted">결재 폴더에 올린 zip 을 결재 검토 원칙대로 지금 바로 검토합니다. 검토가 끝난 zip 은 결재 폴더에서 지워지고, 보고서는 보고서 폴더에 생깁니다. 보통 5~10분 걸립니다.</p>
+    <div class="ap-actions">
+      <button class="ap-btn" id="ap-run" type="button">검토 실행</button>
+      <span class="ap-msg" id="ap-run-msg" role="status" aria-live="polite"></span>
     </div>
   </section>
 
@@ -37,7 +43,7 @@
     <h2 id="ap-how-title">쓰는 방법</h2>
     <ol class="ap-steps">
       <li>전자결재에서 내려받은 <b>zip</b> 파일(1건 = zip 1개)을 <b>결재 폴더</b>에 그대로 올립니다.</li>
-      <li>매시 14분에 자동으로 검토가 시작됩니다. 개인정보(주민번호·면허번호 등)를 먼저 가린 뒤 AI가 결재 검토 규칙대로 확인합니다.</li>
+      <li><b>[검토 실행]</b>을 누르면 바로 검토가 시작됩니다(누르지 않아도 매시 14분에 자동으로 확인합니다). 개인정보(주민번호·면허번호 등)를 먼저 가린 뒤 AI가 결재 검토 규칙대로 확인합니다.</li>
       <li>검토가 끝나면 <b>보고서 폴더</b>에 보고서가 생기고, 검토한 zip 파일은 결재 폴더에서 지워집니다.</li>
     </ol>
     <p class="ap-muted">결재 폴더와 보고서 폴더는 비공개입니다. 폴더 권한이 있는 사람만 열 수 있습니다. 보고서는 90일 동안 보관됩니다.</p>
@@ -45,5 +51,6 @@
 </main>
 
 <footer class="ap-wrap ap-foot">결재검토 · careworld-in과 별도로 운영됩니다 · 주민등록번호·면허번호·주소는 보고서에 남기지 않습니다</footer>
+<script src="/approval/app.js" defer></script>
 </body>
 </html>

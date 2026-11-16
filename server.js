@@ -364,6 +364,12 @@ async function api(req, res, url) {
       await readSahm(true);
       return send(res, 200, { slug, name, url: `/people/${slug}` });
     }
+    if (url === '/api/approval/run' && req.method === 'POST') { // 결재검토 [검토 실행] — 관리자만
+      if (!me) return send(res, 401, { error: '먼저 로그인해 주세요.' });
+      if (me !== ADMIN) return send(res, 403, { error: `결재검토 실행은 ${ADMIN}님만 할 수 있습니다.` });
+      const run = await fireRoutine(me, `결재검토 실행 버튼 (${me}, ${kst()} KST): Drive 결재 폴더의 zip 을 approval/ROUTINE.md 대로 지금 검토해 주세요.`, 'approval');
+      return send(res, 200, run);
+    }
     if (url === '/api/run' && req.method === 'POST') {
       if (!me) return send(res, 401, { error: '먼저 로그인해 주세요.' });
       const run = await fireRoutine(me);
@@ -376,9 +382,10 @@ async function api(req, res, url) {
   }
 }
 
-// 결재검토: careworld-in 과 따로 떨어진 안내 페이지(링크만). 검토는 예약작업이 Drive 결재 폴더에서 함 (approval/ROUTINE.md)
+// 결재검토: careworld-in 과 따로 떨어진 페이지(바로가기 + [검토 실행]). 검토는 예약작업이 Drive 결재 폴더에서 함 (approval/ROUTINE.md)
 routes['/approval'] = { type: HTML, body: pub('approval', 'index.html') };
 routes['/approval/style.css'] = { type: 'text/css; charset=utf-8', body: pub('approval', 'approval.css') };
+routes['/approval/app.js'] = { type: 'text/javascript; charset=utf-8', body: pub('approval', 'approval.js') };
 
 http.createServer((req, res) => {
   let url = req.url.split('?')[0].split('#')[0];

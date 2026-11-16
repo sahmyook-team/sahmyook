@@ -17,3 +17,10 @@ h1,h2{margin:0 0 14px;font-size:1.2rem}
 .ap-steps{margin:0;padding-left:1.3em;display:grid;gap:8px}
 .ap-muted{color:var(--muted);font-size:.92rem}
 .ap-foot{color:var(--muted);font-size:.82rem;padding-bottom:28px}
+.ap-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.ap-btn{font:inherit;font-weight:700;padding:10px 20px;border-radius:10px;border:1px solid var(--acc);background:var(--acc);color:#fff;cursor:pointer}
+.ap-btn:disabled{opacity:.5;cursor:not-allowed}
+.ap-btn:focus-visible{outline:3px solid var(--acc-soft);outline-offset:2px}
+.ap-msg{font-size:.92rem;color:var(--acc)}
+.ap-msg.bad{color:#c0392b}
+.ap-msg a{color:inherit}
