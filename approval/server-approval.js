@@ -23,13 +23,15 @@ module.exports = function approval(d) {
   // d: { send, readBody, sign, cookie, readSahm, readPins, savePin, badPin, sameHash, tooMany, noteFailure, kst, ON_CLOUD_RUN, SECRET_OK }
 
   function reviewers(text) {
-    const list = [];
-    const seen = new Set();
+    // 아래로 읽으면서 [reviewer] 는 추가, [reviewer-removed] 는 삭제 (나중 줄이 이김)
+    const map = new Map();
     for (const raw of text.split('\n')) {
       const m = raw.trim().match(/^\[reviewer\]\s+([a-z][a-z0-9-]{1,19})\s*\|\s*([^|]+?)\s*(\||$)/);
-      if (m && !seen.has(m[1])) { seen.add(m[1]); list.push({ id: m[1], name: m[2] }); }
+      if (m) { map.set(m[1], { id: m[1], name: m[2] }); continue; }
+      const r = raw.trim().match(/^\[reviewer-removed\]\s+([a-z][a-z0-9-]{1,19})\b/);
+      if (r) map.delete(r[1]);
     }
-    return list;
+    return [...map.values()];
   }
   async function findReviewer(id) {
     const { text } = await d.readSahm();
