@@ -90,3 +90,4 @@
 [running] Wmwijvly7 | 09:54 | 처리 중 — 전경철 페이지 하단에 '황경아' 이름 추가
 [done] Wmwijvly7 | 2026-11-16 | 전경철 페이지 하단(푸터)에 '황경아' 이름을 넣고, 버전 줄은 직전 요청대로 설명 없이 'v5.1 · 2026-11-16' 만 표시했습니다 (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/kyungcheol)
 [approval] Amwiwb18h | 2026-11-16 15:41 | 요청 | 전경철님이 검토 실행
+[approval] Amwiwb18h | 2026-11-16 15:41 | 대상없음 | 결재 폴더에 zip 없음
