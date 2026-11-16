@@ -221,6 +221,27 @@ const sameHash = (a, b) => a && b && a.length === b.length && crypto.timingSafeE
 // 웹 프롬프트 줄:   [todo] W<id> | 2026-11-15 14:03 | 전경철 | 프롬프트
 // 결과 줄(예약작업): [done] W<id> | 2026-11-15 | 결과 요약   /  [skipped] W<id> | 날짜 | 이유
 // careworld-in 공동 프롬프트: [todo] C<id> | 시각 | 이름 | 프롬프트  (결과도 같은 C<id> 로)
+// 결재검토 진행 기록: "[approval] A<번호> | YYYY-MM-DD HH:MM | 단계 | 메시지" (결재 내용·이름은 쓰지 않고 건수·시각만)
+const approvalRuns = []; // 버튼으로 시작한 실행의 세션 링크 (서버 메모리)
+const APPROVAL_END = new Set(['완료', '대상없음', '오류']);
+function parseApproval(text) {
+  const byId = new Map();
+  for (const raw of text.split('\n')) {
+    const m = raw.trim().match(/^\[approval\]\s+(A\w+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*(.*)$/);
+    if (!m) continue;
+    if (!byId.has(m[1])) byId.set(m[1], { id: m[1], events: [] });
+    byId.get(m[1]).events.push({ at: m[2], stage: m[3].replace(/\s/g, ''), msg: m[4].slice(0, 300) });
+  }
+  return [...byId.values()].reverse().slice(0, 10).map((r) => {
+    const last = r.events[r.events.length - 1];
+    const startedAt = new Date(`${r.events[0].at.replace(' ', 'T')}:00+09:00`).getTime();
+    let state = APPROVAL_END.has(last.stage) ? (last.stage === '오류' ? 'error' : 'done') : 'running';
+    if (state === 'running' && last.stage === '요청' && Date.now() - startedAt > 20 * 60e3) state = 'stale';
+    const mem = approvalRuns.find((x) => x.id === r.id);
+    return { ...r, state, sessionUrl: mem ? mem.sessionUrl : null };
+  });
+}
+
 function parseLog(text, name, prefix = 'W') {
   const prompts = [];
   const results = {};
@@ -367,8 +388,18 @@ async function api(req, res, url) {
     if (url === '/api/approval/run' && req.method === 'POST') { // 결재검토 [검토 실행] — 관리자만
       if (!me) return send(res, 401, { error: '먼저 로그인해 주세요.' });
       if (me !== ADMIN) return send(res, 403, { error: `결재검토 실행은 ${ADMIN}님만 할 수 있습니다.` });
-      const run = await fireRoutine(me, `결재검토 실행 버튼 (${me}, ${kst()} KST): Drive 결재 폴더의 zip 을 approval/ROUTINE.md 대로 지금 검토해 주세요.`, 'approval');
-      return send(res, 200, run);
+      const aid = `A${Date.now().toString(36)}`;
+      const run = await fireRoutine(me, `결재검토 실행 버튼 (${me}, ${kst()} KST, 실행번호 ${aid}): Drive 결재 폴더의 zip 을 approval/ROUTINE.md 대로 지금 검토해 주세요.`, 'approval');
+      approvalRuns.unshift({ id: aid, sessionUrl: run.sessionUrl });
+      approvalRuns.length = Math.min(approvalRuns.length, 20);
+      await appendSahm(`[approval] ${aid} | ${kst()} | 요청 | ${me}님이 검토 실행`, `approval ${aid}: requested`).catch((e) => console.error('approval log:', e.message));
+      return send(res, 200, { ...run, id: aid });
+    }
+    if (url === '/api/approval/status' && req.method === 'GET') { // 결재검토 진행 상황 — 관리자만 (건수·시각만 있음)
+      if (!me) return send(res, 401, { error: '먼저 로그인해 주세요.' });
+      if (me !== ADMIN) return send(res, 403, { error: `진행 상황은 ${ADMIN}님만 볼 수 있습니다.` });
+      const { text } = await readSahm();
+      return send(res, 200, { runs: parseApproval(text) });
     }
     if (url === '/api/run' && req.method === 'POST') {
       if (!me) return send(res, 401, { error: '먼저 로그인해 주세요.' });
