@@ -119,3 +119,4 @@
 [approval] Amwkaahz3 | 2026-11-17 15:01 | 준비 | 검토 도구 준비 완료
 [approval] Amwkaahz3 | 2026-11-17 15:02 | 검토 | 1/1건 검토 중
 [approval] Amwkaahz3 | 2026-11-17 15:02 | 보고서 | 보고서 작성 완료 https://docs.google.com/document/d/13kJXUAAN_kI52H-IfwSGwn6ZVBSWZhKex_3-Xl99rno/edit
+[approval] Amwkaahz3 | 2026-11-17 15:02 | 정리 | 검토 끝난 파일 0개 삭제, 실패 1건 남김
