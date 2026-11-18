@@ -141,3 +141,4 @@
 [approval] Amwkcxkic | 2026-11-17 16:17 | 정리 | 검토 끝난 파일 1개 삭제, 실패 0건 남김
 [approval] Amwkcxkic | 2026-11-17 16:17 | 완료 | 1건 중 확인 필요 1건
 [approval] Amwln7vtv | 2026-11-18 13:50 | 요청 | 전경철님이 검토 실행
+[approval] Amwln7vtv | 2026-11-18 13:50 | 시작 | 결재 파일 1건 발견
