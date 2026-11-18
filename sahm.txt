@@ -149,3 +149,4 @@
 [approval] Amwln7vtv | 2026-11-18 13:53 | 완료 | 6건 중 확인 필요 3건
 [approval] Amwlneh7c | 2026-11-18 13:55 | 요청 | 전경철님이 검토 실행
 [approval] Amwlneh7c | 2026-11-18 13:56 | 시작 | 결재 파일 1건 발견
+[approval] Amwlneh7c | 2026-11-18 13:56 | 준비 | 검토 도구 준비 완료
