@@ -172,3 +172,4 @@
 [approval] A202611181414 | 2026-11-18 14:17 | 검토 | 7/9건 검토 중
 [approval] A202611181414 | 2026-11-18 14:17 | 검토 | 8/9건 검토 중
 [approval] A202611181414 | 2026-11-18 14:17 | 검토 | 9/9건 검토 중
+[approval] A202611181414 | 2026-11-18 14:19 | 보고서 | 보고서 작성 완료 https://docs.google.com/document/d/1QAkunhooQ7jGha5aRlt8P1cscmob4PXXFnWCiXDSilw/edit
