@@ -151,3 +151,4 @@
 [approval] Amwlneh7c | 2026-11-18 13:56 | 시작 | 결재 파일 1건 발견
 [approval] Amwlneh7c | 2026-11-18 13:56 | 준비 | 검토 도구 준비 완료
 [approval] Amwlneh7c | 2026-11-18 13:56 | 검토 | 1/1건 검토 중
+[approval] Amwlneh7c | 2026-11-18 13:57 | 보고서 | 보고서 작성 완료 https://docs.google.com/document/d/1KRoeyfbrnWzfsccB3GMxtJQRTVCukL0cFkjEEBHgCDU/edit
