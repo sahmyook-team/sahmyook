@@ -219,3 +219,4 @@
 [running] Wmwnf645q | 19:41 | 처리 중 — 김영숙 페이지에 날짜와 시간을 표시하는 중
 [todo] Wmwnf716e | 2026-11-19 19:41 | 이현주 | 프롬프트창 밑에 시긴을 표시해줘.
 [done] Wmwnf4xvu | 2026-11-19 | 김주연 페이지에 '동요 듣기' 코너(고향의 봄·오빠 생각·송아지·산토끼, 노래 소개와 ▶ 듣기 링크)를 만들었습니다. 가사는 저작권이 있어 싣지 않았습니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/juyeon)
+[done] Wmwnf524q | 2026-11-19 | 왕성원 페이지 위쪽에 '오늘의 요일과 날씨'(한국시간 요일·날짜, 서울 현재 날씨·최저/최고 기온·비 올 확률)를 만들었습니다. 날씨는 페이지를 열 때 가져오며, 못 가져오면 안내 문구가 보입니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/seongwon)

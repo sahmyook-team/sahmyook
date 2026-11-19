@@ -9,6 +9,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<style>
+/* 내 페이지 전용: 오늘의 요일과 날씨 */
+.today-box{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:12px}
+.today-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}
+.today-card .today-k{margin:0;font-size:.85rem;color:var(--muted)}
+.today-card .today-v{margin:.2em 0 0;font-size:1.7rem;font-weight:800;line-height:1.25}
+.today-card .today-s{margin:.3em 0 0;font-size:.95rem;color:var(--muted)}
+</style>
 </head>
 <body>
 
@@ -67,6 +75,23 @@
       <p>아직 소개 글이 없습니다. 소개 글은 Google 문서 <b>sahm_all</b>에 적어 주시면 이 페이지에 반영됩니다.</p>
       <a class="btn primary" href="https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit" target="_blank" rel="noopener">sahm_all 문서 열기 →</a>
     </div>
+    <article class="sermon imp" aria-labelledby="today-title">
+      <p class="sermon-label">오늘</p>
+      <h2 id="today-title">오늘의 요일과 날씨</h2>
+      <div class="today-box">
+        <div class="today-card">
+          <p class="today-k">오늘은</p>
+          <p class="today-v" id="today-day">—</p>
+          <p class="today-s" id="today-date"></p>
+        </div>
+        <div class="today-card" aria-live="polite">
+          <p class="today-k">서울 날씨</p>
+          <p class="today-v" id="today-weather">불러오는 중…</p>
+          <p class="today-s" id="today-weather-sub"></p>
+        </div>
+      </div>
+      <p class="imp-note">요일·날짜는 한국시간 기준이고, 날씨는 서울 기준으로 페이지를 열 때 Open-Meteo에서 가져옵니다. (웹 프롬프트 Wmwnf524q)</p>
+    </article>
     <article class="sermon imp" aria-labelledby="family-title">
       <p class="sermon-label">학습일지를 바탕으로 정리 · 가명</p>
       <h2 id="family-title">유바람님의 가족 구성과 성장 환경</h2>
@@ -132,11 +157,36 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 유바람님이 좋아하는 문화 목록 추가 (웹 프롬프트 Wmwnf19ru)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 오늘의 요일과 날씨 추가 (웹 프롬프트 Wmwnf524q)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
 
+<script>
+/* 내 페이지 전용: 오늘의 요일(한국시간)과 서울 날씨 */
+(function(){
+  var d=new Date(), tz={timeZone:'Asia/Seoul'};
+  document.getElementById('today-day').textContent=d.toLocaleDateString('ko-KR',Object.assign({weekday:'long'},tz));
+  document.getElementById('today-date').textContent=d.toLocaleDateString('ko-KR',Object.assign({year:'numeric',month:'long',day:'numeric'},tz));
+  var w=document.getElementById('today-weather'), sub=document.getElementById('today-weather-sub');
+  function name(c){
+    if(c===0) return '☀️ 맑음'; if(c===1) return '🌤️ 대체로 맑음'; if(c===2) return '⛅ 구름 조금'; if(c===3) return '☁️ 흐림';
+    if(c===45||c===48) return '🌫️ 안개'; if(c>=51&&c<=57) return '🌦️ 이슬비'; if(c>=61&&c<=67) return '🌧️ 비';
+    if(c>=71&&c<=77) return '🌨️ 눈'; if(c>=80&&c<=82) return '🌧️ 소나기'; if(c===85||c===86) return '🌨️ 소낙눈';
+    if(c>=95) return '⛈️ 천둥번개'; return '날씨';
+  }
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.978&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FSeoul&forecast_days=1')
+    .then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
+    .then(function(j){
+      w.textContent=name(j.current.weather_code)+' '+Math.round(j.current.temperature_2m)+'°C';
+      var t='최저 '+Math.round(j.daily.temperature_2m_min[0])+'° · 최고 '+Math.round(j.daily.temperature_2m_max[0])+'°';
+      var pp=j.daily.precipitation_probability_max&&j.daily.precipitation_probability_max[0];
+      if(pp!=null) t+=' · 비 올 확률 '+pp+'%';
+      sub.textContent=t;
+    })
+    .catch(function(){ w.textContent='날씨를 불러오지 못했어요'; sub.textContent='잠시 뒤 새로 고침해 주세요.'; });
+})();
+</script>
 <script src="/app.js" defer></script>
 </body>
 </html>
