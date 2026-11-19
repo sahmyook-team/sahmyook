@@ -250,3 +250,4 @@
 [todo] Wmwnfv8q2 | 2026-11-19 20:00 | 김영숙 | 오늘의 날씨도 날짜 옆에 표기해줘. 실행해줘
 [running] Wmwnfunzv | 20:00 | 처리 중 — 김혜진 페이지의 글꼴을 귀여운 글씨체로 바꾸는 중
 [running] Wmwnfv8q2 | 20:00 | 처리 중 — 김영숙 페이지의 날짜 옆에 오늘의 날씨를 표시하는 중
+[done] Wmwnfunzv | 2026-11-19 | 김혜진 페이지의 글꼴을 귀여운 글씨체(주아체)로 바꿨습니다. 이 페이지에서만 바뀌고 다른 페이지는 그대로입니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/hyejin)
