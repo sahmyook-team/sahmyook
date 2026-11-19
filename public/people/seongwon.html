@@ -10,6 +10,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 <style>
+/* 내 페이지 전용: 편안한 파스텔 분홍 꾸미기 (웹 프롬프트 Wmwnh7w2i) */
+:root{
+  --bg:#fff7f9; --bg2:#fdebf1; --fg:#3b2a31; --muted:#7a6068;
+  --card:#ffffff; --line:#f5d5df;
+  --care:#c2577c; --care-soft:#fde3eb;
+  --ai:#8a67a6; --ai-soft:#f1e6f6;
+  --on-accent:#ffffff;
+  --shadow:0 10px 30px rgba(194,87,124,.10);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#1c1518; --bg2:#261c21; --fg:#f5e9ed; --muted:#bda7af;
+    --card:#2a1f24; --line:#40303a;
+    --care:#f3a3bd; --care-soft:#40252f;
+    --ai:#cdb0e4; --ai-soft:#33283d;
+    --on-accent:#1c1518;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+}
+body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat var(--bg)}
+.btn.primary{box-shadow:0 8px 20px rgba(194,87,124,.22)}
+.profile-avatar{box-shadow:0 0 0 6px var(--care-soft)}
+.sermon{border-radius:24px}
+.today-card{background:var(--care-soft);border-color:var(--line)}
 /* 내 페이지 전용: 오늘의 요일과 날씨 */
 .today-box{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:12px}
 .today-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}
@@ -221,7 +245,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 뉴에이지 음악 플레이어 추가 (웹 프롬프트 Wmwngk3a0)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 편안한 파스텔 분홍 느낌으로 꾸밈 (웹 프롬프트 Wmwnh7w2i)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
