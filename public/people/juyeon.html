@@ -9,6 +9,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<style>
+/* 내 페이지 전용: 동요 듣기 코너 */
+.song-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:14px}
+.song-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.song-card h3{margin:0;font-size:1.1rem}
+.song-card .song-by{margin:0;font-size:.85rem;color:var(--muted)}
+.song-card p{margin:0;font-size:.95rem}
+.song-card .btn{margin-top:auto;align-self:flex-start}
+</style>
 </head>
 <body>
 
@@ -87,6 +96,38 @@
       </ul>
       <p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. (sahm_all 요청 22)</p>
     </article>
+    <article class="sermon imp" aria-labelledby="song-title">
+      <p class="sermon-label">함께 부르는 동요</p>
+      <h2 id="song-title">동요 듣기 — 고향의 봄 · 오빠 생각 · 송아지 · 산토끼</h2>
+      <p>듣고 싶은 노래의 <b>▶ 듣기</b>를 누르면 새 창(YouTube)에서 노래를 들을 수 있습니다.</p>
+      <div class="song-grid">
+        <div class="song-card">
+          <h3>고향의 봄</h3>
+          <p class="song-by">이원수 작사 · 홍난파 작곡</p>
+          <p>꽃 피는 고향 마을을 그리워하는 마음을 담은 노래입니다. 천천히, 따뜻하게 부르면 좋아요.</p>
+          <a class="btn ghost" href="https://www.youtube.com/results?search_query=%EA%B3%A0%ED%96%A5%EC%9D%98%20%EB%B4%84%20%EB%8F%99%EC%9A%94" target="_blank" rel="noopener" aria-label="고향의 봄 듣기 (YouTube 새 창)">▶ 듣기</a>
+        </div>
+        <div class="song-card">
+          <h3>오빠 생각</h3>
+          <p class="song-by">최순애 작사 · 박태준 작곡</p>
+          <p>서울 간 오빠를 기다리는 동생의 마음을 담은 노래입니다. 뜸북새·뻐꾹새 소리가 나오는 노래예요.</p>
+          <a class="btn ghost" href="https://www.youtube.com/results?search_query=%EC%98%A4%EB%B9%A0%20%EC%83%9D%EA%B0%81%20%EB%8F%99%EC%9A%94" target="_blank" rel="noopener" aria-label="오빠 생각 듣기 (YouTube 새 창)">▶ 듣기</a>
+        </div>
+        <div class="song-card">
+          <h3>송아지</h3>
+          <p class="song-by">박목월 작사 · 손대업 작곡</p>
+          <p>엄마 소를 닮은 얼룩 송아지를 노래합니다. 짧고 쉬워서 함께 부르기 좋아요.</p>
+          <a class="btn ghost" href="https://www.youtube.com/results?search_query=%EC%86%A1%EC%95%84%EC%A7%80%20%EB%8F%99%EC%9A%94" target="_blank" rel="noopener" aria-label="송아지 듣기 (YouTube 새 창)">▶ 듣기</a>
+        </div>
+        <div class="song-card">
+          <h3>산토끼</h3>
+          <p class="song-by">이일래 작사 · 작곡</p>
+          <p>깡충깡충 뛰어가는 산토끼를 노래합니다. 손뼉을 치며 신나게 부르면 좋아요.</p>
+          <a class="btn ghost" href="https://www.youtube.com/results?search_query=%EC%82%B0%ED%86%A0%EB%81%BC%20%EB%8F%99%EC%9A%94" target="_blank" rel="noopener" aria-label="산토끼 듣기 (YouTube 새 창)">▶ 듣기</a>
+        </div>
+      </div>
+      <p class="imp-note">가사는 저작권이 있어 싣지 않고, 노래를 들을 수 있는 링크로 연결했습니다. (웹 프롬프트 Wmwnf4xvu)</p>
+    </article>
     <a class="back" href="/#people">← 함께 만든 사람으로 돌아가기</a>
   </section>
   <section class="wrap drive-folder" aria-labelledby="drive-title">
@@ -98,7 +139,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>v5.2 · 2026-11-19 함께 만든 사람에서 전동규·전진규 삭제 (careworld-in 프롬프트 Cmwnbiahs)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 동요 듣기 코너(고향의 봄·오빠 생각·송아지·산토끼) 추가 (웹 프롬프트 Wmwnf4xvu)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
