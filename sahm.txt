@@ -237,3 +237,5 @@
 [running] Wmwnfa9ix | 19:45 | 처리 중 — 오홍진 폴더의 자료로 오홍진 페이지에 유바람님의 좋은 하루·나쁜 하루를 만드는 중
 [todo] Wmwnfb8bc | 2026-11-19 19:44 | 임규완 | 유바람님의 좋은 하루 힘든 하루를 정리해줘. 실행해줘
 [running] Wmwnfb8bc | 19:45 | 처리 중 — 임규완 페이지에 유바람님의 좋은 하루·힘든 하루를 정리하는 중
+[done] Wmwnfa9qk | 2026-11-19 | 박아름 페이지의 '좋은 하루' 아래에 '유바람님의 나쁜 하루'(나쁜 하루의 모습과 잘 지나가게 하는 도움)를 추가했습니다. 가명·본인 동의 자료(kyoung 폴더 학습일지) 기준입니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/areum)
+[done] Wmwnfa9ix | 2026-11-19 | 오홍진 폴더에 올린 학습일지_유바람.pdf 를 바탕으로 오홍진 페이지에 '유바람님의 좋은 하루, 나쁜 하루'(좋은 하루·나쁜 하루·도움 방법)를 만들었습니다. 가명·본인 동의 자료 기준입니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/hongjin)
