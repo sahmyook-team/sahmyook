@@ -60,6 +60,19 @@
 .sr-web{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .sr-web a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);font-size:.92rem;text-decoration:none}
 .sr-card small{display:block;margin-top:10px;color:var(--muted)}
+/* 내 페이지 전용: 오른쪽 위 모퉁이 노래 플레이 */
+.mp-fab{position:fixed;top:var(--mp-top,70px);right:10px;z-index:60;display:flex;align-items:center;gap:4px;max-width:calc(100vw - 20px);padding:5px 6px;border-radius:999px;border:1px solid var(--line);background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.mp-fab button{font:inherit;cursor:pointer;border:0;border-radius:999px;background:transparent;color:var(--fg);min-width:40px;height:40px;padding:0 10px;font-size:1.05rem}
+.mp-fab button.mp-play{background:var(--care);color:var(--on-accent);font-weight:800;padding:0 14px}
+.mp-fab button:focus-visible{outline:2px solid var(--ai);outline-offset:2px}
+.mp-title{font-size:.85rem;font-weight:700;max-width:9em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px}
+.mp-fab.on .mp-note{display:inline-block;animation:mp-bob 1s ease-in-out infinite}
+@keyframes mp-bob{50%{transform:translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){.mp-fab.on .mp-note{animation:none}}
+.mp-fab.mini{padding:3px 4px;gap:0}
+.mp-fab.mini .mp-title,.mp-fab.mini #mp-play-txt .mp-word{display:none}
+.mp-fab.mini button{min-width:38px;height:38px;padding:0 8px}
+@media print{.mp-fab{display:none}}
 </style>
 </head>
 <body>
@@ -107,6 +120,47 @@
 </nav>
 
 <main>
+  <div class="mp-fab" id="mp-fab" role="group" aria-label="노래 플레이">
+    <button type="button" class="mp-play" id="mp-play" aria-pressed="false" aria-label="노래 틀기"><span class="mp-note" aria-hidden="true">♪</span> <span id="mp-play-txt">▶<span class="mp-word"> 노래</span></span></button>
+    <span class="mp-title" id="mp-title" aria-live="polite">아리랑</span>
+    <button type="button" id="mp-next" aria-label="다음 노래" title="다음 노래">⏭</button>
+  </div>
+  <script>
+  /* 오른쪽 위 노래 플레이: 페이지가 직접 연주하는 가락(저작권 없는 옛 노래). 버튼을 눌러야 소리가 납니다. */
+  (function(){
+    var fab=document.getElementById('mp-fab'),bp=document.getElementById('mp-play'),bt=document.getElementById('mp-play-txt'),
+        tt=document.getElementById('mp-title'),bn=document.getElementById('mp-next');
+    function place(){var h=document.querySelector('.site-header'),pn=document.querySelector('.people-nav'),w=window.innerWidth,top=8;
+      var hh=h?h.getBoundingClientRect().height:60,ph=pn?pn.getBoundingClientRect().height:0;
+      fab.classList.toggle('mini',w<700);
+      if(w>=1400)top=hh+8;else if(w>=700)top=hh+ph+8;else top=6;
+      fab.style.setProperty('--mp-top',top+'px');}
+    place();window.addEventListener('resize',place);
+    var N={G3:55,A3:57,C4:60,D4:62,E4:64,F4:65,G4:67,A4:69,B4:71,C5:72,D5:74,E5:76,G5:79};
+    var songs=[
+      {t:'아리랑',bpm:96,n:'G4 1.5,A4 .5,G4 .5,A4 .5,C5 1.5,D5 .5,C5 .5,D5 .5,E5 1,D5 .5,E5 .5,C5 .5,A4 .5,G4 1.5,A4 .5,G4 .5,A4 .5,C5 1.5,D5 .5,C5 .5,D5 .5,E5 .5,D5 .5,C5 .5,A4 .5,G4 .5,A4 .5,C5 1.5,D5 .5,C5 1,C5 3'},
+      {t:'반짝반짝 작은 별',bpm:104,n:'C4 1,C4 1,G4 1,G4 1,A4 1,A4 1,G4 2,F4 1,F4 1,E4 1,E4 1,D4 1,D4 1,C4 2,G4 1,G4 1,F4 1,F4 1,E4 1,E4 1,D4 2,G4 1,G4 1,F4 1,F4 1,E4 1,E4 1,D4 2,C4 1,C4 1,G4 1,G4 1,A4 1,A4 1,G4 2,F4 1,F4 1,E4 1,E4 1,D4 1,D4 1,C4 2'},
+      {t:'환희의 송가',bpm:112,n:'E4 1,E4 1,F4 1,G4 1,G4 1,F4 1,E4 1,D4 1,C4 1,C4 1,D4 1,E4 1,E4 1.5,D4 .5,D4 2,E4 1,E4 1,F4 1,G4 1,G4 1,F4 1,E4 1,D4 1,C4 1,C4 1,D4 1,E4 1,D4 1.5,C4 .5,C4 2'}
+    ];
+    var AC=window.AudioContext||window.webkitAudioContext,ctx=null,gain=null,idx=0,playing=false,timer=null,gen=0;
+    function show(){tt.textContent=songs[idx].t;bt.innerHTML=playing?'⏸<span class="mp-word"> 멈춤</span>':'▶<span class="mp-word"> 노래</span>';bp.title=songs[idx].t;bp.setAttribute('aria-pressed',playing?'true':'false');
+      bp.setAttribute('aria-label',playing?'노래 멈추기':'노래 틀기');fab.classList.toggle('on',playing);}
+    function tone(midi,at,len){var o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.value=440*Math.pow(2,(midi-69)/12);
+      g.gain.setValueAtTime(0.0001,at);g.gain.exponentialRampToValueAtTime(0.9,at+0.03);g.gain.exponentialRampToValueAtTime(0.0001,at+len*0.95);
+      o.connect(g);g.connect(gain);o.start(at);o.stop(at+len);}
+    function run(){var my=++gen,s=songs[idx],beat=60/s.bpm,at=ctx.currentTime+0.08,total=0;
+      gain=ctx.createGain();gain.gain.value=0.22;gain.connect(ctx.destination);
+      s.n.split(',').forEach(function(x){var a=x.split(' '),len=parseFloat(a[1])*beat;tone(N[a[0]],at+total,len);total+=len;});
+      clearTimeout(timer);timer=setTimeout(function(){if(playing&&my===gen){idx=(idx+1)%songs.length;show();run();}},(total+0.8)*1000);}
+    function stop(){gen++;clearTimeout(timer);if(gain){try{gain.gain.setValueAtTime(0,ctx.currentTime);gain.disconnect();}catch(e){}gain=null;}}
+    bp.addEventListener('click',function(){
+      if(!AC){tt.textContent='이 기기는 소리를 낼 수 없어요';return;}
+      if(!ctx)ctx=new AC();if(ctx.state==='suspended')ctx.resume();
+      playing=!playing;if(playing)run();else stop();show();});
+    bn.addEventListener('click',function(){idx=(idx+1)%songs.length;if(playing){stop();run();}show();});
+    show();
+  })();
+  </script>
   <section class="wrap profile" aria-labelledby="profile-name">
     <div class="profile-head">
       <span class="profile-avatar" aria-hidden="true">김</span>
@@ -393,7 +447,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 키워드 검색하기 창 추가 (웹 프롬프트 Wmwngopov)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 오른쪽 위 노래 플레이 버튼 추가 (웹 프롬프트 Wmwnh10xr)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
