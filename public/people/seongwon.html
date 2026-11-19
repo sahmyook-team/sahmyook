@@ -158,7 +158,8 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
     <article class="sermon imp" aria-labelledby="mp-title">
       <p class="sermon-label">음악</p>
       <h2 id="mp-title">뉴에이지 음악 플레이어</h2>
-      <p>▶ 틀기를 누르면 잔잔한 뉴에이지 풍 음악이 나옵니다. 플레이리스트는 자동으로 채워져 있고, 한 곡이 끝나면 다음 곡으로 넘어갑니다.</p>
+      <p>▶ 틀기를 누르면 잔잔한 뉴에이지 풍 음악이 나옵니다. 저작권 없이 이 페이지가 직접 만든 다섯 곡이 매주 새로 채워지고, 한 곡이 끝나면 다음 곡으로 넘어갑니다.</p>
+      <p class="imp-note" id="mp-week">이번 주 플레이리스트</p>
       <div class="mp">
         <p class="mp-now" id="mp-now">—</p>
         <p class="mp-state" id="mp-state" aria-live="polite">멈춤</p>
@@ -170,15 +171,7 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
         </div>
         <ol class="mp-list" id="mp-list"></ol>
       </div>
-      <h3>유명한 뉴에이지 곡 듣기</h3>
-      <ul class="imp-list">
-        <li><b>이루마 – River Flows in You</b><span><a href="https://www.youtube.com/results?search_query=%EC%9D%B4%EB%A3%A8%EB%A7%88%20River%20Flows%20in%20You" target="_blank" rel="noopener">새 창(YouTube)에서 듣기 →</a></span></li>
-        <li><b>유키 구라모토 – Lake Louise</b><span><a href="https://www.youtube.com/results?search_query=%EC%9C%A0%ED%82%A4%20%EA%B5%AC%EB%9D%BC%EB%AA%A8%ED%86%A0%20Lake%20Louise" target="_blank" rel="noopener">새 창(YouTube)에서 듣기 →</a></span></li>
-        <li><b>조지 윈스턴 – Thanksgiving</b><span><a href="https://www.youtube.com/results?search_query=George%20Winston%20Thanksgiving" target="_blank" rel="noopener">새 창(YouTube)에서 듣기 →</a></span></li>
-        <li><b>앙드레 가뇽 – Comme au premier jour</b><span><a href="https://www.youtube.com/results?search_query=Andr%C3%A9%20Gagnon%20Comme%20au%20premier%20jour" target="_blank" rel="noopener">새 창(YouTube)에서 듣기 →</a></span></li>
-        <li><b>케빈 컨 – Sundial Dreams</b><span><a href="https://www.youtube.com/results?search_query=Kevin%20Kern%20Sundial%20Dreams" target="_blank" rel="noopener">새 창(YouTube)에서 듣기 →</a></span></li>
-      </ul>
-      <p class="imp-note">플레이어의 곡은 저작권 걱정이 없도록 이 페이지가 그 자리에서 직접 만들어 내는 뉴에이지 풍 연주입니다(음악 파일 없음, 곡마다 3분쯤). 자동 재생은 브라우저가 막으므로 ▶ 틀기를 눌러야 소리가 납니다. 실제 연주자의 곡은 아래 링크로 새 창에서 들을 수 있습니다. (웹 프롬프트 Wmwngk3a0)</p>
+      <p class="imp-note">저작권이 있는 노래 목록은 지웠습니다. 플레이리스트의 다섯 곡은 모두 이 페이지가 그 자리에서 직접 만들어 연주하는 자체 제작 곡이라 저작권 걱정이 없습니다(음악 파일 없음, 곡마다 3분쯤). 다섯 곡은 매주 월요일(한국시간)에 새 곡으로 자동으로 바뀝니다. 자동 재생은 브라우저가 막으므로 ▶ 틀기를 눌러야 소리가 납니다. (웹 프롬프트 Wmwngk3a0 · Wmwnhtmes)</p>
     </article>
     <article class="sermon imp" aria-labelledby="family-title">
       <p class="sermon-label">학습일지를 바탕으로 정리 · 가명</p>
@@ -245,7 +238,7 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 편안한 파스텔 분홍 느낌으로 꾸밈 (웹 프롬프트 Wmwnh7w2i)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 음악을 자체 제작 5곡으로, 매주 새 곡 (웹 프롬프트 Wmwnhtmes)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
@@ -296,13 +289,20 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 <script>
 /* 내 페이지 전용: 뉴에이지 음악 플레이어 (Web Audio 로 그 자리에서 연주, 음악 파일 없음) */
 (function(){
-  var TR=[
-    {t:'아침 호수',d:'맑고 느리게',root:57,sc:[0,2,4,7,9],ch:[[0,7,16],[5,12,21],[-3,4,12],[-5,7,14]],bpm:66},
-    {t:'숲속 산책',d:'가볍게',root:60,sc:[0,2,4,7,9],ch:[[0,7,16],[-3,4,12],[5,12,21],[7,14,23]],bpm:80},
-    {t:'비 오는 창가',d:'잔잔하게',root:57,sc:[0,3,5,7,10],ch:[[0,7,15],[-4,3,12],[-2,5,14],[-7,0,10]],bpm:60},
-    {t:'별이 뜨는 밤',d:'아주 느리게',root:53,sc:[0,2,4,7,9],ch:[[0,7,16],[7,14,23],[-3,4,12],[5,12,21]],bpm:54},
-    {t:'바람의 노래',d:'따뜻하게',root:62,sc:[0,2,5,7,9],ch:[[0,7,14],[-5,2,10],[5,12,19],[-2,5,14]],bpm:72}
-  ];
+  /* 매주 월요일 0시(한국시간)에 바뀌는 주 번호로 다섯 곡을 새로 만든다 — 모두 자체 제작(저작권 없음) */
+  var DAY=86400000, WK=Math.floor((Date.now()+9*3600000-4*DAY)/(7*DAY)), ws=(WK*2654435761)%2147483647||1;
+  function wr(){ ws=(ws*48271)%2147483647; return ws/2147483647; }
+  function pick(a){ return a[Math.floor(wr()*a.length)]; }
+  var NM=['아침 호수','숲속 산책','비 오는 창가','별이 뜨는 밤','바람의 노래','새벽 안개','봄날의 편지','달빛 정원','고요한 바다','첫눈 오는 날','노을 지는 언덕','작은 시냇물','구름 위 산책','꽃잎 흩날리는 길','가을 들판','따뜻한 차 한 잔','은하수 건너','이슬 맺힌 아침','오후의 햇살','눈 덮인 숲','파도 소리','초록 바람','해 뜨는 마을','별빛 자장가','여름밤 반딧불','조용한 기도','무지개 다리','솜사탕 구름','겨울 난롯가','푸른 새벽'];
+  var MAJ=[[[0,7,16],[5,12,21],[-3,4,12],[-5,7,14]],[[0,7,16],[-3,4,12],[5,12,21],[7,14,23]],[[0,7,16],[7,14,23],[-3,4,12],[5,12,21]],[[0,7,14],[-5,2,10],[5,12,19],[-2,5,14]],[[5,12,21],[0,7,16],[7,14,23],[-3,4,12]]];
+  var MIN=[[[0,7,15],[-4,3,12],[-2,5,14],[-7,0,10]],[[0,7,15],[-2,5,14],[-4,3,12],[-5,2,10]],[[0,7,15],[-7,0,10],[-4,3,12],[-2,5,14]]];
+  var names=NM.slice(), TR=[];
+  for(var k=0;k<5;k++){
+    var nm=names.splice(Math.floor(wr()*names.length),1)[0], minor=wr()<0.35, bpm=54+Math.floor(wr()*15)*2;
+    TR.push({t:nm,d:bpm<60?'아주 느리게':bpm<68?'잔잔하게':bpm<76?'따뜻하게':'가볍게',root:pick([53,55,57,58,60,62]),sc:minor?[0,3,5,7,10]:pick([[0,2,4,7,9],[0,2,5,7,9]]),ch:pick(minor?MIN:MAJ),bpm:bpm});
+  }
+  (function(){ var m=new Date(WK*7*DAY+4*DAY), n=new Date((WK+1)*7*DAY+4*DAY), f=function(x){ return (x.getUTCMonth()+1)+'월 '+x.getUTCDate()+'일'; };
+    document.getElementById('mp-week').textContent='이번 주 플레이리스트 · '+f(m)+'(월)부터 · 다음 새 곡은 '+f(n)+'(월)에 바뀝니다'; })();
   var LEN=180, AC=window.AudioContext||window.webkitAudioContext, ctx=null, master=null, wet=null;
   var cur=0, playing=false, timer=null, nextT=0, step=0, t0=0, seed=1;
   var $=function(id){return document.getElementById(id);};
@@ -334,7 +334,7 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
     state.textContent='연주 중 · '+Math.floor(el/60)+':'+('0'+Math.floor(el%60)).slice(-2)+' / 3:00';
     if(el>=LEN){ go(cur+1,true); }
   }
-  function start(){ setup(); if(ctx.state==='suspended') ctx.resume(); seed=cur*977+13; step=0; nextT=ctx.currentTime+0.1; t0=ctx.currentTime; playing=true; clearInterval(timer); timer=setInterval(sched,200); sched(); draw(); }
+  function start(){ setup(); if(ctx.state==='suspended') ctx.resume(); seed=(WK%100000)*31+cur*977+13; step=0; nextT=ctx.currentTime+0.1; t0=ctx.currentTime; playing=true; clearInterval(timer); timer=setInterval(sched,200); sched(); draw(); }
   function stop(){ playing=false; clearInterval(timer); if(ctx) ctx.suspend(); state.textContent='멈춤'; draw(); }
   function go(i,auto){ cur=(i+TR.length)%TR.length; if(playing||auto){ start(); } else draw(); }
   function draw(){
@@ -344,7 +344,7 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
   }
   TR.forEach(function(tr,i){ var li=document.createElement('li'), b=document.createElement('button'), s=document.createElement('small'); b.type='button'; b.textContent=(i+1)+'. '+tr.t; s.textContent=tr.d; b.appendChild(s);
     b.addEventListener('click',function(){ cur=i; start(); }); li.appendChild(b); list.appendChild(li); });
-  if(!AC){ state.textContent='이 브라우저에서는 연주를 지원하지 않아요. 아래 링크로 들어 주세요.'; playB.disabled=true; }
+  if(!AC){ state.textContent='이 브라우저에서는 연주를 지원하지 않아요.'; playB.disabled=true; }
   playB.addEventListener('click',function(){ if(playing) stop(); else start(); });
   $('mp-prev').addEventListener('click',function(){ go(cur-1); });
   $('mp-next').addEventListener('click',function(){ go(cur+1); });
