@@ -9,6 +9,23 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<style>
+.gw-sum{margin-top:22px}
+.gw-two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0 18px}
+.gw-box{border:1px solid var(--line);border-radius:16px;padding:18px;background:var(--bg);min-width:0}
+.gw-box h3{margin:0 0 6px!important}
+.gw-box.good{border-top:5px solid #3a9d6e}
+.gw-box.hard{border-top:5px solid #d9773c}
+.gw-box p{margin:0 0 8px}
+.gw-box ul{margin:0;padding-left:1.2em}
+.gw-rows{display:grid;gap:10px;margin:10px 0 18px}
+.gw-row{display:grid;grid-template-columns:7em 1fr 1fr;gap:12px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--bg)}
+.gw-row>*{min-width:0;overflow-wrap:anywhere}
+.gw-row b{color:var(--care)}
+.gw-row .g::before{content:"좋은 하루 · ";font-weight:700;color:#2f8059}
+.gw-row .h::before{content:"힘든 하루 · ";font-weight:700;color:#b85f2a}
+@media (max-width:720px){.gw-two{grid-template-columns:1fr}.gw-row{grid-template-columns:1fr;gap:4px}}
+</style>
 </head>
 <body>
 
@@ -110,6 +127,50 @@
       </ul>
       <p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. (sahm_all 요청 30)</p>
     </article>
+    <article class="sermon imp gw-sum" aria-labelledby="sum-title">
+      <p class="sermon-label">한눈에 정리 · 가명</p>
+      <h2 id="sum-title">유바람님의 좋은 하루 · 힘든 하루 정리</h2>
+      <p>위의 내용을 한 번에 볼 수 있게 정리했습니다. 좋은 하루는 <b>익숙한 순서가 지켜지고 좋아하는 것이 하나쯤 들어 있는 날</b>, 힘든 하루는 <b>미리 알지 못한 변화가 갑자기 생기거나, 힘들 때 질문·접촉이 이어진 날</b>입니다.</p>
+      <div class="gw-two">
+        <section class="gw-box good">
+          <h3>좋은 하루</h3>
+          <p><b>이럴 때 좋습니다</b></p>
+          <ul>
+            <li>늘 하던 순서(아침·출근·수영·저녁·10시 약)가 그대로 이어질 때</li>
+            <li>새로운 활동을 영상·사진으로 미리 보고 시작할 때 (농구 응원)</li>
+            <li>좋아하는 것을 즐길 때 (합창 공연, 수족관 물고기, 노래 부르기)</li>
+            <li>직접 고를 수 있을 때 (다이소 물건, 점심 메뉴)</li>
+            <li>좋아하는 음식을 먹을 때 (치즈돈까스, 김치볶음밥, 김밥)</li>
+          </ul>
+          <p style="margin-top:10px"><b>이렇게 보입니다</b> — 웃음, 손뼉, 손깍지를 끼고 몸을 흔듦, 유리창에 손을 대고 구경함</p>
+        </section>
+        <section class="gw-box hard">
+          <h3>힘든 하루</h3>
+          <p><b>이럴 때 힘듭니다</b></p>
+          <ul>
+            <li>길·일정이 갑자기 바뀔 때 (지하철에서 내릴 역을 놓침)</li>
+            <li>힘든데 질문과 신체 접촉이 계속될 때 (수영 뒤 울면서 나왔을 때)</li>
+            <li>예상하지 못한 만남이 생길 때 (점심 중 갑자기 아버님을 만남)</li>
+            <li>이유를 알기 어려운 순간 (저녁 컴퓨터 검색 중)</li>
+          </ul>
+          <p style="margin-top:10px"><b>이렇게 보입니다</b> — 크게 당황함, 울음, 고함·소리 지르기, 때리는 등 공격적인 행동</p>
+        </section>
+      </div>
+      <h3>장면별로 나란히 보기</h3>
+      <div class="gw-rows">
+        <div class="gw-row"><b>이동</b><span class="g">가는 곳과 길을 미리 알고 출발함</span><span class="h">내릴 역을 놓쳐 동선이 바뀌어 크게 당황함</span></div>
+        <div class="gw-row"><b>점심</b><span class="g">김밥·돈까스 중에서 직접 골라 맛있게 먹음</span><span class="h">먹는 중에 갑자기 아버님을 만나 고함을 지름</span></div>
+        <div class="gw-row"><b>활동</b><span class="g">농구 응원, 합창 공연, 수족관, 다이소를 즐김</span><span class="h">수영 뒤 울고 있을 때 질문·접촉이 이어져 소리를 지름</span></div>
+        <div class="gw-row"><b>저녁</b><span class="g">좋아하는 저녁을 먹고 검색한 뒤 10시 약, “잘 자요”</span><span class="h">컴퓨터 검색을 하다 갑자기 소리를 지름</span></div>
+      </div>
+      <h3>힘든 하루를 좋은 하루로 바꾸는 도움</h3>
+      <ul class="imp-list">
+        <li><b>미리 알리기</b><span>길이나 일정이 바뀌면 출발 전에 짧고 분명하게 알려 주고, 새 활동은 영상·사진으로 먼저 보여 줍니다.</span></li>
+        <li><b>힘들 때는 기다리기</b><span>질문을 쏟아내거나 몸을 만지지 않고 안전한 거리에서 이름을 부르며, 진정되면 다음 일정을 알려 줍니다.</span></li>
+        <li><b>고를 수 있게 하기</b><span>두 가지 중에서 직접 고르게 하고, 익숙한 순서 안에 좋아하는 것을 하나 넣습니다.</span></li>
+      </ul>
+      <p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. (웹 프롬프트 Wmwnfb8bc)</p>
+    </article>
     <a class="back" href="/#people">← 함께 만든 사람으로 돌아가기</a>
   </section>
   <section class="wrap drive-folder" aria-labelledby="drive-title">
@@ -121,7 +182,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>v5.2 · 2026-11-19 함께 만든 사람에서 전동규·전진규 삭제 (careworld-in 프롬프트 Cmwnbiahs)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 유바람님의 좋은 하루·힘든 하루 정리 (웹 프롬프트 Wmwnfb8bc)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
