@@ -225,3 +225,4 @@
 [done] Wmwnf62nv | 2026-11-19 | 김용주 페이지에 '유바람님을 위한 쉼터'(물고기 수족관, 쉬고 싶은 방법 고르기와 지원인 안내, 5분 쉬기 시계)를 만들었습니다. 가명·본인 동의 자료(kyoung 폴더 학습일지) 기준입니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/yongju)
 [done] Wmwnf645q | 2026-11-19 | 김영숙 페이지 위쪽에 오늘 날짜(요일 포함)와 지금 시간(한국시간, 1초마다 갱신)을 표시했습니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/youngsook)
 [todo] Wmwnf8phq | 2026-11-19 19:42 | 김영숙 | 방문자목록.카운트 표시해줘. 실행해줘
+[done] Wmwnf716e | 2026-11-19 | 이현주 페이지의 프롬프트 창(입력 칸) 바로 밑에 지금 현재 시각(한국시간, 1초마다 갱신)을 표시했습니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/hyunju)
