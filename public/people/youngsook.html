@@ -43,6 +43,23 @@
 .od-bar button{padding:8px 18px;font-weight:700}
 .od-bar button.od-main{background:var(--ai);border-color:var(--ai);color:var(--on-accent)}
 .od-bar span{color:var(--muted);font-size:.9rem}
+/* 내 페이지 전용: 검색하기 창 */
+.sr-card{margin:16px 0;padding:18px 20px;border-radius:14px;border:1px solid var(--line);background:var(--card)}
+.sr-card h2{margin:0 0 10px;font-size:1.15rem}
+.sr-form{display:flex;flex-wrap:wrap;gap:8px}
+.sr-form input{flex:1 1 180px;min-width:0;font:inherit;padding:10px 14px;border-radius:999px;border:2px solid var(--line);background:var(--bg);color:var(--fg)}
+.sr-form input:focus{outline:none;border-color:var(--care)}
+.sr-form button{font:inherit;font-weight:700;cursor:pointer;padding:10px 20px;border-radius:999px;border:1px solid var(--ai);background:var(--ai);color:var(--on-accent)}
+.sr-form button.sr-clear{background:var(--bg);color:var(--fg);border-color:var(--line)}
+.sr-status{margin:10px 0 0;color:var(--muted);font-size:.92rem}
+.sr-results{list-style:none;margin:8px 0 0;padding:0;max-height:420px;overflow:auto}
+.sr-results li{padding:9px 0;border-top:1px solid var(--line);overflow-wrap:anywhere}
+.sr-results a{font-weight:700}
+.sr-results p{margin:2px 0 0;font-size:.92rem;color:var(--muted)}
+.sr-results mark,.sr-hit{background:var(--care-soft);color:inherit;border-radius:4px;padding:0 2px}
+.sr-web{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.sr-web a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);font-size:.92rem;text-decoration:none}
+.sr-card small{display:block;margin-top:10px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -135,6 +152,112 @@
           sub.textContent=t;
         })
         .catch(function(){ w.textContent='날씨를 불러오지 못했어요'; sub.textContent='잠시 뒤 새로 고침해 주세요.'; });
+    })();
+    </script>
+    <div class="sr-card" role="search" aria-labelledby="sr-title">
+      <h2 id="sr-title">🔍 검색하기</h2>
+      <form class="sr-form" id="sr-form">
+        <input type="search" id="sr-q" placeholder="키워드를 넣어 보세요 (예: 수영, 합창, 날씨)" aria-label="검색할 키워드" autocomplete="off" maxlength="60">
+        <button type="submit">검색</button>
+        <button type="button" class="sr-clear" id="sr-clear">지우기</button>
+      </form>
+      <p class="sr-status" id="sr-status" aria-live="polite">키워드를 넣고 검색을 누르면 이 페이지와 사이트의 모든 페이지에서 찾아 줍니다.</p>
+      <ul class="sr-results" id="sr-results"></ul>
+      <div class="sr-web" id="sr-web" hidden></div>
+      <small>이 페이지 · careworld-in · 사람 페이지 전체에서 찾고, 인터넷 검색(네이버·구글·유튜브)은 새 창으로 열립니다. 검색어는 저장하지 않습니다.</small>
+    </div>
+    <script>
+    /* 내 페이지 전용: 키워드 검색 (이 페이지 + 사이트 모든 페이지 + 인터넷 검색 링크) */
+    (function(){
+      var form=document.getElementById('sr-form'),q=document.getElementById('sr-q'),st=document.getElementById('sr-status'),
+          out=document.getElementById('sr-results'),web=document.getElementById('sr-web'),card=form.parentNode,cache=null,seq=0;
+      function clean(root){
+        var c=root.cloneNode(true),bad=c.querySelectorAll('script,style,noscript,.sr-card,svg'),i;
+        for(i=0;i<bad.length;i++) bad[i].parentNode.removeChild(bad[i]);
+        return (c.textContent||'').replace(/\s+/g,' ').trim();
+      }
+      function pages(){
+        var list=[{url:'/',name:'careworld-in'}],seen={'/':1},me=location.pathname.replace(/\/$/,''),
+            as=document.querySelectorAll('.people-nav a[href^="/people/"]'),i,h;
+        for(i=0;i<as.length;i++){ h=as[i].getAttribute('href'); if(seen[h]||h===me) continue; seen[h]=1; list.push({url:h,name:as[i].textContent.trim()+' 페이지'}); }
+        return list;
+      }
+      function load(){
+        if(cache) return cache;
+        cache=Promise.all(pages().map(function(p){
+          return fetch(p.url,{credentials:'same-origin'}).then(function(r){ if(!r.ok) throw 0; return r.text(); })
+            .then(function(t){ var d=new DOMParser().parseFromString(t,'text/html'),m=d.querySelector('main')||d.body; return {url:p.url,name:p.name,text:m?clean(m):''}; })
+            .catch(function(){ return {url:p.url,name:p.name,text:''}; });
+        }));
+        return cache;
+      }
+      function find(text,k){
+        var low=text.toLowerCase(),hits=[],i=low.indexOf(k),n=0;
+        while(i>=0){ n++; if(hits.length<3) hits.push(i); i=low.indexOf(k,i+k.length); }
+        return {n:n,hits:hits};
+      }
+      function snippet(p,text,i,k){
+        var a=Math.max(0,i-30),b=Math.min(text.length,i+k.length+50);
+        if(a>0) p.appendChild(document.createTextNode('… '));
+        p.appendChild(document.createTextNode(text.slice(a,i)));
+        var m=document.createElement('mark'); m.textContent=text.slice(i,i+k.length); p.appendChild(m);
+        p.appendChild(document.createTextNode(text.slice(i+k.length,b)+(b<text.length?' …':'')));
+      }
+      function unmark(){
+        var ms=document.querySelectorAll('span.sr-hit'),i,par;
+        for(i=0;i<ms.length;i++){ par=ms[i].parentNode; par.replaceChild(document.createTextNode(ms[i].textContent),ms[i]); par.normalize(); }
+      }
+      function markHere(k){
+        var main=document.querySelector('main'),w=document.createTreeWalker(main,NodeFilter.SHOW_TEXT,null),nodes=[],n,first=null;
+        while((n=w.nextNode())){
+          var pe=n.parentNode;
+          if(!pe||/^(SCRIPT|STYLE|TEXTAREA|OPTION)$/.test(pe.nodeName)||card.contains(n)) continue;
+          if(n.nodeValue.toLowerCase().indexOf(k)>=0) nodes.push(n);
+        }
+        nodes.forEach(function(node){
+          var t=node.nodeValue,low=t.toLowerCase(),frag=document.createDocumentFragment(),pos=0,i=low.indexOf(k);
+          while(i>=0){
+            frag.appendChild(document.createTextNode(t.slice(pos,i)));
+            var s=document.createElement('span'); s.className='sr-hit'; s.textContent=t.slice(i,i+k.length); frag.appendChild(s);
+            if(!first) first=s;
+            pos=i+k.length; i=low.indexOf(k,pos);
+          }
+          frag.appendChild(document.createTextNode(t.slice(pos)));
+          node.parentNode.replaceChild(frag,node);
+        });
+        return first;
+      }
+      function item(name,url,n,text,r,k,onclick){
+        var li=document.createElement('li'),a=document.createElement('a');
+        a.href=url; a.textContent=name+' — '+n+'곳'; if(onclick) a.addEventListener('click',onclick);
+        li.appendChild(a);
+        r.hits.forEach(function(i){ var p=document.createElement('p'); snippet(p,text,i,k); li.appendChild(p); });
+        out.appendChild(li);
+      }
+      function weblinks(raw){
+        var e=encodeURIComponent(raw),L=[['네이버에서 찾기','https://search.naver.com/search.naver?query='+e],['구글에서 찾기','https://www.google.com/search?q='+e],['유튜브에서 찾기','https://www.youtube.com/results?search_query='+e]];
+        web.textContent='';
+        L.forEach(function(x){ var a=document.createElement('a'); a.href=x[1]; a.target='_blank'; a.rel='noopener noreferrer'; a.textContent='🌐 '+x[0]; web.appendChild(a); });
+        web.hidden=false;
+      }
+      function reset(){ seq++; unmark(); out.textContent=''; web.hidden=true; web.textContent=''; }
+      form.addEventListener('submit',function(ev){
+        ev.preventDefault();
+        var raw=q.value.replace(/\s+/g,' ').trim(),k=raw.toLowerCase();
+        reset();
+        if(!k){ st.textContent='키워드를 먼저 넣어 주세요.'; q.focus(); return; }
+        var my=seq,total=0,first=markHere(k),here=clean(document.querySelector('main')),r=find(here,k);
+        weblinks(raw);
+        if(r.n){ total+=r.n; item('이 페이지(김영숙)','#',r.n,here,r,k,function(e){ e.preventDefault(); var f=document.querySelector('span.sr-hit'); if(f&&f.scrollIntoView) f.scrollIntoView({block:'center'}); }); }
+        st.textContent='다른 페이지에서도 찾는 중…';
+        load().then(function(list){
+          if(my!==seq) return;
+          var found=0;
+          list.forEach(function(p){ var x=find(p.text,k); if(x.n){ total+=x.n; found++; item(p.name,p.url,x.n,p.text,x,k); } });
+          st.textContent=total?('“'+raw+'” — 모두 '+total+'곳에서 찾았습니다. 이 페이지에서 찾은 글자는 색으로 표시했습니다.'):('“'+raw+'” 은(는) 사이트에서 찾지 못했습니다. 아래 인터넷 검색을 눌러 보세요.');
+        });
+      });
+      document.getElementById('sr-clear').addEventListener('click',function(){ reset(); q.value=''; st.textContent='키워드를 넣고 검색을 누르면 이 페이지와 사이트의 모든 페이지에서 찾아 줍니다.'; q.focus(); });
     })();
     </script>
     <div class="visit-card" aria-labelledby="visit-title">
@@ -270,7 +393,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 유바람님의 보통 하루를 그림·리스트·음성 안내로 추가 (웹 프롬프트 Wmwnghhw4)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 키워드 검색하기 창 추가 (웹 프롬프트 Wmwngopov)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>

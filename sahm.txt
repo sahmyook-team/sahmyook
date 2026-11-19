@@ -278,3 +278,4 @@
 [done] Wmwngk3a0 | 2026-11-19 | 왕성원 페이지에 뉴에이지 음악 플레이어(틀기·멈춤·이전·다음·소리 크기)를 만들고 플레이리스트 5곡을 자동으로 채웠습니다. 저작권 문제가 없도록 페이지가 직접 연주하는 뉴에이지 풍 곡이며, 이루마·유키 구라모토 등 실제 곡은 새 창(YouTube) 링크로 들을 수 있습니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/seongwon)
 [todo] Wmwngopov | 2026-11-19 20:23 | 김영숙 | 키워드를 넣으면 모든 것을 검색할 수 있는 검색하기 창을 표기해줘. 실행해줘
 [running] Wmwngopov | 20:23 | 처리 중 — 김영숙 페이지에 키워드 검색 창을 만드는 중
+[done] Wmwngopov | 2026-11-19 | 김영숙 페이지 위쪽에 '검색하기' 창을 만들었습니다. 키워드를 넣으면 이 페이지(찾은 글자를 색으로 표시)와 careworld-in·사람 페이지 전체에서 찾아 결과를 보여 주고, 네이버·구글·유튜브 검색은 새 창 링크로 열립니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/youngsook)
