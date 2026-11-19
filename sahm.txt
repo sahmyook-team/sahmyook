@@ -207,3 +207,4 @@
 [done] Wmwnf00pr | 2026-11-19 | 박아름 페이지에 '유바람님의 좋은 하루'(좋은 하루의 모습과 좋은 하루를 만드는 도움)를 추가했습니다. 가명·본인 동의 자료(kyoung 폴더 학습일지) 기준입니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/areum)
 [done] Wmwnf17gq | 2026-11-19 | 김용주 페이지에 '하루를 마감한 나를 위한 기분 전환' 코너(마음 고르기 → 기분 전환 추천, 1분 숨 고르기, 오늘 잘한 일 적기)를 만들었습니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/yongju)
 [done] Wmwnf19ru | 2026-11-19 | 왕성원 페이지에 학습일지(kyoung 폴더)를 바탕으로 '유바람님이 좋아하는 문화 목록'(음악·공연, 스포츠, 방송·영상, 나들이, 생활 속 즐거움)을 만들었습니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/seongwon)
+[todo] Wmwnf4xvu | 2026-11-19 19:39 | 김주연 | 고향의 봄  오빠생각 송아지 산토끼를 실행해줘
