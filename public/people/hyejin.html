@@ -9,6 +9,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<style>
+/* 내 페이지 전용: 프롬프트 창 옆 현재 시각 창 */
+.term-form.has-clock{grid-template-columns:minmax(0,1fr) 190px;align-items:stretch}
+.term-form.has-clock .term-actions{grid-column:1 / -1}
+.my-clock{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--fg);text-align:center;box-sizing:border-box;min-width:0}
+.my-clock small{font-size:.8rem;opacity:.7}
+.my-clock b{font-size:1.7rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.my-clock span{font-size:.9rem}
+@media (max-width:640px){.term-form.has-clock{grid-template-columns:minmax(0,1fr)}.my-clock{flex-direction:row;flex-wrap:wrap;gap:6px 12px;padding:10px 14px}.my-clock b{font-size:1.3rem}}
+</style>
 </head>
 <body>
 
@@ -109,11 +119,34 @@
 
 <footer>
   <div class="wrap foot">
-    <span>v5.2 · 2026-11-19 함께 만든 사람에서 전동규·전진규 삭제 (careworld-in 프롬프트 Cmwnbiahs)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 프롬프트 창 옆에 현재 시각 창 추가 (웹 프롬프트 Wmwnexebg)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
 
+<script>
+/* 내 페이지 전용: 프롬프트 창 옆에 지금 현재 시각(한국시간)을 1초마다 알려 주는 창 */
+(function(){
+  function part(o){ try{ return new Intl.DateTimeFormat('ko-KR',Object.assign({timeZone:'Asia/Seoul'},o)).format(new Date()); }catch(e){ return ''; } }
+  function hook(){
+    var f=document.querySelector('.term-form'), i=f&&f.querySelector('.term-input');
+    if(!i){ return setTimeout(hook,300); }
+    if(f.querySelector('.my-clock')) return;
+    var c=document.createElement('div');
+    c.className='my-clock'; c.setAttribute('role','group'); c.setAttribute('aria-label','현재 시각');
+    var l=document.createElement('small'), t=document.createElement('b'), d=document.createElement('span');
+    l.textContent='🕒 현재 시각';
+    c.appendChild(l); c.appendChild(t); c.appendChild(d);
+    i.after(c); f.classList.add('has-clock');
+    (function tick(){
+      t.textContent=part({hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})||new Date().toLocaleTimeString();
+      d.textContent=part({year:'numeric',month:'long',day:'numeric',weekday:'short'});
+      setTimeout(tick,1000-(Date.now()%1000));
+    })();
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',hook); } else { hook(); }
+})();
+</script>
 <script src="/app.js" defer></script>
 </body>
 </html>
