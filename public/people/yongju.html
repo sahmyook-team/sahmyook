@@ -26,6 +26,12 @@
 .rest-tank small{position:absolute;right:10px;bottom:8px;color:#234;font-size:.8rem}
 .rest-timer{font-weight:700;font-variant-numeric:tabular-nums;min-width:5.5em}
 @media (prefers-reduced-motion:reduce){.rest-fish{animation:none;left:40%}}
+/* 내 페이지 전용: 이름 옆 코너 바로가기 링크 */
+.profile-head{flex-wrap:wrap}
+.made-links{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.made-links .btn{padding:8px 14px;font-size:.92rem}
+#heart-title,#enjoy-title,#unwind-title,#rest-title{scroll-margin-top:130px}
+@media (max-width:640px){.made-links{margin-left:0;width:100%}}
 </style>
 </head>
 <body>
@@ -80,6 +86,12 @@
         <h1 id="profile-name">김용주</h1>
         <p class="profile-role">sahmyook 함께 만든 사람</p>
       </div>
+      <nav class="made-links" aria-label="이 페이지에 만든 코너 바로가기">
+        <a class="btn ghost" href="#heart-title">속마음 창</a>
+        <a class="btn ghost" href="#enjoy-title">좋아할 만한 것</a>
+        <a class="btn ghost" href="#unwind-title">기분 전환</a>
+        <a class="btn ghost" href="#rest-title">쉼터</a>
+      </nav>
     </div>
     <div class="empty-note">
       <p>아직 소개 글이 없습니다. 소개 글은 Google 문서 <b>sahm_all</b>에 적어 주시면 이 페이지에 반영됩니다.</p>
@@ -256,7 +268,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 유바람님을 위한 쉼터 추가 (웹 프롬프트 Wmwnf62nv)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 이름 옆에 아래 코너 바로가기 링크 추가 (웹 프롬프트 Wmwnf945r)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
