@@ -223,3 +223,4 @@
 [done] Wmwnf57gx | 2026-11-19 | 오홍진 페이지의 '프롬프트 창 · 터미널' 제목 옆에는 앞 요청(Wmwnezv1g)으로 현재 시간(한국시간, 1초마다 갱신)이 이미 표시되고 있어 그대로 두었습니다. 배포가 끝난 뒤 새로 고침하면 보입니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/hongjin)
 [running] Wmwnf716e | 19:42 | 처리 중 — 이현주 페이지의 프롬프트 창 밑에 현재 시각을 표시하는 중
 [done] Wmwnf62nv | 2026-11-19 | 김용주 페이지에 '유바람님을 위한 쉼터'(물고기 수족관, 쉬고 싶은 방법 고르기와 지원인 안내, 5분 쉬기 시계)를 만들었습니다. 가명·본인 동의 자료(kyoung 폴더 학습일지) 기준입니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/yongju)
+[done] Wmwnf645q | 2026-11-19 | 김영숙 페이지 위쪽에 오늘 날짜(요일 포함)와 지금 시간(한국시간, 1초마다 갱신)을 표시했습니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/youngsook)

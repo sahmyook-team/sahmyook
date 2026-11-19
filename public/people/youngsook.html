@@ -9,6 +9,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<style>
+/* 내 페이지 전용: 오늘 날짜와 지금 시간 */
+.now-card{margin:16px 0;padding:18px 20px;border-radius:14px;border:1px solid var(--line);background:var(--card);display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+.now-date{font-size:1.15rem;font-weight:700}
+.now-time{font-size:2rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--care)}
+.now-card small{flex-basis:100%;color:#6b635a}
+</style>
 </head>
 <body>
 
@@ -63,6 +70,21 @@
         <p class="profile-role">sahmyook 함께 만든 사람</p>
       </div>
     </div>
+    <div class="now-card" aria-label="오늘 날짜와 지금 시간">
+      <span class="now-date" id="now-date">오늘 날짜</span>
+      <span class="now-time" id="now-time">--:--:--</span>
+      <small>한국시간 기준 · 1초마다 바뀝니다</small>
+    </div>
+    <script>
+    (function(){
+      var d=document.getElementById('now-date'),t=document.getElementById('now-time'),fd,ft;
+      try{
+        fd=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'long',day:'numeric',weekday:'long'});
+        ft=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+      }catch(e){}
+      (function tick(){var n=new Date();d.textContent=fd?fd.format(n):n.toLocaleDateString();t.textContent=ft?ft.format(n):n.toLocaleTimeString();setTimeout(tick,1000-(Date.now()%1000));})();
+    })();
+    </script>
     <div class="empty-note">
       <p>아직 소개 글이 없습니다. 소개 글은 Google 문서 <b>sahm_all</b>에 적어 주시면 이 페이지에 반영됩니다.</p>
       <a class="btn primary" href="https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit" target="_blank" rel="noopener">sahm_all 문서 열기 →</a>
@@ -95,7 +117,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>v5.2 · 2026-11-19 함께 만든 사람에서 전동규·전진규 삭제 (careworld-in 프롬프트 Cmwnbiahs)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 오늘 날짜와 지금 시간 표시 (웹 프롬프트 Wmwnf645q)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
