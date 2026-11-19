@@ -271,3 +271,4 @@
 [done] Wmwnggnng | 2026-11-19 | 이정민 페이지에 '바람님이 먹고 싶은 음식 고르기' 선택 칸을 넣었습니다. 아침·점심·저녁을 고르고 음식 그림 버튼(치즈돈까스·김밥 등 10가지)을 누르거나 다른 음식을 적을 수 있고, 고른 내용은 그 기기에만 오늘 하루 저장됩니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/jeongmin)
 [done] Wmwnggxpo | 2026-11-19 | 김혜진 폴더의 학습일지_유바람.pdf 를 바탕으로 김혜진 페이지 맨 위에 '한눈에 보는 유바람님의 하루 일정'(아침 8시 기상부터 밤 10시 30분 잠자리까지 10단계 시간표)을 만들었습니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/hyejin)
 [running] Wmwnghhw4 | 20:27 | 처리 중 — 김영숙 페이지에 유바람님의 보통 하루를 그림·리스트·음성 안내로 만드는 중
+[running] Wmwngk3a0 | 20:29 | 처리 중 — 왕성원 페이지에 뉴에이지 음악 플레이어와 플레이리스트를 만드는 중
