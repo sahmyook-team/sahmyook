@@ -290,3 +290,4 @@
 [done] Wmwnhtmes | 2026-11-19 | 왕성원 페이지의 음악 칸에서 저작권이 있는 노래 목록(이루마 등 YouTube 링크)을 지우고, 페이지가 직접 만들어 연주하는 자체 제작 곡 다섯 곡만 남겼습니다. 다섯 곡은 매주 월요일(한국시간)에 새 곡으로 자동으로 바뀌며, 다음에 바뀌는 날짜가 플레이어에 보입니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/seongwon)
 [todo] Wmwnieibh | 2026-11-19 21:11 | 왕성원 | 내 페이지에 있는 노래목록은 지우고 그냥 재생중인 노래제목만 나오게 해줘 실행해 줘!
 [running] Wmwnieibh | 21:11 | 처리 중 — 왕성원 페이지의 노래 목록을 지우고 재생 중인 노래 제목만 보이게 하는 중
+[done] Wmwnieibh | 2026-11-19 | 왕성원 페이지 음악 플레이어의 노래 목록을 지우고 재생 중인 노래 제목만 보이게 했습니다. 다른 곡은 ⏮ 이전 · 다음 ⏭ 버튼으로 넘길 수 있습니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/seongwon)

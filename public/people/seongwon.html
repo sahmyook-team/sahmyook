@@ -59,10 +59,6 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 .mp-ctrl button.mp-main{background:var(--ai);border-color:var(--ai);color:var(--on-accent);padding:10px 22px}
 .mp-ctrl label{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.9rem;min-width:0}
 .mp-ctrl input[type=range]{width:120px;max-width:100%}
-.mp-list{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:6px}
-.mp-list button{width:100%;text-align:left;font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:12px;padding:10px 14px}
-.mp-list button small{color:var(--muted);margin-left:6px}
-.mp-list button[aria-current="true"]{border-color:var(--ai);background:var(--ai-soft);font-weight:700}
 .mp button:focus-visible{outline:3px solid var(--care);outline-offset:2px}
 </style>
 </head>
@@ -159,9 +155,9 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
       <p class="sermon-label">음악</p>
       <h2 id="mp-title">뉴에이지 음악 플레이어</h2>
       <p>▶ 틀기를 누르면 잔잔한 뉴에이지 풍 음악이 나옵니다. 저작권 없이 이 페이지가 직접 만든 다섯 곡이 매주 새로 채워지고, 한 곡이 끝나면 다음 곡으로 넘어갑니다.</p>
-      <p class="imp-note" id="mp-week">이번 주 플레이리스트</p>
+      <p class="imp-note" id="mp-week">이번 주의 곡</p>
       <div class="mp">
-        <p class="mp-now" id="mp-now">—</p>
+        <p class="mp-now" id="mp-now" aria-live="polite">—</p>
         <p class="mp-state" id="mp-state" aria-live="polite">멈춤</p>
         <div class="mp-ctrl">
           <button type="button" id="mp-prev" aria-label="이전 곡">⏮ 이전</button>
@@ -169,9 +165,8 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
           <button type="button" id="mp-next" aria-label="다음 곡">다음 ⏭</button>
           <label>🔊 소리 <input type="range" id="mp-vol" min="0" max="100" value="60" aria-label="소리 크기"></label>
         </div>
-        <ol class="mp-list" id="mp-list"></ol>
       </div>
-      <p class="imp-note">저작권이 있는 노래 목록은 지웠습니다. 플레이리스트의 다섯 곡은 모두 이 페이지가 그 자리에서 직접 만들어 연주하는 자체 제작 곡이라 저작권 걱정이 없습니다(음악 파일 없음, 곡마다 3분쯤). 다섯 곡은 매주 월요일(한국시간)에 새 곡으로 자동으로 바뀝니다. 자동 재생은 브라우저가 막으므로 ▶ 틀기를 눌러야 소리가 납니다. (웹 프롬프트 Wmwngk3a0 · Wmwnhtmes)</p>
+      <p class="imp-note">노래 목록은 지우고 재생 중인 노래 제목만 보여 줍니다(다른 곡은 ⏮ 이전 · 다음 ⏭ 으로 넘깁니다). 다섯 곡은 모두 이 페이지가 그 자리에서 직접 만들어 연주하는 자체 제작 곡이라 저작권 걱정이 없습니다(음악 파일 없음, 곡마다 3분쯤). 다섯 곡은 매주 월요일(한국시간)에 새 곡으로 자동으로 바뀝니다. 자동 재생은 브라우저가 막으므로 ▶ 틀기를 눌러야 소리가 납니다. (웹 프롬프트 Wmwngk3a0 · Wmwnhtmes · Wmwnieibh)</p>
     </article>
     <article class="sermon imp" aria-labelledby="family-title">
       <p class="sermon-label">학습일지를 바탕으로 정리 · 가명</p>
@@ -238,7 +233,7 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 음악을 자체 제작 5곡으로, 매주 새 곡 (웹 프롬프트 Wmwnhtmes)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 노래 목록을 지우고 재생 중인 제목만 표시 (웹 프롬프트 Wmwnieibh)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
@@ -302,11 +297,11 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
     TR.push({t:nm,d:bpm<60?'아주 느리게':bpm<68?'잔잔하게':bpm<76?'따뜻하게':'가볍게',root:pick([53,55,57,58,60,62]),sc:minor?[0,3,5,7,10]:pick([[0,2,4,7,9],[0,2,5,7,9]]),ch:pick(minor?MIN:MAJ),bpm:bpm});
   }
   (function(){ var m=new Date(WK*7*DAY+4*DAY), n=new Date((WK+1)*7*DAY+4*DAY), f=function(x){ return (x.getUTCMonth()+1)+'월 '+x.getUTCDate()+'일'; };
-    document.getElementById('mp-week').textContent='이번 주 플레이리스트 · '+f(m)+'(월)부터 · 다음 새 곡은 '+f(n)+'(월)에 바뀝니다'; })();
+    document.getElementById('mp-week').textContent='이번 주의 곡 · '+f(m)+'(월)부터 · 다음 새 곡은 '+f(n)+'(월)에 바뀝니다'; })();
   var LEN=180, AC=window.AudioContext||window.webkitAudioContext, ctx=null, master=null, wet=null;
   var cur=0, playing=false, timer=null, nextT=0, step=0, t0=0, seed=1;
   var $=function(id){return document.getElementById(id);};
-  var now=$('mp-now'), state=$('mp-state'), playB=$('mp-play'), list=$('mp-list'), vol=$('mp-vol');
+  var now=$('mp-now'), state=$('mp-state'), playB=$('mp-play'), vol=$('mp-vol');
   function rnd(){ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; }
   function hz(m){ return 440*Math.pow(2,(m-69)/12); }
   function note(m,t,dur,g,type){
@@ -338,12 +333,9 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
   function stop(){ playing=false; clearInterval(timer); if(ctx) ctx.suspend(); state.textContent='멈춤'; draw(); }
   function go(i,auto){ cur=(i+TR.length)%TR.length; if(playing||auto){ start(); } else draw(); }
   function draw(){
-    now.textContent='🎵 '+(cur+1)+'. '+TR[cur].t;
+    now.textContent='🎵 '+TR[cur].t;
     playB.textContent=playing?'⏸ 멈춤':'▶ 틀기';
-    [].forEach.call(list.querySelectorAll('button'),function(b,i){ b.setAttribute('aria-current',i===cur?'true':'false'); });
   }
-  TR.forEach(function(tr,i){ var li=document.createElement('li'), b=document.createElement('button'), s=document.createElement('small'); b.type='button'; b.textContent=(i+1)+'. '+tr.t; s.textContent=tr.d; b.appendChild(s);
-    b.addEventListener('click',function(){ cur=i; start(); }); li.appendChild(b); list.appendChild(li); });
   if(!AC){ state.textContent='이 브라우저에서는 연주를 지원하지 않아요.'; playB.disabled=true; }
   playB.addEventListener('click',function(){ if(playing) stop(); else start(); });
   $('mp-prev').addEventListener('click',function(){ go(cur-1); });
