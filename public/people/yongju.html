@@ -17,6 +17,15 @@
 .unwind-breath.in{transform:scale(1.18)}
 .unwind-good{flex:1 1 220px;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:inherit;box-sizing:border-box}
 @media (prefers-reduced-motion:reduce){.unwind-breath{transition:none}}
+.rest-tank{position:relative;height:150px;margin:14px 0;border-radius:14px;border:1px solid var(--line);background:linear-gradient(#d9eef7,#a9d3e6);overflow:hidden}
+.rest-fish{position:absolute;left:0;font-size:1.7rem;animation:rest-swim 16s linear infinite}
+.rest-fish.f2{top:58%;font-size:1.2rem;animation-duration:22s;animation-delay:-7s}
+.rest-fish.f3{top:30%;font-size:1.4rem;animation-duration:19s;animation-delay:-12s}
+.rest-fish.f1{top:12%}
+@keyframes rest-swim{from{transform:translateX(-40px) scaleX(-1)}to{transform:translateX(min(1100px,100vw)) scaleX(-1)}}
+.rest-tank small{position:absolute;right:10px;bottom:8px;color:#234;font-size:.8rem}
+.rest-timer{font-weight:700;font-variant-numeric:tabular-nums;min-width:5.5em}
+@media (prefers-reduced-motion:reduce){.rest-fish{animation:none;left:40%}}
 </style>
 </head>
 <body>
@@ -192,6 +201,50 @@
       g.addEventListener('change',function(){if(g.value.trim())c.textContent='"'+g.value.trim()+'" — 오늘 참 잘했어요. 편안한 밤 보내세요. (웹 프롬프트 Wmwnf17gq)';});
     })();
     </script>
+    <article class="chat" aria-labelledby="rest-title">
+      <p class="sermon-label">쉼터 · 학습일지를 바탕으로 · 가명</p>
+      <h2 id="rest-title">유바람님을 위한 쉼터</h2>
+      <p>바람님이 힘들거나 쉬고 싶을 때 들르는 곳입니다. 물고기를 천천히 구경하고, <b>쉬고 싶은 방법</b>을 하나 골라 보세요. 고른 내용은 저장되거나 전송되지 않습니다.</p>
+      <div class="rest-tank" aria-label="쉼터 수족관: 작은 물고기가 천천히 헤엄칩니다">
+        <span class="rest-fish f1" aria-hidden="true">🐟</span>
+        <span class="rest-fish f2" aria-hidden="true">🐠</span>
+        <span class="rest-fish f3" aria-hidden="true">🐡</span>
+        <small>바람님이 좋아하는 작은 물고기</small>
+      </div>
+      <div class="chat-chips" id="rest-chips" aria-label="쉬고 싶은 방법">
+        <button type="button" data-k="song">🎵 노래 불러요</button>
+        <button type="button" data-k="fish">🐟 물고기 봐요</button>
+        <button type="button" data-k="drink">🥤 마실 것 주세요</button>
+        <button type="button" data-k="photo">📷 사진 봐요</button>
+        <button type="button" data-k="quiet">🤫 조용히 쉬어요</button>
+        <button type="button" data-k="next">🏠 다음에 뭐 해요?</button>
+      </div>
+      <div class="unwind-out" id="rest-out" role="status" aria-live="polite">바람님, 여기서는 쉬어도 돼요. 하나 골라 보세요.</div>
+      <div class="unwind-row">
+        <button type="button" class="btn primary" id="rest-start">5분 쉬기 시작</button>
+        <span class="rest-timer" id="rest-timer" aria-live="off">5:00</span>
+      </div>
+      <p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 쉼터는 쉼을 돕는 도구이며, 위급한 상황에서는 바로 지원인과 보호자에게 연락합니다. (웹 프롬프트 Wmwnf62nv)</p>
+    </article>
+    <script>
+    (function(){
+      var R={song:['좋아요. 「우산 셋이 나란히」를 같이 불러요.','지원인 안내: 바람님이 좋아하는 노래입니다. 함께 천천히 불러 주고, 합창단 노래도 이어서 불러 보세요.'],
+        fish:['물고기가 천천히 헤엄쳐요. 같이 봐요.','지원인 안내: 수족관에서 작은 물고기를 유리창에 손을 대고 구경하는 것을 좋아합니다. 말을 걸지 않고 곁에서 함께 봐 주세요.'],
+        drink:['바나나우유나 딸기스무디, 어떤 게 좋아요?','지원인 안내: 두 가지 중에 고르게 물어봐 주세요. 진정된 뒤에는 물을 먼저 건네도 좋습니다.'],
+        photo:['사진 앨범을 같이 봐요.','지원인 안내: 바람님이 찍은 사진과 앨범을 함께 넘겨 보며 "여기 어디예요?"처럼 짧게 물어봐 주세요.'],
+        quiet:['괜찮아요. 조용히 쉬어요. 옆에 있을게요.','지원인 안내: 질문을 쏟아내거나 몸을 만지지 말고 안전한 거리에서 기다려 주세요. 아래 "5분 쉬기"를 눌러 시간을 보여 주세요.'],
+        next:['쉬고 나서 다음 일을 알려 줄게요.','지원인 안내: 다음 일정을 시간 순서로 짧고 분명하게 알려 주세요. 예) "쉬고 나서 수영 가요. 수영 끝나고 집에 가요."']};
+      var out=document.getElementById('rest-out');
+      Array.prototype.forEach.call(document.querySelectorAll('#rest-chips button'),function(b){b.addEventListener('click',function(){var r=R[b.getAttribute('data-k')];out.textContent='';var x=document.createElement('b');x.textContent=r[0];out.appendChild(x);out.appendChild(document.createTextNode(r[1]));});});
+      var tm=document.getElementById('rest-timer'),btn=document.getElementById('rest-start'),timer=null;
+      btn.addEventListener('click',function(){
+        if(timer){clearInterval(timer);timer=null;}
+        var end=Date.now()+300000;btn.textContent='5분 쉬기 다시 시작';
+        function step(){var l=Math.max(0,Math.round((end-Date.now())/1000));tm.textContent=Math.floor(l/60)+':'+('0'+l%60).slice(-2);if(l<=0){clearInterval(timer);timer=null;tm.textContent='잘 쉬었어요';}}
+        step();timer=setInterval(step,1000);
+      });
+    })();
+    </script>
     <a class="back" href="/#people">← 함께 만든 사람으로 돌아가기</a>
   </section>
   <section class="wrap drive-folder" aria-labelledby="drive-title">
@@ -203,7 +256,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 하루 마감 기분 전환 코너 추가 (웹 프롬프트 Wmwnf17gq)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 유바람님을 위한 쉼터 추가 (웹 프롬프트 Wmwnf62nv)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
