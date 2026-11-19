@@ -16,6 +16,16 @@
 .today-card .today-k{margin:0;font-size:.85rem;color:var(--muted)}
 .today-card .today-v{margin:.2em 0 0;font-size:1.7rem;font-weight:800;line-height:1.25}
 .today-card .today-s{margin:.3em 0 0;font-size:.95rem;color:var(--muted)}
+/* 내 페이지 전용: 시계 */
+.clock-card{display:flex;align-items:center;gap:16px}
+.clock-face{width:96px;height:96px;flex:0 0 auto}
+.clock-face .c-rim{fill:var(--bg);stroke:var(--line);stroke-width:3}
+.clock-face .c-tick{stroke:var(--muted);stroke-width:2;stroke-linecap:round}
+.clock-face .c-h{stroke:var(--fg);stroke-width:4;stroke-linecap:round}
+.clock-face .c-m{stroke:var(--fg);stroke-width:3;stroke-linecap:round}
+.clock-face .c-s{stroke:var(--care);stroke-width:1.5;stroke-linecap:round}
+.clock-face .c-dot{fill:var(--care)}
+.clock-card .today-v{font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -77,7 +87,7 @@
     </div>
     <article class="sermon imp" aria-labelledby="today-title">
       <p class="sermon-label">오늘</p>
-      <h2 id="today-title">오늘의 요일과 날씨</h2>
+      <h2 id="today-title">오늘의 요일과 날씨, 시계</h2>
       <div class="today-box">
         <div class="today-card">
           <p class="today-k">오늘은</p>
@@ -89,8 +99,23 @@
           <p class="today-v" id="today-weather">불러오는 중…</p>
           <p class="today-s" id="today-weather-sub"></p>
         </div>
+        <div class="today-card clock-card" role="group" aria-label="지금 시각">
+          <svg class="clock-face" viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="c-rim" cx="50" cy="50" r="46"/>
+            <g id="clock-ticks"></g>
+            <line class="c-h" id="clock-h" x1="50" y1="50" x2="50" y2="26"/>
+            <line class="c-m" id="clock-m" x1="50" y1="50" x2="50" y2="14"/>
+            <line class="c-s" id="clock-s" x1="50" y1="56" x2="50" y2="10"/>
+            <circle class="c-dot" cx="50" cy="50" r="3"/>
+          </svg>
+          <div>
+            <p class="today-k">지금 시각</p>
+            <p class="today-v" id="clock-time">—</p>
+            <p class="today-s" id="clock-ampm"></p>
+          </div>
+        </div>
       </div>
-      <p class="imp-note">요일·날짜는 한국시간 기준이고, 날씨는 서울 기준으로 페이지를 열 때 Open-Meteo에서 가져옵니다. (웹 프롬프트 Wmwnf524q)</p>
+      <p class="imp-note">요일·날짜는 한국시간 기준이고, 날씨는 서울 기준으로 페이지를 열 때 Open-Meteo에서 가져옵니다. 시계는 한국시간으로 1초마다 움직입니다. (웹 프롬프트 Wmwnf524q · Wmwngeluj)</p>
     </article>
     <article class="sermon imp" aria-labelledby="family-title">
       <p class="sermon-label">학습일지를 바탕으로 정리 · 가명</p>
@@ -157,7 +182,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 오늘의 요일과 날씨 추가 (웹 프롬프트 Wmwnf524q)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 시계 추가 (웹 프롬프트 Wmwngeluj)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
@@ -185,6 +210,24 @@
       sub.textContent=t;
     })
     .catch(function(){ w.textContent='날씨를 불러오지 못했어요'; sub.textContent='잠시 뒤 새로 고침해 주세요.'; });
+})();
+</script>
+<script>
+/* 내 페이지 전용: 시계(한국시간, 바늘 시계 + 숫자) */
+(function(){
+  var NS='http://www.w3.org/2000/svg', g=document.getElementById('clock-ticks');
+  for(var i=0;i<12;i++){ var l=document.createElementNS(NS,'line'); l.setAttribute('class','c-tick'); l.setAttribute('x1',50); l.setAttribute('x2',50); l.setAttribute('y1',8); l.setAttribute('y2',i%3===0?15:12); l.setAttribute('transform','rotate('+(i*30)+' 50 50)'); g.appendChild(l); }
+  var hh=document.getElementById('clock-h'), mm=document.getElementById('clock-m'), ss=document.getElementById('clock-s'), tx=document.getElementById('clock-time'), ap=document.getElementById('clock-ampm');
+  function p(n){ return (n<10?'0':'')+n; }
+  (function tick(){
+    var k=new Date(Date.now()+9*3600000), h=k.getUTCHours(), m=k.getUTCMinutes(), s=k.getUTCSeconds();
+    hh.setAttribute('transform','rotate('+((h%12)*30+m*0.5)+' 50 50)');
+    mm.setAttribute('transform','rotate('+(m*6+s*0.1)+' 50 50)');
+    ss.setAttribute('transform','rotate('+(s*6)+' 50 50)');
+    tx.textContent=p(h)+':'+p(m)+':'+p(s);
+    ap.textContent=(h<12?'오전 ':'오후 ')+((h%12)||12)+'시 '+m+'분 · 한국시간';
+    setTimeout(tick,1000-(Date.now()%1000));
+  })();
 })();
 </script>
 <script src="/app.js" defer></script>

@@ -22,6 +22,15 @@ h1,h2,h3,b,strong,.brand{font-weight:400}
 .my-clock small{font-size:.8rem;opacity:.7}
 .my-clock b{font-size:1.7rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
 .my-clock span{font-size:.9rem}
+/* 내 페이지 전용: 하루 일정 한눈에 보기 */
+.day-line{list-style:none;margin:14px 0 0;padding:0;position:relative}
+.day-line::before{content:"";position:absolute;left:21px;top:10px;bottom:10px;width:2px;background:var(--line)}
+.day-line li{position:relative;display:grid;grid-template-columns:44px 132px minmax(0,1fr);gap:12px;align-items:center;padding:8px 0}
+.day-ico{width:44px;height:44px;border-radius:50%;background:var(--care-soft);border:2px solid var(--care);display:flex;align-items:center;justify-content:center;font-size:1.3rem;position:relative}
+.day-time{font-size:1rem;color:var(--ai)}
+.day-what{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;min-width:0}
+.day-what b{display:block;font-size:1.1rem}
+@media (max-width:640px){.day-line li{grid-template-columns:44px minmax(0,1fr);gap:2px 12px}.day-time{grid-column:2}.day-what{grid-column:2}.day-ico{grid-row:1 / span 2;align-self:start}}
 @media (max-width:640px){.term-form.has-clock{grid-template-columns:minmax(0,1fr)}.my-clock{flex-direction:row;flex-wrap:wrap;gap:6px 12px;padding:10px 14px}.my-clock b{font-size:1.3rem}}
 </style>
 </head>
@@ -82,6 +91,24 @@ h1,h2,h3,b,strong,.brand{font-weight:400}
       <p>아직 소개 글이 없습니다. 소개 글은 Google 문서 <b>sahm_all</b>에 적어 주시면 이 페이지에 반영됩니다.</p>
       <a class="btn primary" href="https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit" target="_blank" rel="noopener">sahm_all 문서 열기 →</a>
     </div>
+    <article class="sermon imp" aria-labelledby="day-title">
+      <p class="sermon-label">학습일지를 바탕으로 정리 · 가명</p>
+      <h2 id="day-title">한눈에 보는 유바람님의 하루 일정</h2>
+      <p>평일(일하는 날)에 되풀이되는 하루를 시간 순서대로 정리했습니다. 시각은 학습일지에 적힌 대략의 시간입니다.</p>
+      <ol class="day-line">
+        <li><span class="day-ico" aria-hidden="true">🌅</span><span class="day-time">아침 8시쯤</span><span class="day-what"><b>일어나 아침 먹기</b>토스트·누룽지·계란 요리 같은 아침을 먹고 TV로 YTN 뉴스를 봅니다.</span></li>
+        <li><span class="day-ico" aria-hidden="true">🛏️</span><span class="day-time">아침 식사 뒤</span><span class="day-what"><b>잠깐 쉬기</b>방에 들어가 침대에 누워 한숨 쉽니다.</span></li>
+        <li><span class="day-ico" aria-hidden="true">🪥</span><span class="day-time">오전 10시쯤</span><span class="day-what"><b>양치 · 세수 · 출근 준비</b>스스로 일어나 씻고 옷을 갈아입습니다.</span></li>
+        <li><span class="day-ico" aria-hidden="true">🏦</span><span class="day-time">오전 11시쯤</span><span class="day-what"><b>집을 나서 은행 · 우체국</b>하나은행과 송파우체국에서 1천 원씩 입금하고 통장을 정리합니다.</span></li>
+        <li><span class="day-ico" aria-hidden="true">🍙</span><span class="day-time">점심</span><span class="day-what"><b>김밥 2줄</b>늘 가는 김밥집에서 “김밥 2줄 주세요” 하고 먹습니다.</span></li>
+        <li><span class="day-ico" aria-hidden="true">💼</span><span class="day-time">낮 ~ 오후 4시</span><span class="day-what"><b>일하기</b>버스를 타고 출근해 일하고, 오후 4시에 퇴근합니다.</span></li>
+        <li><span class="day-ico" aria-hidden="true">🏊</span><span class="day-time">오후 4~5시 이후</span><span class="day-what"><b>곰두리체육센터 수영</b>과자와 두유를 먹고 「우산 셋이 나란히」를 부른 뒤 수영합니다.</span></li>
+        <li><span class="day-ico" aria-hidden="true">🍚</span><span class="day-time">저녁</span><span class="day-what"><b>저녁 식사와 컴퓨터</b>집에서 저녁을 먹고 컴퓨터로 좋아하는 것을 검색하거나 TV를 봅니다.</span></li>
+        <li><span class="day-ico" aria-hidden="true">💊</span><span class="day-time">밤 10시쯤</span><span class="day-what"><b>약 먹고 씻기</b>“약 먹어요!” 하며 스스로 약을 챙겨 먹고 양치·세수를 합니다.</span></li>
+        <li><span class="day-ico" aria-hidden="true">🌙</span><span class="day-time">밤 10시 30분쯤</span><span class="day-what"><b>잠자리</b>“잘 자요” 인사를 하고 잡니다.</span></li>
+      </ol>
+      <p class="imp-note">일정이 갑자기 바뀌면 힘들어하므로, 바뀌는 날에는 미리 알려 주는 것이 중요합니다. 이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(김혜진 폴더의 학습일지_유바람.pdf)를 바탕으로 함. (웹 프롬프트 Wmwnggxpo)</p>
+    </article>
     <article class="sermon imp" aria-labelledby="likes2-title">
       <p class="sermon-label">학습일지를 바탕으로 정리 · 가명</p>
       <h2 id="likes2-title">유바람님이 좋아하는 것과 싫어하는 것</h2>
@@ -124,7 +151,7 @@ h1,h2,h3,b,strong,.brand{font-weight:400}
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 글꼴을 초코쿠키체로 변경 (웹 프롬프트 Wmwnfym8p)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 유바람님의 하루 일정 한눈에 보기 추가 (웹 프롬프트 Wmwnggxpo)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>

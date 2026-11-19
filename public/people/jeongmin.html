@@ -9,6 +9,22 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<style>
+/* 내 페이지 전용: 먹고 싶은 음식 고르기 */
+.meal-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 12px}
+.meal-tab,.food-btn{font:inherit;cursor:pointer;border:2px solid var(--line);background:var(--card);color:var(--fg);border-radius:14px}
+.meal-tab{padding:8px 18px;font-weight:700}
+.meal-tab[aria-pressed="true"]{background:var(--ai);border-color:var(--ai);color:var(--on-accent)}
+.food-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.food-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 6px;font-weight:700;min-width:0;word-break:keep-all}
+.food-btn span{font-size:2rem;line-height:1.2}
+.food-btn[aria-pressed="true"]{background:var(--care-soft);border-color:var(--care)}
+.meal-tab:focus-visible,.food-btn:focus-visible{outline:3px solid var(--ai);outline-offset:2px}
+.food-result{margin:16px 0 0;padding:14px 16px;border-radius:14px;background:var(--bg2);border:1px solid var(--line)}
+.food-result p{margin:.15em 0}
+.food-result b{color:var(--care)}
+.food-clear{margin-top:10px;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:8px;cursor:pointer;font:inherit;font-size:.85rem;padding:4px 12px}
+</style>
 </head>
 <body>
 
@@ -103,6 +119,60 @@
       draw();
     })();
     </script>
+    <article class="chat" aria-labelledby="food-title">
+      <p class="sermon-label">선택 칸</p>
+      <h2 id="food-title">바람님이 먹고 싶은 음식 고르기</h2>
+      <p>식사 때 바람님과 함께 보면서, 먼저 끼니를 고르고 먹고 싶은 음식을 눌러 주세요. 다시 누르면 선택이 풀립니다. 고른 내용은 <b>이 기기의 브라우저에만</b> 저장되고 다른 사람에게 보이거나 서버로 보내지지 않습니다.</p>
+      <div class="meal-tabs" role="group" aria-label="끼니 고르기">
+        <button type="button" class="meal-tab" data-meal="아침" aria-pressed="false">🌅 아침</button>
+        <button type="button" class="meal-tab" data-meal="점심" aria-pressed="false">☀️ 점심</button>
+        <button type="button" class="meal-tab" data-meal="저녁" aria-pressed="false">🌙 저녁</button>
+      </div>
+      <div class="food-grid" role="group" aria-label="음식 고르기">
+        <button type="button" class="food-btn" data-food="치즈돈까스" aria-pressed="false"><span aria-hidden="true">🍛</span>치즈돈까스</button>
+        <button type="button" class="food-btn" data-food="김밥" aria-pressed="false"><span aria-hidden="true">🍙</span>김밥</button>
+        <button type="button" class="food-btn" data-food="계란후라이" aria-pressed="false"><span aria-hidden="true">🍳</span>계란후라이</button>
+        <button type="button" class="food-btn" data-food="햄구이" aria-pressed="false"><span aria-hidden="true">🥓</span>햄구이</button>
+        <button type="button" class="food-btn" data-food="김치볶음밥" aria-pressed="false"><span aria-hidden="true">🍚</span>김치볶음밥</button>
+        <button type="button" class="food-btn" data-food="토스트" aria-pressed="false"><span aria-hidden="true">🍞</span>토스트</button>
+        <button type="button" class="food-btn" data-food="누룽지" aria-pressed="false"><span aria-hidden="true">🥣</span>누룽지</button>
+        <button type="button" class="food-btn" data-food="만두" aria-pressed="false"><span aria-hidden="true">🥟</span>만두</button>
+        <button type="button" class="food-btn" data-food="햄버거" aria-pressed="false"><span aria-hidden="true">🍔</span>햄버거</button>
+        <button type="button" class="food-btn" data-food="바나나우유" aria-pressed="false"><span aria-hidden="true">🥛</span>바나나우유</button>
+      </div>
+      <form class="chat-form" id="food-form" style="margin-top:12px">
+        <label for="food-input" style="position:absolute;left:-9999px">다른 음식</label>
+        <input id="food-input" autocomplete="off" maxlength="30" placeholder="목록에 없는 다른 음식 적기">
+        <button type="submit">고르기</button>
+      </form>
+      <div class="food-result" aria-live="polite">
+        <p>아침: <b id="food-pick-아침">아직 고르지 않았어요</b></p>
+        <p>점심: <b id="food-pick-점심">아직 고르지 않았어요</b></p>
+        <p>저녁: <b id="food-pick-저녁">아직 고르지 않았어요</b></p>
+        <button type="button" class="food-clear" id="food-clear">모두 지우기</button>
+      </div>
+      <p class="imp-note">음식 목록은 학습일지에 바람님이 잘 먹거나 좋아한다고 기록된 음식입니다(싫어하는 고구마·생선조림은 넣지 않음). 선택은 오늘 하루 동안만 남고 날짜가 바뀌면 새로 고릅니다. 이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. (웹 프롬프트 Wmwnggnng)</p>
+    </article>
+    <script>
+    (function(){
+      var K='baram-food-pick', MEALS=['아침','점심','저녁'];
+      var k=new Date(Date.now()+9*3600000), today=k.toISOString().slice(0,10), h=k.getUTCHours();
+      var meal=h<10?'아침':(h<15?'점심':'저녁'), st={day:today,picks:{}};
+      try{var o=JSON.parse(localStorage.getItem(K)||'null'); if(o&&o.day===today&&o.picks) st=o;}catch(e){}
+      function save(){try{localStorage.setItem(K,JSON.stringify(st));}catch(e){}}
+      var tabs=document.querySelectorAll('.meal-tab'), foods=document.querySelectorAll('.food-btn');
+      function draw(){
+        tabs.forEach(function(b){b.setAttribute('aria-pressed',b.dataset.meal===meal?'true':'false');});
+        foods.forEach(function(b){b.setAttribute('aria-pressed',st.picks[meal]===b.dataset.food?'true':'false');});
+        MEALS.forEach(function(m){document.getElementById('food-pick-'+m).textContent=st.picks[m]||'아직 고르지 않았어요';});
+      }
+      tabs.forEach(function(b){b.addEventListener('click',function(){meal=b.dataset.meal;draw();});});
+      foods.forEach(function(b){b.addEventListener('click',function(){ if(st.picks[meal]===b.dataset.food) delete st.picks[meal]; else st.picks[meal]=b.dataset.food; save();draw();});});
+      document.getElementById('food-form').addEventListener('submit',function(e){e.preventDefault();var i=document.getElementById('food-input'),v=i.value.trim();if(!v)return;st.picks[meal]=v;i.value='';save();draw();});
+      document.getElementById('food-clear').addEventListener('click',function(){st.picks={};save();draw();});
+      draw();
+    })();
+    </script>
     <a class="back" href="/#people">← 함께 만든 사람으로 돌아가기</a>
   </section>
   <section class="wrap drive-folder" aria-labelledby="drive-title">
@@ -114,7 +184,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>v5.2 · 2026-11-19 함께 만든 사람에서 전동규·전진규 삭제 (careworld-in 프롬프트 Cmwnbiahs)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 먹고 싶은 음식 선택 칸 추가 (웹 프롬프트 Wmwnggnng)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
