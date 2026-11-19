@@ -9,6 +9,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<style>
+/* 내 페이지 전용: 프롬프트 창 · 터미널 제목 오른쪽 옆 현재 시각 */
+.term h2{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 12px}
+.term-clock{font-size:.95rem;font-weight:500;color:#6b635a;font-variant-numeric:tabular-nums;white-space:nowrap}
+</style>
 </head>
 <body>
 
@@ -144,11 +149,29 @@
 
 <footer>
   <div class="wrap foot">
-    <span>v5.2 · 2026-11-19 함께 만든 사람에서 전동규·전진규 삭제 (careworld-in 프롬프트 Cmwnbiahs)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 프롬프트 창 · 터미널 오른쪽 옆에 현재 시각 표시 (웹 프롬프트 Wmwnezv1g)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
 
+<script>
+/* 내 페이지 전용: "프롬프트 창 · 터미널" 제목 오른쪽 옆에 지금 현재 시각(한국시간)을 1초마다 표시 */
+(function(){
+  var fmt;
+  try{ fmt=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); }catch(e){}
+  function now(){ return fmt ? fmt.format(new Date()) : new Date().toLocaleString(); }
+  function hook(){
+    var t=document.getElementById('term-title');
+    if(!t){ return setTimeout(hook,300); }
+    if(t.querySelector('.term-clock')) return;
+    var c=document.createElement('span');
+    c.className='term-clock'; c.setAttribute('aria-label','현재 시각');
+    t.appendChild(c);
+    (function tick(){ c.textContent='🕒 '+now(); setTimeout(tick,1000-(Date.now()%1000)); })();
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',hook); } else { hook(); }
+})();
+</script>
 <script src="/app.js" defer></script>
 </body>
 </html>
