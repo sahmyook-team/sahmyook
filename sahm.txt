@@ -280,3 +280,4 @@
 [running] Wmwngopov | 20:23 | 처리 중 — 김영숙 페이지에 키워드 검색 창을 만드는 중
 [done] Wmwngopov | 2026-11-19 | 김영숙 페이지 위쪽에 '검색하기' 창을 만들었습니다. 키워드를 넣으면 이 페이지(찾은 글자를 색으로 표시)와 careworld-in·사람 페이지 전체에서 찾아 결과를 보여 주고, 네이버·구글·유튜브 검색은 새 창 링크로 열립니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/youngsook)
 [todo] Wmwnh10xr | 2026-11-19 20:32 | 김영숙 | 우측 상단모퉁이에 노래 플레이표기해줘. 실행해줘
+[running] Wmwnh10xr | 20:33 | 처리 중 — 김영숙 페이지 오른쪽 위 모퉁이에 노래 플레이 버튼을 만드는 중
