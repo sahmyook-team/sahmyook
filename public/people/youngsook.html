@@ -15,6 +15,7 @@
 .now-date{font-size:1.15rem;font-weight:700}
 .now-time{font-size:2rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--care)}
 .now-card small{flex-basis:100%;color:#6b635a}
+.now-weather{font-size:1.15rem;font-weight:700;padding:2px 12px;border-radius:999px;border:1px solid var(--line)}
 /* 내 페이지 전용: 방문자 목록 · 방문 횟수 */
 .visit-card{margin:16px 0;padding:18px 20px;border-radius:14px;border:1px solid var(--line);background:var(--card)}
 .visit-card h2{margin:0 0 8px;font-size:1.15rem}
@@ -81,8 +82,10 @@
     </div>
     <div class="now-card" aria-label="오늘 날짜와 지금 시간">
       <span class="now-date" id="now-date">오늘 날짜</span>
+      <span class="now-weather" id="now-weather" aria-label="오늘의 날씨(서울)">날씨 불러오는 중…</span>
       <span class="now-time" id="now-time">--:--:--</span>
-      <small>한국시간 기준 · 1초마다 바뀝니다</small>
+      <small id="now-weather-sub"></small>
+      <small>한국시간 기준 · 1초마다 바뀝니다 · 날씨는 서울 기준으로 페이지를 열 때 Open-Meteo에서 가져옵니다</small>
     </div>
     <script>
     (function(){
@@ -92,6 +95,28 @@
         ft=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
       }catch(e){}
       (function tick(){var n=new Date();d.textContent=fd?fd.format(n):n.toLocaleDateString();t.textContent=ft?ft.format(n):n.toLocaleTimeString();setTimeout(tick,1000-(Date.now()%1000));})();
+    })();
+    </script>
+    <script>
+    /* 내 페이지 전용: 날짜 옆 오늘의 날씨(서울) */
+    (function(){
+      var w=document.getElementById('now-weather'),sub=document.getElementById('now-weather-sub');
+      function name(c){
+        if(c===0) return '☀️ 맑음'; if(c===1) return '🌤️ 대체로 맑음'; if(c===2) return '⛅ 구름 조금'; if(c===3) return '☁️ 흐림';
+        if(c===45||c===48) return '🌫️ 안개'; if(c>=51&&c<=57) return '🌦️ 이슬비'; if(c>=61&&c<=67) return '🌧️ 비';
+        if(c>=71&&c<=77) return '🌨️ 눈'; if(c>=80&&c<=82) return '🌧️ 소나기'; if(c===85||c===86) return '🌨️ 소낙눈';
+        if(c>=95) return '⛈️ 천둥번개'; return '날씨';
+      }
+      fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.978&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FSeoul&forecast_days=1')
+        .then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
+        .then(function(j){
+          w.textContent=name(j.current.weather_code)+' '+Math.round(j.current.temperature_2m)+'°C';
+          var t='오늘 서울 최저 '+Math.round(j.daily.temperature_2m_min[0])+'° · 최고 '+Math.round(j.daily.temperature_2m_max[0])+'°';
+          var pp=j.daily.precipitation_probability_max&&j.daily.precipitation_probability_max[0];
+          if(pp!=null) t+=' · 비 올 확률 '+pp+'%';
+          sub.textContent=t;
+        })
+        .catch(function(){ w.textContent='날씨를 불러오지 못했어요'; sub.textContent='잠시 뒤 새로 고침해 주세요.'; });
     })();
     </script>
     <div class="visit-card" aria-labelledby="visit-title">
@@ -151,7 +176,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 방문자 목록과 방문 횟수 표시 (웹 프롬프트 Wmwnf8phq)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 날짜 옆에 오늘의 날씨 표시 (웹 프롬프트 Wmwnfv8q2)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
