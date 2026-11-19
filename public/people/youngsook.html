@@ -15,6 +15,15 @@
 .now-date{font-size:1.15rem;font-weight:700}
 .now-time{font-size:2rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--care)}
 .now-card small{flex-basis:100%;color:#6b635a}
+/* 내 페이지 전용: 방문자 목록 · 방문 횟수 */
+.visit-card{margin:16px 0;padding:18px 20px;border-radius:14px;border:1px solid var(--line);background:var(--card)}
+.visit-card h2{margin:0 0 8px;font-size:1.15rem}
+.visit-count{margin:0 0 10px;font-size:1.05rem}
+.visit-count b{font-size:1.6rem;font-weight:800;color:var(--care);font-variant-numeric:tabular-nums}
+.visit-list{margin:0;padding:0;list-style:none;max-height:260px;overflow:auto}
+.visit-list li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 12px;padding:7px 0;border-top:1px solid var(--line);overflow-wrap:anywhere}
+.visit-list li span{color:#6b635a;font-variant-numeric:tabular-nums}
+.visit-card small{display:block;margin-top:10px;color:#6b635a}
 </style>
 </head>
 <body>
@@ -85,6 +94,31 @@
       (function tick(){var n=new Date();d.textContent=fd?fd.format(n):n.toLocaleDateString();t.textContent=ft?ft.format(n):n.toLocaleTimeString();setTimeout(tick,1000-(Date.now()%1000));})();
     })();
     </script>
+    <div class="visit-card" aria-labelledby="visit-title">
+      <h2 id="visit-title">방문자 목록 · 방문 횟수</h2>
+      <p class="visit-count">방문 횟수 <b id="visit-count">0</b>번</p>
+      <ul class="visit-list" id="visit-list" aria-label="방문자 목록"></ul>
+      <small>이 기기(브라우저)에서 이 페이지를 연 기록입니다(최근 30번까지 보임). 로그인하고 열면 이름이, 아니면 '손님'으로 적힙니다. 다른 기기의 방문까지 모두 모아 세려면 사이트 서버를 고쳐야 하므로 careworld-in 공동 프롬프트 창이나 sahm_all 에 요청해 주세요.</small>
+    </div>
+    <script>
+    (function(){
+      var K='youngsook-visits',cEl=document.getElementById('visit-count'),lEl=document.getElementById('visit-list'),fmt;
+      try{ fmt=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}); }catch(e){}
+      function load(){ try{ var v=JSON.parse(localStorage.getItem(K)||'{}'); if(!v||typeof v!=='object'||!Array.isArray(v.list)) v={count:0,list:[]}; v.count=+v.count||0; return v; }catch(e){ return {count:0,list:[]}; } }
+      function save(v){ try{ localStorage.setItem(K,JSON.stringify(v)); }catch(e){} }
+      function show(v){
+        cEl.textContent=v.count; lEl.textContent='';
+        v.list.forEach(function(x){
+          var li=document.createElement('li'),b=document.createElement('b'),s=document.createElement('span'),d=new Date(x.t);
+          b.textContent=String(x.n||'손님'); s.textContent=fmt?fmt.format(d):d.toLocaleString();
+          li.appendChild(b); li.appendChild(s); lEl.appendChild(li);
+        });
+      }
+      function add(name){ var v=load(); v.count+=1; v.list.unshift({n:name||'손님',t:Date.now()}); v.list=v.list.slice(0,30); save(v); show(v); }
+      show(load());
+      fetch('/api/me',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(m){ add(m&&m.name); }).catch(function(){ add(''); });
+    })();
+    </script>
     <div class="empty-note">
       <p>아직 소개 글이 없습니다. 소개 글은 Google 문서 <b>sahm_all</b>에 적어 주시면 이 페이지에 반영됩니다.</p>
       <a class="btn primary" href="https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit" target="_blank" rel="noopener">sahm_all 문서 열기 →</a>
@@ -117,7 +151,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 오늘 날짜와 지금 시간 표시 (웹 프롬프트 Wmwnf645q)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 방문자 목록과 방문 횟수 표시 (웹 프롬프트 Wmwnf8phq)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
