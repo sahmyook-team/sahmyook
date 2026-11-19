@@ -21,6 +21,10 @@
 .visit-card h2{margin:0 0 8px;font-size:1.15rem}
 .visit-count{margin:0 0 10px;font-size:1.05rem}
 .visit-count b{font-size:1.6rem;font-weight:800;color:var(--care);font-variant-numeric:tabular-nums}
+.visit-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:0 0 12px}
+.visit-stat{padding:10px 12px;border-radius:12px;border:1px solid var(--line);min-width:0}
+.visit-stat span{display:block;font-size:.85rem;color:#6b635a}
+.visit-stat b{font-size:1.3rem;font-weight:800;font-variant-numeric:tabular-nums}
 .visit-list{margin:0;padding:0;list-style:none;max-height:260px;overflow:auto}
 .visit-list li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 12px;padding:7px 0;border-top:1px solid var(--line);overflow-wrap:anywhere}
 .visit-list li span{color:#6b635a;font-variant-numeric:tabular-nums}
@@ -122,8 +126,16 @@
     <div class="visit-card" aria-labelledby="visit-title">
       <h2 id="visit-title">방문자 목록 · 방문 횟수</h2>
       <p class="visit-count">방문 횟수 <b id="visit-count">0</b>번</p>
+      <div class="visit-stats" aria-label="방문 횟수 누적 분류">
+        <div class="visit-stat"><span>이번 주 누적</span><b id="visit-week">0</b></div>
+        <div class="visit-stat"><span>이번 달 누적</span><b id="visit-month">0</b></div>
+        <div class="visit-stat"><span>새벽 (0~6시)</span><b id="visit-h0">0</b></div>
+        <div class="visit-stat"><span>오전 (6~12시)</span><b id="visit-h1">0</b></div>
+        <div class="visit-stat"><span>오후 (12~18시)</span><b id="visit-h2">0</b></div>
+        <div class="visit-stat"><span>저녁 (18~24시)</span><b id="visit-h3">0</b></div>
+      </div>
       <ul class="visit-list" id="visit-list" aria-label="방문자 목록"></ul>
-      <small>이 기기(브라우저)에서 이 페이지를 연 기록입니다(최근 30번까지 보임). 로그인하고 열면 이름이, 아니면 '손님'으로 적힙니다. 다른 기기의 방문까지 모두 모아 세려면 사이트 서버를 고쳐야 하므로 careworld-in 공동 프롬프트 창이나 sahm_all 에 요청해 주세요.</small>
+      <small>이 기기(브라우저)에서 이 페이지를 연 기록입니다(최근 30번까지 보임). 로그인하고 열면 이름이, 아니면 '손님'으로 적힙니다. 주(월~일)·한 달·시간대 누적은 한국시간 기준으로 이 기기의 방문을 나누어 센 것입니다. 다른 기기의 방문까지 모두 모아 세는 것과 남·녀 분류는 사이트 서버와 가입 정보를 고쳐야 하므로(지금 사이트에는 성별 정보가 없음) careworld-in 공동 프롬프트 창이나 sahm_all 에 요청해 주세요.</small>
     </div>
     <script>
     (function(){
@@ -131,7 +143,24 @@
       try{ fmt=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}); }catch(e){}
       function load(){ try{ var v=JSON.parse(localStorage.getItem(K)||'{}'); if(!v||typeof v!=='object'||!Array.isArray(v.list)) v={count:0,list:[]}; v.count=+v.count||0; return v; }catch(e){ return {count:0,list:[]}; } }
       function save(v){ try{ localStorage.setItem(K,JSON.stringify(v)); }catch(e){} }
+      function kst(t){ var d=new Date(t+9*3600000); return {day:d.toISOString().slice(0,10),hour:d.getUTCHours(),dow:(d.getUTCDay()+6)%7}; }
+      function bump(v,t){ var k=kst(t); v.days[k.day]=(+v.days[k.day]||0)+1; v.hours[k.hour]=(+v.hours[k.hour]||0)+1; }
+      function fix(v){
+        if(!v.days||typeof v.days!=='object'||!Array.isArray(v.hours)||v.hours.length!==24){
+          v.days={}; v.hours=[]; for(var i=0;i<24;i++) v.hours.push(0);
+          v.list.forEach(function(x){ if(x&&x.t) bump(v,+x.t); });
+        }
+        return v;
+      }
+      function set(id,n){ var e=document.getElementById(id); if(e) e.textContent=n; }
+      function stats(v){
+        var now=Date.now(),k=kst(now),mon=kst(now-k.dow*86400000).day,ym=k.day.slice(0,7),w=0,m=0,h=[0,0,0,0];
+        Object.keys(v.days).forEach(function(d){ var n=+v.days[d]||0; if(d>=mon&&d<=k.day) w+=n; if(d.slice(0,7)===ym) m+=n; });
+        v.hours.forEach(function(n,i){ h[Math.floor(i/6)]+=(+n||0); });
+        set('visit-week',w); set('visit-month',m); for(var i=0;i<4;i++) set('visit-h'+i,h[i]);
+      }
       function show(v){
+        fix(v); stats(v);
         cEl.textContent=v.count; lEl.textContent='';
         v.list.forEach(function(x){
           var li=document.createElement('li'),b=document.createElement('b'),s=document.createElement('span'),d=new Date(x.t);
@@ -139,7 +168,7 @@
           li.appendChild(b); li.appendChild(s); lEl.appendChild(li);
         });
       }
-      function add(name){ var v=load(); v.count+=1; v.list.unshift({n:name||'손님',t:Date.now()}); v.list=v.list.slice(0,30); save(v); show(v); }
+      function add(name){ var v=fix(load()); v.count+=1; bump(v,Date.now()); v.list.unshift({n:name||'손님',t:Date.now()}); v.list=v.list.slice(0,30); save(v); show(v); }
       show(load());
       fetch('/api/me',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(m){ add(m&&m.name); }).catch(function(){ add(''); });
     })();
@@ -176,7 +205,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 날짜 옆에 오늘의 날씨 표시 (웹 프롬프트 Wmwnfv8q2)</span>
+    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 방문 횟수를 주·한 달·시간대 누적으로 분류 (웹 프롬프트 Wmwng1wwm)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
