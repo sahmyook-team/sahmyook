@@ -65,6 +65,7 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 .wk-tabs button{font:inherit;font-weight:800;cursor:pointer;border:2px solid var(--line);background:var(--bg);color:var(--fg);border-radius:14px;padding:10px 0;min-width:0;line-height:1.2}
 .wk-tabs button small{display:block;font-weight:500;font-size:.68rem;color:var(--muted)}
 .wk-tabs button[aria-selected="true"]{background:var(--care);border-color:var(--care);color:var(--on-accent)}
+.wk-tabs button small.wk-date{font-weight:700;font-size:.72rem;color:inherit;white-space:nowrap}
 .wk-tabs button[aria-selected="true"] small{color:var(--on-accent)}
 .wk-tabs button:focus-visible{outline:3px solid var(--ai);outline-offset:2px}
 .wk-head{margin:16px 0 0;font-size:1.2rem;font-weight:800}
@@ -187,7 +188,7 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
     <article class="sermon imp" aria-labelledby="week-title">
       <p class="sermon-label">학습일지를 바탕으로 정리 · 가명</p>
       <h2 id="week-title">유바람님의 요일별 스케줄 (월~일)</h2>
-      <p>요일을 누르면 그날의 스케줄이 보입니다. 처음에는 오늘 요일(한국시간)이 열립니다. 시각은 학습일지에 적힌 대략의 시간입니다.</p>
+      <p>요일을 누르면 그날의 스케줄이 보입니다. 요일마다 이번 주(월~일)의 날짜가 함께 나옵니다(예: 금요일 11월 20일). 처음에는 오늘 요일(한국시간)이 열립니다. 시각은 학습일지에 적힌 대략의 시간입니다.</p>
       <div class="wk-tabs" id="wk-tabs" role="tablist" aria-label="요일 고르기"></div>
       <div id="wk-panel" role="tabpanel" aria-live="polite">
         <p class="wk-head" id="wk-head"></p>
@@ -195,7 +196,7 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
         <ol class="wk-list" id="wk-list"></ol>
         <p class="wk-tip" id="wk-tip"></p>
       </div>
-      <p class="imp-note">평일(월~금)은 내 집에서 일하러 다니는 날, 금요일 수영 뒤부터 주말은 본가에서 가족과 지내는 날로 정리했습니다. 주말은 학습일지에 시간별 기록이 적어, 기록된 내용만 넣었습니다. 스케줄이 갑자기 바뀌면 힘들어하므로 바뀌는 날에는 미리 알려 주세요. 이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. (웹 프롬프트 Wmwo8a90t)</p>
+      <p class="imp-note">평일(월~금)은 내 집에서 일하러 다니는 날, 금요일 수영 뒤부터 주말은 본가에서 가족과 지내는 날로 정리했습니다. 주말은 학습일지에 시간별 기록이 적어, 기록된 내용만 넣었습니다. 스케줄이 갑자기 바뀌면 힘들어하므로 바뀌는 날에는 미리 알려 주세요. 이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. (웹 프롬프트 Wmwo8a90t · Wmwo8qz9d)</p>
     </article>
     <script>
     /* 내 페이지 전용: 유바람님의 요일별 스케줄 */
@@ -232,11 +233,15 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
       if(!tabs||!list)return;
       var wd=new Date().toLocaleDateString('en-US',{weekday:'short',timeZone:'Asia/Seoul'});
       var today=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].indexOf(wd); if(today<0)today=0;
+      /* 이번 주(월~일, 한국시간)의 날짜 — 웹 프롬프트 Wmwo8qz9d */
+      var kp=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Seoul'}).split('-');
+      var base=Date.UTC(+kp[0],+kp[1]-1,+kp[2]);
+      var DT=D.map(function(_,i){var x=new Date(base+(i-today)*86400000);return {m:x.getUTCMonth()+1,d:x.getUTCDate()};});
       function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
       function show(i,focus){
         var d=D[i];
         Array.prototype.forEach.call(tabs.children,function(b,j){b.setAttribute('aria-selected',j===i?'true':'false');b.tabIndex=j===i?0:-1;});
-        document.getElementById('wk-head').textContent=d.n+(i===today?' · 오늘':'');
+        document.getElementById('wk-head').textContent=d.n+' '+DT[i].m+'월 '+DT[i].d+'일'+(i===today?' · 오늘':'');
         document.getElementById('wk-sum').textContent=d.s;
         list.textContent='';
         d.l.forEach(function(r){
@@ -249,7 +254,8 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
         if(focus)tabs.children[i].focus();
       }
       D.forEach(function(d,i){
-        var b=el('button',null,d.k);b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-label',d.n+' ('+d.t+')');
+        var b=el('button',null,d.k);b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-label',d.n+' '+DT[i].m+'월 '+DT[i].d+'일 ('+d.t+')');
+        b.appendChild(el('small','wk-date',DT[i].m+'/'+DT[i].d));
         b.appendChild(el('small',null,i===today?'오늘':d.t==='평일'?' ':d.t==='본가'?'본가':i===0?'시작':'본가행'));
         b.addEventListener('click',function(){show(i);});
         b.addEventListener('keydown',function(e){
@@ -326,7 +332,7 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-20 내 페이지: 유바람님의 요일별 스케줄(월~일) 추가 (웹 프롬프트 Wmwo8a90t)</span>
+    <span>현재 사이트 버전 · 2026-11-20 내 페이지: 요일별 스케줄에 날짜 함께 표시 (웹 프롬프트 Wmwo8qz9d)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
