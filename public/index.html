@@ -66,31 +66,8 @@
       </div>
     </div>
 
-    <!-- 돌봄(두 손·하트)과 인공지능(연결된 노드)을 표현한 그림 -->
-    <svg class="hero-art" viewBox="0 0 400 400" role="img" aria-label="두 손이 감싼 하트와 AI 연결망 그림">
-      <circle cx="200" cy="200" r="180" fill="var(--ai-soft)"/>
-      <circle cx="200" cy="200" r="130" fill="var(--care-soft)"/>
-      <g stroke="var(--ai)" stroke-width="2" opacity=".55">
-        <line x1="200" y1="70" x2="310" y2="130"/><line x1="310" y1="130" x2="320" y2="250"/>
-        <line x1="200" y1="70" x2="90" y2="130"/><line x1="90" y1="130" x2="80" y2="250"/>
-        <line x1="200" y1="70" x2="200" y2="150"/>
-      </g>
-      <g fill="var(--ai)">
-        <circle class="node" cx="200" cy="70" r="9"/>
-        <circle class="node" cx="310" cy="130" r="8"/>
-        <circle class="node" cx="90" cy="130" r="8"/>
-        <circle class="node" cx="320" cy="250" r="7"/>
-        <circle class="node" cx="80" cy="250" r="7"/>
-      </g>
-      <g class="pulse">
-        <path d="M200 268s-62-38-62-82a34 34 0 0 1 62-19a34 34 0 0 1 62 19c0 44-62 82-62 82z" fill="var(--care)"/>
-        <circle cx="200" cy="196" r="14" fill="var(--bg)"/>
-        <circle cx="200" cy="196" r="7" fill="var(--ai)"/>
-      </g>
-      <!-- 감싸는 두 손 -->
-      <path d="M96 262c22 40 62 62 104 62v-24c-30 0-58-14-74-40l-10-18c-4-8-14-10-20-4s-6 14 0 24z" fill="var(--care)" opacity=".85"/>
-      <path d="M304 262c-22 40-62 62-104 62v-24c30 0 58-14 74-40l10-18c4-8 14-10 20-4s6 14 0 24z" fill="var(--care)" opacity=".85"/>
-    </svg>
+    <!-- 책 「돌봄과 인공지능」 표지 그림 (전경철 폴더의 책표지) -->
+    <img class="hero-art hero-cover" src="/book-cover.jpg" width="882" height="1260" alt="책 『돌봄과 인공지능 — 사람 중심 돌봄테크놀로지의 이론과 실천』 표지. 저자 윤재영·전경철·임성희, 에스디에스 네트워크 코리아">
   </div>
 
   <section class="wrap" id="values" aria-labelledby="values-title">
@@ -158,7 +135,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>v5.2 · 2026-11-19 함께 만든 사람에서 전동규·전진규 삭제 (careworld-in 프롬프트 Cmwnbiahs)</span>
+    <span>v5.3 · 2026-11-21 careworld-in 그림을 책 표지로 바꿈 (careworld-in 프롬프트 Cmwq00pn9)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>

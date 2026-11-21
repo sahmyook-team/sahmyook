@@ -59,6 +59,7 @@ h1 .h1-sub{display:block;margin-top:10px;font-size:.5em;font-weight:700;letter-s
 .btn.primary{background:var(--care);color:var(--on-accent);box-shadow:0 8px 20px rgba(224,121,95,.3)}
 .btn.ghost{background:var(--card);color:var(--fg);border:1px solid var(--line)}
 .hero-art{width:100%;max-width:420px;justify-self:center}
+.hero-cover{max-width:340px;height:auto;display:block;border-radius:10px;box-shadow:0 18px 40px rgba(20,25,70,.28)}
 
 /* 섹션 공통 */
 section.wrap{padding-top:40px;padding-bottom:40px}
@@ -130,6 +131,7 @@ a.person:hover{border-color:var(--care);transform:translateY(-2px)}
   html{scroll-padding-top:150px}
   .hero{grid-template-columns:1fr;padding-top:24px;padding-bottom:40px}
   .hero-art{max-width:300px;order:-1}
+  .hero-cover{max-width:240px}
   .values{grid-template-columns:1fr}
   .steps{grid-template-columns:1fr 1fr}
   .cta{grid-template-columns:1fr;padding:28px}

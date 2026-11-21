@@ -38,6 +38,7 @@ const routes = {
   '/login': { type: HTML, body: pub('login.html') },
   '/style.css': { type: 'text/css; charset=utf-8', body: pub('style.css') },
   '/app.js': { type: 'text/javascript; charset=utf-8', body: pub('app.js') },
+  '/book-cover.jpg': { type: 'image/jpeg', body: pub('book-cover.jpg') },
 };
 for (const p of PEOPLE) routes[`/people/${p.slug}`] = { type: HTML, body: pub('people', `${p.slug}.html`) };
 const TEMPLATE = pub('people', '_template.html').toString('utf8');
