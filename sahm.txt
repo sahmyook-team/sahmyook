@@ -306,3 +306,4 @@
 [todo] Cmwpzy3hs | 2026-11-21 14:57 | 전경철 | 메인페이지 그림을 book에 있는 책표지로 바꾸어줘
 [running] Cmwpzy3hs | 15:00 | 처리 중 — careworld-in 그림을 book 폴더의 책표지로 바꾸는 중
 [skipped] Cmwpzy3hs | 2026-11-21 | book 폴더가 sahmyook 폴더 밖(내 드라이브 바로 아래)에 있어 읽을 수 없습니다. 책표지 그림 파일을 sahmyook 폴더 안(예: 전경철 폴더)에 넣거나 book 폴더를 sahmyook 폴더 안으로 옮긴 뒤 다시 요청해 주세요. careworld-in 그림은 그대로입니다.
+[todo] Cmwq00pn9 | 2026-11-21 14:59 | 전경철 | 응 전경철 폴더에 있는 책표지 그림을 여기 메인페이지 그림으로 바꾸어줘
