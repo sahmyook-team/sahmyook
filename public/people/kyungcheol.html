@@ -66,6 +66,26 @@
 @media (max-width:640px){.sn-link{grid-template-columns:minmax(0,1fr)}.sn-arrow{transform:rotate(90deg);height:20px}}
 @media print{.sn-tabs,.sn-tools,.sn-form,.sn-sum .sn-btn{display:none!important}}
 </style>
+<style>
+/* 내 페이지 전용: 전경철로 로그인했을 때만 내용 보이기 (웹 프롬프트 Wmwpzual3) */
+html:not(.kc-ok) main > :not(#kc-gate){display:none!important}
+html.kc-ok #kc-gate{display:none}
+#kc-gate{margin-top:28px;margin-bottom:28px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:clamp(22px,5vw,44px);box-shadow:var(--shadow);text-align:center}
+#kc-gate h1{margin:0 0 10px;font-size:clamp(1.3rem,3vw,1.8rem)}
+#kc-gate p{margin:0 0 18px;line-height:1.7;overflow-wrap:anywhere}
+</style>
+<script>
+/* 내 페이지 전용: 로그인한 사람이 전경철인지 확인한 뒤에만 내용을 보여 줌 (웹 프롬프트 Wmwpzual3) */
+(function(){
+  var OWNER='전경철';
+  function say(t){ var m=document.getElementById('kc-gate-msg'); if(m){ m.textContent=t; } else { document.addEventListener('DOMContentLoaded',function(){ var n=document.getElementById('kc-gate-msg'); if(n) n.textContent=t; }); } }
+  fetch('/api/me',{credentials:'same-origin',cache:'no-store'}).then(function(r){ return r.json(); }).then(function(me){
+    if(me && me.name===OWNER){ document.documentElement.classList.add('kc-ok'); }
+    else if(me && me.name){ say(me.name+' 님으로 로그인되어 있습니다. 이 페이지는 전경철로 로그인했을 때만 볼 수 있습니다.'); }
+    else { say('이 페이지는 전경철로 로그인했을 때만 볼 수 있습니다. 로그인해 주세요.'); }
+  }).catch(function(){ say('로그인 상태를 확인하지 못했습니다. 잠시 뒤 새로 고쳐 주세요.'); });
+})();
+</script>
 </head>
 <body>
 
@@ -112,6 +132,11 @@
 </nav>
 
 <main>
+  <section class="wrap" id="kc-gate" aria-labelledby="kc-gate-title">
+    <h1 id="kc-gate-title">🔒 전경철만 볼 수 있는 페이지</h1>
+    <p id="kc-gate-msg" role="status">로그인 상태를 확인하는 중입니다…</p>
+    <a class="btn" href="/login">로그인하러 가기</a>
+  </section>
   <nav class="wrap" aria-label="전경철 바로가기" style="display:flex;justify-content:flex-end;gap:8px;padding-top:16px;flex-wrap:wrap">
     <a class="btn ghost" href="#needs">지원욕구별 활동·지원 ↓</a>
     <a class="btn ghost" href="#memo">메모장 ↓</a>
@@ -524,7 +549,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-21 내 페이지: 유바람님 활동을 지원욕구별로 정리하고 받은 지원에 의견·수정 칸 추가 (웹 프롬프트 Wmwpv2qjg)</span>
+    <span>현재 사이트 버전 · 2026-11-21 내 페이지: 전경철로 로그인했을 때만 내용이 보이게 함 (웹 프롬프트 Wmwpzual3)</span>
     <span>황경아</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
