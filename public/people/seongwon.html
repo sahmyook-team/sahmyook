@@ -112,6 +112,15 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 .motto-deco{display:block;font-size:clamp(1.4rem,4.5vw,2rem);line-height:1;margin-bottom:8px}
 @media (prefers-reduced-motion:no-preference){.motto-deco{animation:motto-bob 2.6s ease-in-out infinite}}
 @keyframes motto-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+/* 내 페이지 전용: 어떻게 도와드릴까요? (웹 프롬프트 Wmwstjujm) */
+.how-btns{grid-template-columns:repeat(2,minmax(0,1fr))}
+.how-btns button{min-height:104px;text-align:center;word-break:keep-all}
+.how-show{margin:24px 0 0;padding:30px 18px;min-height:150px;border-radius:24px;border:3px solid var(--care);background:var(--care-soft);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
+.how-show .how-big{font-size:3rem;line-height:1}
+.how-show .how-say{margin:0;font-size:clamp(1.6rem,6.4vw,2.6rem);font-weight:800;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}
+.how-show.is-empty{border-style:dashed;border-color:var(--line);background:var(--bg)}
+.how-show.is-empty .how-say{font-size:1.15rem;font-weight:700;color:var(--muted)}
+@media (max-width:640px){.how-btns{grid-template-columns:1fr!important}.how-btns button{min-height:84px}}
 /* 내 페이지 전용: 보기 쉽게 정리 — 큰 글씨·넓은 간격·잘 보이는 색·접었다 펴기 (웹 프롬프트 Wmwst6jmp) */
 html{font-size:118.75%}
 :root{
@@ -255,6 +264,7 @@ main{line-height:1.8}
       <button type="button" data-go="wish"><span aria-hidden="true">🌟</span>하고 싶은 일</button>
       <button type="button" data-go="help"><span aria-hidden="true">🙋</span>필요한 도움</button>
       <button type="button" data-go="mood"><span aria-hidden="true">😊</span>내 기분</button>
+      <button type="button" data-go="how"><span aria-hidden="true">💬</span>어떻게 도와드릴까요?</button>
       <button type="button" data-go="mp"><span aria-hidden="true">🎵</span>음악</button>
       <button type="button" data-go="week"><span aria-hidden="true">📅</span>스케줄</button>
       <button type="button" data-go="family"><span aria-hidden="true">👪</span>가족</button>
@@ -478,6 +488,52 @@ main{line-height:1.8}
       draw();
     })();
     </script>
+    <article class="sermon imp" aria-labelledby="how-title">
+      <details class="fold" name="sw-fold" id="how-sec">
+      <summary><span class="fold-txt"><span class="sermon-label">도움 받는 방법</span>
+      <h2 id="how-title">어떻게 도와드릴까요?</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
+      <p>내가 바라는 것을 하나 눌러 주세요. 고른 말이 아래에 크게 나옵니다.</p>
+      <div class="wish-btns how-btns" id="how-btns" role="group" aria-label="도움 받는 방법 고르기"></div>
+      <div class="how-show is-empty" id="how-show" aria-live="polite">
+        <span class="how-big" id="how-big" aria-hidden="true">💬</span>
+        <p class="how-say" id="how-say">아직 고르지 않았어요.</p>
+      </div>
+      <button type="button" class="wish-clear" id="how-clear">지우기</button>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">고른 말은 이 기기 브라우저에만 저장되고 다른 사람에게 자동으로 전달되지는 않습니다. 화면을 옆 사람에게 보여 주세요. 다른 버튼을 누르면 바뀌고, 날짜(한국시간)가 바뀌면 비워집니다. (웹 프롬프트 Wmwstjujm)</p></details>
+      </details>
+    </article>
+    <script>
+    (function(){
+      var BASE=[['🙋','먼저 물어봐 주세요'],['🐢','천천히 설명해 주세요'],['⏳','잠시 기다려 주세요'],['🗣️','제가 원하는 방법을 말씀드릴게요']];
+      var KEY='seongwon-how-v1';
+      var today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul'}).format(new Date());
+      var st={date:today,pick:''};
+      try{var o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&o.date===today&&typeof o.pick==='string')st=o;}catch(e){}
+      function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+      var box=document.getElementById('how-btns'),show=document.getElementById('how-show'),
+          big=document.getElementById('how-big'),say=document.getElementById('how-say'),clr=document.getElementById('how-clear');
+      function draw(){
+        box.textContent='';
+        var ico='💬',found=false;
+        BASE.forEach(function(x){
+          var b=document.createElement('button');b.type='button';
+          var i=document.createElement('span');i.className='wish-ico';i.setAttribute('aria-hidden','true');i.textContent=x[0];
+          var t=document.createElement('span');t.textContent=x[1];
+          b.appendChild(i);b.appendChild(t);
+          var on=st.pick===x[1];if(on){ico=x[0];found=true;}
+          b.setAttribute('aria-pressed',on?'true':'false');
+          b.addEventListener('click',function(){st.pick=on?'':x[1];save();draw();});
+          box.appendChild(b);
+        });
+        big.textContent=ico;
+        say.textContent=found?'“'+st.pick+'”':'아직 고르지 않았어요.';
+        show.classList.toggle('is-empty',!found);
+        clr.hidden=!found;
+      }
+      clr.addEventListener('click',function(){st.pick='';save();draw();});
+      draw();
+    })();
+    </script>
     <article class="sermon imp" aria-labelledby="mp-title">
       <details class="fold" name="sw-fold" id="mp-sec">
       <summary><span class="fold-txt"><span class="sermon-label">음악</span>
@@ -650,7 +706,7 @@ main{line-height:1.8}
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-23 내 페이지: 큰 글씨·넓은 간격·접었다 펴기로 보기 쉽게 정리 (웹 프롬프트 Wmwst6jmp)</span>
+    <span>현재 사이트 버전 · 2026-11-23 내 페이지: '어떻게 도와드릴까요?' 버튼 칸 추가 (웹 프롬프트 Wmwstjujm)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
