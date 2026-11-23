@@ -204,6 +204,14 @@ main{line-height:1.8}
   .wish-btns button{font-size:1.1rem}
   .clock-card{flex-wrap:wrap}
 }
+.one-q{margin:4px 0 0!important;font-size:clamp(1.3rem,5vw,1.7rem);font-weight:800;line-height:1.4;word-break:keep-all}
+.one-btns{grid-template-columns:repeat(4,minmax(0,1fr))}
+.one-form[hidden]{display:none}
+.one-show{margin:24px 0 0;padding:26px 18px;border-radius:24px;border:3px solid var(--care);background:linear-gradient(135deg,var(--care-soft),var(--card));text-align:center}
+.one-show p{margin:0;font-size:clamp(1.5rem,6vw,2.2rem);font-weight:800;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}
+.one-show.is-empty{border-style:dashed;border-color:var(--line);background:var(--bg)}
+.one-show.is-empty p{font-size:1.15rem;font-weight:700;color:var(--muted)}
+@media (max-width:640px){.one-btns{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 </style>
 </head>
 <body>
@@ -265,6 +273,7 @@ main{line-height:1.8}
       <button type="button" data-go="help"><span aria-hidden="true">🙋</span>필요한 도움</button>
       <button type="button" data-go="mood"><span aria-hidden="true">😊</span>내 기분</button>
       <button type="button" data-go="how"><span aria-hidden="true">💬</span>어떻게 도와드릴까요?</button>
+      <button type="button" data-go="one"><span aria-hidden="true">🌼</span>오늘의 선택</button>
       <button type="button" data-go="mp"><span aria-hidden="true">🎵</span>음악</button>
       <button type="button" data-go="week"><span aria-hidden="true">📅</span>스케줄</button>
       <button type="button" data-go="family"><span aria-hidden="true">👪</span>가족</button>
@@ -534,6 +543,67 @@ main{line-height:1.8}
       draw();
     })();
     </script>
+    <article class="sermon imp" aria-labelledby="one-title">
+      <details class="fold" name="sw-fold" id="one-sec">
+      <summary><span class="fold-txt"><span class="sermon-label">오늘</span>
+      <h2 id="one-title">오늘의 선택 한 가지</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
+      <p class="one-q">🌼 오늘 내가 직접 고르고 싶은 것은 무엇인가요?</p>
+      <div class="wish-btns one-btns" id="one-btns" role="group" aria-label="오늘의 선택 한 가지 고르기"></div>
+      <form class="wish-add one-form" id="one-form" hidden>
+        <input type="text" id="one-input" maxlength="30" placeholder="고르고 싶은 것을 적어 보세요" aria-label="고르고 싶은 것 직접 적기" autocomplete="off">
+        <button type="submit">정하기</button>
+      </form>
+      <div class="one-show is-empty" id="one-show" aria-live="polite"><p id="one-say">아직 고르지 않았어요.</p></div>
+      <button type="button" class="wish-clear" id="one-clear">지우기</button>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">하나만 고를 수 있고, 다른 것을 누르면 바뀝니다. ‘직접 입력’을 누르면 적는 칸이 나옵니다. 고른 내용은 이 기기 브라우저에만 저장되고 다른 사람에게 자동으로 전달되지는 않으며, 날짜(한국시간)가 바뀌면 비워집니다. (웹 프롬프트 Wmwstqedo)</p></details>
+      </details>
+    </article>
+    <script>
+    (function(){
+      var BASE=[['🍚','식사'],['🚶','외출'],['🛋️','휴식']];
+      var KEY='seongwon-one-v1';
+      var today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul'}).format(new Date());
+      var st={date:today,pick:'',custom:false};
+      try{var o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&o.date===today&&typeof o.pick==='string')st={date:today,pick:o.pick,custom:!!o.custom};}catch(e){}
+      function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+      var box=document.getElementById('one-btns'),show=document.getElementById('one-show'),say=document.getElementById('one-say'),
+          form=document.getElementById('one-form'),inp=document.getElementById('one-input'),clr=document.getElementById('one-clear');
+      var typing=st.custom;
+      function btn(ico,name,on,fn){
+        var b=document.createElement('button');b.type='button';
+        var i=document.createElement('span');i.className='wish-ico';i.setAttribute('aria-hidden','true');i.textContent=ico;
+        var t=document.createElement('span');t.textContent=name;
+        b.appendChild(i);b.appendChild(t);
+        b.setAttribute('aria-pressed',on?'true':'false');
+        b.addEventListener('click',fn);box.appendChild(b);
+      }
+      function draw(){
+        box.textContent='';
+        BASE.forEach(function(x){
+          var on=!st.custom&&st.pick===x[1];
+          btn(x[0],x[1],on,function(){typing=false;st.custom=false;st.pick=on?'':x[1];save();draw();});
+        });
+        btn('✏️','직접 입력',typing,function(){
+          typing=!typing;
+          if(!typing&&st.custom){st.custom=false;st.pick='';save();}
+          draw();if(typing)inp.focus();
+        });
+        form.hidden=!typing;
+        if(typing&&st.custom)inp.value=st.pick;
+        say.textContent=st.pick?'오늘의 선택: '+st.pick:'아직 고르지 않았어요.';
+        show.classList.toggle('is-empty',!st.pick);
+        clr.hidden=!st.pick;
+      }
+      form.addEventListener('submit',function(ev){
+        ev.preventDefault();
+        var v=inp.value.replace(/\s+/g,' ').trim().slice(0,30);
+        if(!v)return;
+        st.pick=v;st.custom=true;save();draw();
+      });
+      clr.addEventListener('click',function(){st={date:today,pick:'',custom:false};typing=false;inp.value='';save();draw();});
+      draw();
+    })();
+    </script>
     <article class="sermon imp" aria-labelledby="mp-title">
       <details class="fold" name="sw-fold" id="mp-sec">
       <summary><span class="fold-txt"><span class="sermon-label">음악</span>
@@ -706,7 +776,7 @@ main{line-height:1.8}
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-23 내 페이지: '어떻게 도와드릴까요?' 버튼 칸 추가 (웹 프롬프트 Wmwstjujm)</span>
+    <span>현재 사이트 버전 · 2026-11-23 내 페이지: '오늘의 선택 한 가지' 칸 추가 (웹 프롬프트 Wmwstqedo)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
