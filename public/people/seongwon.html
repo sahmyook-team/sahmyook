@@ -77,6 +77,18 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 .wk-list b{display:block}
 .wk-list .wk-d{display:block;color:var(--muted);font-size:.95rem;overflow-wrap:anywhere}
 .wk-tip{margin:12px 0 0;background:var(--ai-soft);border-radius:14px;padding:12px 14px}
+/* 내 페이지 전용: 오늘 내가 하고 싶은 일 (웹 프롬프트 Wmwspr22n) */
+.wish-btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:14px}
+.wish-btns button{font:inherit;font-size:1.25rem;font-weight:800;cursor:pointer;border:3px solid var(--line);background:var(--card);color:var(--fg);border-radius:20px;padding:18px 10px;min-height:112px;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;line-height:1.25;overflow-wrap:anywhere}
+.wish-btns button .wish-ico{font-size:2.2rem;line-height:1}
+.wish-btns button[aria-pressed="true"]{background:var(--care);border-color:var(--care);color:var(--on-accent)}
+.wish-btns button[aria-pressed="true"]::after{content:"✓ 골랐어요";font-size:.85rem;font-weight:700}
+.wish-add{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.wish-add input{flex:1 1 200px;min-width:0;font:inherit;font-size:1.1rem;padding:14px 16px;min-height:56px;border:3px solid var(--line);border-radius:16px;background:var(--card);color:var(--fg)}
+.wish-add button,.wish-clear{font:inherit;font-size:1.1rem;font-weight:800;cursor:pointer;min-height:56px;padding:12px 24px;border-radius:16px;border:3px solid var(--ai);background:var(--ai);color:var(--on-accent)}
+.wish-clear{margin-top:12px;background:var(--bg);color:var(--fg);border-color:var(--line)}
+.wish-btns button:focus-visible,.wish-add button:focus-visible,.wish-add input:focus-visible,.wish-clear:focus-visible{outline:3px solid var(--ai);outline-offset:3px}
+.wish-result{margin:16px 0 0;background:var(--care-soft);border-radius:16px;padding:14px 16px;font-size:1.1rem;font-weight:700;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -168,6 +180,60 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
       </div>
       <p class="imp-note">요일·날짜는 한국시간 기준이고, 날씨는 서울 기준으로 페이지를 열 때 Open-Meteo에서 가져옵니다. 시계는 한국시간으로 1초마다 움직입니다. (웹 프롬프트 Wmwnf524q · Wmwngeluj)</p>
     </article>
+    <article class="sermon imp" aria-labelledby="wish-title">
+      <p class="sermon-label">오늘</p>
+      <h2 id="wish-title">오늘 내가 하고 싶은 일</h2>
+      <p>하고 싶은 일을 눌러서 골라 보세요. 여러 개를 골라도 되고, 한 번 더 누르면 빠집니다.</p>
+      <div class="wish-btns" id="wish-btns" role="group" aria-label="하고 싶은 일 고르기"></div>
+      <form class="wish-add" id="wish-form">
+        <input type="text" id="wish-input" maxlength="30" placeholder="다른 하고 싶은 일을 적어 보세요" aria-label="다른 하고 싶은 일 직접 적기" autocomplete="off">
+        <button type="submit">＋ 넣기</button>
+      </form>
+      <p class="wish-result" id="wish-result" aria-live="polite">아직 고르지 않았어요.</p>
+      <button type="button" class="wish-clear" id="wish-clear">처음부터 다시 고르기</button>
+      <p class="imp-note">고른 내용은 이 기기 브라우저에만 저장되고, 날짜(한국시간)가 바뀌면 새로 고를 수 있게 비워집니다. (웹 프롬프트 Wmwspr22n)</p>
+    </article>
+    <script>
+    (function(){
+      var BASE=[['🚶','외출하기'],['🏃','운동하기'],['🛋️','쉬기'],['🧑‍🤝‍🧑','사람 만나기']];
+      var KEY='seongwon-wish-v1';
+      var today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul'}).format(new Date());
+      var st={date:today,picked:[],custom:[]};
+      try{var o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&o.date===today&&Array.isArray(o.picked)&&Array.isArray(o.custom))st=o;}catch(e){}
+      function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+      var box=document.getElementById('wish-btns'),res=document.getElementById('wish-result');
+      function mk(ico,name){
+        var b=document.createElement('button');b.type='button';
+        var i=document.createElement('span');i.className='wish-ico';i.setAttribute('aria-hidden','true');i.textContent=ico;
+        var t=document.createElement('span');t.textContent=name;
+        b.appendChild(i);b.appendChild(t);
+        b.setAttribute('aria-pressed',st.picked.indexOf(name)>=0?'true':'false');
+        b.addEventListener('click',function(){
+          var k=st.picked.indexOf(name);
+          if(k>=0)st.picked.splice(k,1);else st.picked.push(name);
+          save();draw();
+        });
+        box.appendChild(b);
+      }
+      function draw(){
+        box.textContent='';
+        BASE.forEach(function(x){mk(x[0],x[1]);});
+        st.custom.forEach(function(n){mk('✏️',n);});
+        res.textContent=st.picked.length?'오늘 내가 하고 싶은 일: '+st.picked.join(', '):'아직 고르지 않았어요.';
+      }
+      document.getElementById('wish-form').addEventListener('submit',function(ev){
+        ev.preventDefault();
+        var inp=document.getElementById('wish-input'),v=inp.value.replace(/\s+/g,' ').trim().slice(0,30);
+        if(!v)return;
+        var known=BASE.some(function(x){return x[1]===v;})||st.custom.indexOf(v)>=0;
+        if(!known&&st.custom.length<10)st.custom.push(v);
+        if(st.picked.indexOf(v)<0&&(known||st.custom.indexOf(v)>=0))st.picked.push(v);
+        inp.value='';save();draw();
+      });
+      document.getElementById('wish-clear').addEventListener('click',function(){st={date:today,picked:[],custom:[]};save();draw();});
+      draw();
+    })();
+    </script>
     <article class="sermon imp" aria-labelledby="mp-title">
       <p class="sermon-label">음악</p>
       <h2 id="mp-title">뉴에이지 음악 플레이어</h2>
@@ -332,7 +398,7 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-20 내 페이지: 요일별 스케줄에 날짜 함께 표시 (웹 프롬프트 Wmwo8qz9d)</span>
+    <span>현재 사이트 버전 · 2026-11-23 내 페이지: '오늘 내가 하고 싶은 일' 고르기 칸 추가 (웹 프롬프트 Wmwspr22n)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
