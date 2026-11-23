@@ -95,6 +95,14 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 .help-btns button .wish-ico{font-size:2.8rem}
 .help-btns button[aria-pressed="true"]{background:var(--ai);border-color:var(--ai)}
 .help-btns button[aria-pressed="true"]::after{content:"✓ 도와주세요"}
+/* 내 페이지 전용: 오늘의 내 기분 (웹 프롬프트 Wmwssboll) */
+.mood-btns button[aria-pressed="true"]::after{content:"✓ 지금 내 기분"}
+.mood-show{margin:16px 0 0;background:var(--care-soft);border-radius:20px;padding:18px 16px;display:flex;align-items:center;gap:14px;min-width:0}
+.mood-show .mood-big{font-size:3.2rem;line-height:1;flex:none}
+.mood-show .mood-txt{min-width:0;overflow-wrap:anywhere}
+.mood-show .mood-name{display:block;font-size:1.4rem;font-weight:800}
+.mood-show .mood-say{display:block;margin-top:4px;font-size:1.05rem;color:var(--muted)}
+.mood-count{margin:6px 0 0;font-size:.9rem;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -294,6 +302,63 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
       draw();
     })();
     </script>
+    <article class="sermon imp" aria-labelledby="mood-title">
+      <p class="sermon-label">오늘</p>
+      <h2 id="mood-title">오늘의 내 기분</h2>
+      <p>지금 내 기분에 가장 가까운 것을 하나 눌러 주세요. 다른 것을 누르면 바뀌고, 한 번 더 누르면 빠집니다.</p>
+      <div class="wish-btns mood-btns" id="mood-btns" role="group" aria-label="오늘의 기분 고르기"></div>
+      <div class="mood-show" id="mood-show" aria-live="polite">
+        <span class="mood-big" id="mood-big" aria-hidden="true">🙂</span>
+        <span class="mood-txt"><span class="mood-name" id="mood-name">아직 기분을 고르지 않았어요.</span><span class="mood-say" id="mood-say"></span></span>
+      </div>
+      <form class="wish-add" id="mood-form">
+        <input type="text" id="mood-input" maxlength="60" placeholder="하고 싶은 말을 짧게 적어 보세요" aria-label="하고 싶은 말 짧게 적기" autocomplete="off">
+        <button type="submit">말 남기기</button>
+      </form>
+      <p class="mood-count" id="mood-count">60자까지 적을 수 있어요.</p>
+      <button type="button" class="wish-clear" id="mood-clear">처음부터 다시 고르기</button>
+      <p class="imp-note">고른 기분과 적은 말은 이 기기 브라우저에만 저장되고 다른 사람에게 자동으로 전달되지는 않습니다. 날짜(한국시간)가 바뀌면 비워집니다. (웹 프롬프트 Wmwssboll)</p>
+    </article>
+    <script>
+    (function(){
+      var BASE=[['😊','좋아요'],['🙂','보통이에요'],['😴','피곤해요'],['😥','조금 힘들어요']];
+      var KEY='seongwon-mood-v1';
+      var today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul'}).format(new Date());
+      var st={date:today,mood:'',say:''};
+      try{var o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&o.date===today&&typeof o.mood==='string'&&typeof o.say==='string')st=o;}catch(e){}
+      function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+      var box=document.getElementById('mood-btns'),big=document.getElementById('mood-big'),
+          nm=document.getElementById('mood-name'),say=document.getElementById('mood-say'),
+          inp=document.getElementById('mood-input'),cnt=document.getElementById('mood-count');
+      function draw(){
+        box.textContent='';
+        var ico='🙂';
+        BASE.forEach(function(x){
+          var b=document.createElement('button');b.type='button';
+          var i=document.createElement('span');i.className='wish-ico';i.setAttribute('aria-hidden','true');i.textContent=x[0];
+          var t=document.createElement('span');t.textContent=x[1];
+          b.appendChild(i);b.appendChild(t);
+          var on=st.mood===x[1];if(on)ico=x[0];
+          b.setAttribute('aria-pressed',on?'true':'false');
+          b.addEventListener('click',function(){st.mood=on?'':x[1];save();draw();});
+          box.appendChild(b);
+        });
+        big.textContent=ico;
+        nm.textContent=st.mood?'오늘의 내 기분: '+st.mood:'아직 기분을 고르지 않았어요.';
+        say.textContent=st.say?'하고 싶은 말: '+st.say:'';
+      }
+      function count(){cnt.textContent=inp.value.length+' / 60자';}
+      inp.addEventListener('input',count);
+      document.getElementById('mood-form').addEventListener('submit',function(ev){
+        ev.preventDefault();
+        st.say=inp.value.replace(/\s+/g,' ').trim().slice(0,60);
+        inp.value=st.say;count();save();draw();
+      });
+      document.getElementById('mood-clear').addEventListener('click',function(){st={date:today,mood:'',say:''};inp.value='';cnt.textContent='60자까지 적을 수 있어요.';save();draw();});
+      inp.value=st.say;if(st.say)count();
+      draw();
+    })();
+    </script>
     <article class="sermon imp" aria-labelledby="mp-title">
       <p class="sermon-label">음악</p>
       <h2 id="mp-title">뉴에이지 음악 플레이어</h2>
@@ -458,7 +523,7 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-23 내 페이지: '지금 필요한 도움' 고르기 칸 추가 (웹 프롬프트 Wmwss28od)</span>
+    <span>현재 사이트 버전 · 2026-11-23 내 페이지: '오늘의 내 기분' 고르기 칸 추가 (웹 프롬프트 Wmwssboll)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
