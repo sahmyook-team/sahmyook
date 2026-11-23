@@ -89,6 +89,12 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 .wish-clear{margin-top:12px;background:var(--bg);color:var(--fg);border-color:var(--line)}
 .wish-btns button:focus-visible,.wish-add button:focus-visible,.wish-add input:focus-visible,.wish-clear:focus-visible{outline:3px solid var(--ai);outline-offset:3px}
 .wish-result{margin:16px 0 0;background:var(--care-soft);border-radius:16px;padding:14px 16px;font-size:1.1rem;font-weight:700;overflow-wrap:anywhere}
+/* 내 페이지 전용: 지금 필요한 도움 (웹 프롬프트 Wmwss28od) */
+.help-btns{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.help-btns button{font-size:1.35rem;min-height:128px;border-width:4px}
+.help-btns button .wish-ico{font-size:2.8rem}
+.help-btns button[aria-pressed="true"]{background:var(--ai);border-color:var(--ai)}
+.help-btns button[aria-pressed="true"]::after{content:"✓ 도와주세요"}
 </style>
 </head>
 <body>
@@ -231,6 +237,60 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
         inp.value='';save();draw();
       });
       document.getElementById('wish-clear').addEventListener('click',function(){st={date:today,picked:[],custom:[]};save();draw();});
+      draw();
+    })();
+    </script>
+    <article class="sermon imp" aria-labelledby="help-title">
+      <p class="sermon-label">지금</p>
+      <h2 id="help-title">지금 필요한 도움</h2>
+      <p>지금 필요한 도움을 눌러서 골라 보세요. 여러 개를 골라도 되고, 한 번 더 누르면 빠집니다.</p>
+      <div class="wish-btns help-btns" id="help-btns" role="group" aria-label="필요한 도움 고르기"></div>
+      <form class="wish-add" id="help-form">
+        <input type="text" id="help-input" maxlength="30" placeholder="필요한 도움을 직접 적어 보세요" aria-label="필요한 도움 직접 적기" autocomplete="off">
+        <button type="submit">＋ 넣기</button>
+      </form>
+      <p class="wish-result" id="help-result" aria-live="polite">지금은 고른 도움이 없어요.</p>
+      <button type="button" class="wish-clear" id="help-clear">처음부터 다시 고르기</button>
+      <p class="imp-note">고른 내용은 이 기기 브라우저에만 저장되고 다른 사람에게 자동으로 전달되지는 않습니다. 화면을 옆 사람에게 보여 주세요. 날짜(한국시간)가 바뀌면 비워집니다. (웹 프롬프트 Wmwss28od)</p>
+    </article>
+    <script>
+    (function(){
+      var BASE=[['🔄','자세 바꾸기'],['💧','물 마시기'],['🍚','식사하기'],['🧥','외출 준비하기']];
+      var KEY='seongwon-help-v1';
+      var today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul'}).format(new Date());
+      var st={date:today,picked:[],custom:[]};
+      try{var o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&o.date===today&&Array.isArray(o.picked)&&Array.isArray(o.custom))st=o;}catch(e){}
+      function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+      var box=document.getElementById('help-btns'),res=document.getElementById('help-result');
+      function mk(ico,name){
+        var b=document.createElement('button');b.type='button';
+        var i=document.createElement('span');i.className='wish-ico';i.setAttribute('aria-hidden','true');i.textContent=ico;
+        var t=document.createElement('span');t.textContent=name;
+        b.appendChild(i);b.appendChild(t);
+        b.setAttribute('aria-pressed',st.picked.indexOf(name)>=0?'true':'false');
+        b.addEventListener('click',function(){
+          var k=st.picked.indexOf(name);
+          if(k>=0)st.picked.splice(k,1);else st.picked.push(name);
+          save();draw();
+        });
+        box.appendChild(b);
+      }
+      function draw(){
+        box.textContent='';
+        BASE.forEach(function(x){mk(x[0],x[1]);});
+        st.custom.forEach(function(n){mk('✏️',n);});
+        res.textContent=st.picked.length?'지금 필요한 도움: '+st.picked.join(', '):'지금은 고른 도움이 없어요.';
+      }
+      document.getElementById('help-form').addEventListener('submit',function(ev){
+        ev.preventDefault();
+        var inp=document.getElementById('help-input'),v=inp.value.replace(/\s+/g,' ').trim().slice(0,30);
+        if(!v)return;
+        var known=BASE.some(function(x){return x[1]===v;})||st.custom.indexOf(v)>=0;
+        if(!known&&st.custom.length<10)st.custom.push(v);
+        if(st.picked.indexOf(v)<0&&(known||st.custom.indexOf(v)>=0))st.picked.push(v);
+        inp.value='';save();draw();
+      });
+      document.getElementById('help-clear').addEventListener('click',function(){st={date:today,picked:[],custom:[]};save();draw();});
       draw();
     })();
     </script>
@@ -398,7 +458,7 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-23 내 페이지: '오늘 내가 하고 싶은 일' 고르기 칸 추가 (웹 프롬프트 Wmwspr22n)</span>
+    <span>현재 사이트 버전 · 2026-11-23 내 페이지: '지금 필요한 도움' 고르기 칸 추가 (웹 프롬프트 Wmwss28od)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
