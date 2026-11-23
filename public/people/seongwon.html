@@ -112,6 +112,89 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 .motto-deco{display:block;font-size:clamp(1.4rem,4.5vw,2rem);line-height:1;margin-bottom:8px}
 @media (prefers-reduced-motion:no-preference){.motto-deco{animation:motto-bob 2.6s ease-in-out infinite}}
 @keyframes motto-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+/* 내 페이지 전용: 보기 쉽게 정리 — 큰 글씨·넓은 간격·잘 보이는 색·접었다 펴기 (웹 프롬프트 Wmwst6jmp) */
+html{font-size:118.75%}
+:root{
+  --bg:#fffafb; --bg2:#fbeef2; --fg:#2b1d23; --muted:#5c454d;
+  --line:#e6bccb; --care:#a53a61; --care-soft:#fbe4ec;
+  --ai:#6d4a8b; --ai-soft:#efe5f5;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#1a1417; --bg2:#231a1f; --fg:#fbf1f4; --muted:#d6c3ca;
+    --line:#5a4350; --care:#f7b1c8; --care-soft:#3d2430;
+    --ai:#d8bfec; --ai-soft:#33283d;
+  }
+}
+main{line-height:1.8}
+.profile{padding-top:28px}
+.profile-head{margin-bottom:20px}
+.empty-note{padding:20px}
+.sermon{margin-top:22px;padding:0;line-height:1.8;border-width:2px}
+.sermon h2{margin:0;font-size:clamp(1.3rem,4.6vw,1.6rem);line-height:1.35;word-break:keep-all}
+.sermon h3{margin:28px 0 10px;font-size:1.2rem}
+.sermon p{margin:0 0 16px}
+.sermon-label{display:block;margin:0 0 2px;font-size:.9rem}
+.imp-list{gap:16px}
+.imp-note{font-size:.95rem;margin:10px 0 0!important}
+.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:22px clamp(18px,4vw,32px);min-height:76px;border-radius:18px}
+.fold>summary::-webkit-details-marker{display:none}
+.fold-txt{min-width:0}
+.fold-arrow{flex:none;width:48px;height:48px;border-radius:50%;background:var(--care-soft);color:var(--care);display:grid;place-items:center;font-size:1.5rem;font-weight:800}
+.fold-arrow::before{content:"＋"}
+.fold[open]>summary .fold-arrow::before{content:"－"}
+.fold[open]>summary{border-bottom:2px solid var(--line);border-radius:18px 18px 0 0;margin-bottom:22px}
+.fold>summary:focus-visible,.note-fold>summary:focus-visible,.quick-btns button:focus-visible{outline:3px solid var(--ai);outline-offset:3px}
+.fold>:not(summary){margin-left:clamp(18px,4vw,32px);margin-right:clamp(18px,4vw,32px)}
+.fold>:last-child{margin-bottom:26px}
+.note-fold{margin-top:20px}
+.note-fold>summary{cursor:pointer;display:inline-block;list-style:none;font-weight:700;color:var(--muted);padding:12px 18px;min-height:48px;border:2px solid var(--line);border-radius:999px;background:var(--bg)}
+.note-fold>summary::-webkit-details-marker{display:none}
+.quick{padding-top:24px}
+.quick-k{margin:0 0 14px;font-weight:700;color:var(--muted)}
+.quick-btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px}
+.quick-btns button{font:inherit;font-weight:800;font-size:1.05rem;cursor:pointer;min-height:92px;min-width:0;padding:14px 8px;border:3px solid var(--line);border-radius:20px;background:var(--card);color:var(--fg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;line-height:1.25;word-break:keep-all}
+.quick-btns button span{font-size:1.9rem;line-height:1}
+.quick-btns button[aria-current="true"]{background:var(--care);border-color:var(--care);color:var(--on-accent)}
+.today-box{gap:18px;margin-top:4px}
+.today-card{padding:20px;border-width:2px}
+.today-card .today-k{font-size:1rem}
+.today-card .today-s{font-size:1rem}
+.wish-btns{gap:20px;margin-top:18px}
+.wish-btns button[aria-pressed="true"]::after{font-size:.95rem}
+.wish-add{gap:16px;margin-top:24px}
+.wish-add input{min-height:64px}
+.wish-add button,.wish-clear{min-height:64px}
+.wish-result{margin-top:24px!important;padding:18px}
+.wish-clear{margin-top:20px}
+.mood-show{margin-top:24px}
+.mood-count{font-size:1rem;margin-top:10px!important}
+.mp{padding:22px;margin-top:4px;border-width:2px}
+.mp-state{font-size:1rem}
+.mp-ctrl{gap:18px;margin-top:20px}
+.mp-ctrl button{min-height:60px;padding:12px 24px;font-size:1.05rem}
+.mp-ctrl button.mp-main{padding:12px 30px}
+.mp-ctrl label{font-size:1rem;flex:1 1 100%;gap:12px;margin-top:4px}
+.mp-ctrl input[type=range]{width:220px;height:36px}
+.wk-tabs{gap:12px;margin-top:8px}
+.wk-tabs button{min-height:76px;padding:10px 2px;font-size:1.1rem}
+.wk-tabs button small{font-size:.8rem}
+.wk-tabs button small.wk-date{font-size:.85rem}
+.wk-head{margin-top:24px!important;font-size:1.3rem}
+.wk-list{gap:14px;margin-top:16px}
+.wk-list li{padding:16px 18px;border-width:2px}
+.wk-list .wk-time{font-size:.95rem}
+.wk-list .wk-d{font-size:1rem}
+.wk-tip{margin-top:18px!important;padding:16px 18px}
+.back{font-size:1.05rem;padding:12px 0}
+.drive-folder p{font-size:1rem}
+@media (max-width:640px){
+  .wk-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .quick-btns{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .wish-btns{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .wish-btns button{font-size:1.1rem}
+  .clock-card{flex-wrap:wrap}
+}
 </style>
 </head>
 <body>
@@ -165,6 +248,19 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
       <p class="motto-text"><span class="m1">“도움은 함께,</span> <span class="m2">선택은 내가!”</span></p>
     </div>
   </div>
+  <nav class="wrap quick" aria-label="보고 싶은 곳 고르기">
+    <p class="quick-k">보고 싶은 곳을 눌러 주세요. 한 번에 하나씩 펼쳐집니다.</p>
+    <div class="quick-btns">
+      <button type="button" data-go="today"><span aria-hidden="true">🕒</span>오늘·날씨</button>
+      <button type="button" data-go="wish"><span aria-hidden="true">🌟</span>하고 싶은 일</button>
+      <button type="button" data-go="help"><span aria-hidden="true">🙋</span>필요한 도움</button>
+      <button type="button" data-go="mood"><span aria-hidden="true">😊</span>내 기분</button>
+      <button type="button" data-go="mp"><span aria-hidden="true">🎵</span>음악</button>
+      <button type="button" data-go="week"><span aria-hidden="true">📅</span>스케줄</button>
+      <button type="button" data-go="family"><span aria-hidden="true">👪</span>가족</button>
+      <button type="button" data-go="culture"><span aria-hidden="true">🎭</span>좋아하는 문화</button>
+    </div>
+  </nav>
   <section class="wrap profile" aria-labelledby="profile-name">
     <div class="profile-head">
       <span class="profile-avatar" aria-hidden="true">왕</span>
@@ -178,8 +274,9 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
       <a class="btn primary" href="https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit" target="_blank" rel="noopener">sahm_all 문서 열기 →</a>
     </div>
     <article class="sermon imp" aria-labelledby="today-title">
-      <p class="sermon-label">오늘</p>
-      <h2 id="today-title">오늘의 요일과 날씨, 시계</h2>
+      <details class="fold" name="sw-fold" id="today-sec" open>
+      <summary><span class="fold-txt"><span class="sermon-label">오늘</span>
+      <h2 id="today-title">오늘의 요일과 날씨, 시계</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
       <div class="today-box">
         <div class="today-card">
           <p class="today-k">오늘은</p>
@@ -207,11 +304,13 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
           </div>
         </div>
       </div>
-      <p class="imp-note">요일·날짜는 한국시간 기준이고, 날씨는 서울 기준으로 페이지를 열 때 Open-Meteo에서 가져옵니다. 시계는 한국시간으로 1초마다 움직입니다. (웹 프롬프트 Wmwnf524q · Wmwngeluj)</p>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">요일·날짜는 한국시간 기준이고, 날씨는 서울 기준으로 페이지를 열 때 Open-Meteo에서 가져옵니다. 시계는 한국시간으로 1초마다 움직입니다. (웹 프롬프트 Wmwnf524q · Wmwngeluj)</p></details>
+      </details>
     </article>
     <article class="sermon imp" aria-labelledby="wish-title">
-      <p class="sermon-label">오늘</p>
-      <h2 id="wish-title">오늘 내가 하고 싶은 일</h2>
+      <details class="fold" name="sw-fold" id="wish-sec">
+      <summary><span class="fold-txt"><span class="sermon-label">오늘</span>
+      <h2 id="wish-title">오늘 내가 하고 싶은 일</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
       <p>하고 싶은 일을 눌러서 골라 보세요. 여러 개를 골라도 되고, 한 번 더 누르면 빠집니다.</p>
       <div class="wish-btns" id="wish-btns" role="group" aria-label="하고 싶은 일 고르기"></div>
       <form class="wish-add" id="wish-form">
@@ -220,7 +319,8 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
       </form>
       <p class="wish-result" id="wish-result" aria-live="polite">아직 고르지 않았어요.</p>
       <button type="button" class="wish-clear" id="wish-clear">처음부터 다시 고르기</button>
-      <p class="imp-note">고른 내용은 이 기기 브라우저에만 저장되고, 날짜(한국시간)가 바뀌면 새로 고를 수 있게 비워집니다. (웹 프롬프트 Wmwspr22n)</p>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">고른 내용은 이 기기 브라우저에만 저장되고, 날짜(한국시간)가 바뀌면 새로 고를 수 있게 비워집니다. (웹 프롬프트 Wmwspr22n)</p></details>
+      </details>
     </article>
     <script>
     (function(){
@@ -264,8 +364,9 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
     })();
     </script>
     <article class="sermon imp" aria-labelledby="help-title">
-      <p class="sermon-label">지금</p>
-      <h2 id="help-title">지금 필요한 도움</h2>
+      <details class="fold" name="sw-fold" id="help-sec">
+      <summary><span class="fold-txt"><span class="sermon-label">지금</span>
+      <h2 id="help-title">지금 필요한 도움</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
       <p>지금 필요한 도움을 눌러서 골라 보세요. 여러 개를 골라도 되고, 한 번 더 누르면 빠집니다.</p>
       <div class="wish-btns help-btns" id="help-btns" role="group" aria-label="필요한 도움 고르기"></div>
       <form class="wish-add" id="help-form">
@@ -274,7 +375,8 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
       </form>
       <p class="wish-result" id="help-result" aria-live="polite">지금은 고른 도움이 없어요.</p>
       <button type="button" class="wish-clear" id="help-clear">처음부터 다시 고르기</button>
-      <p class="imp-note">고른 내용은 이 기기 브라우저에만 저장되고 다른 사람에게 자동으로 전달되지는 않습니다. 화면을 옆 사람에게 보여 주세요. 날짜(한국시간)가 바뀌면 비워집니다. (웹 프롬프트 Wmwss28od)</p>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">고른 내용은 이 기기 브라우저에만 저장되고 다른 사람에게 자동으로 전달되지는 않습니다. 화면을 옆 사람에게 보여 주세요. 날짜(한국시간)가 바뀌면 비워집니다. (웹 프롬프트 Wmwss28od)</p></details>
+      </details>
     </article>
     <script>
     (function(){
@@ -318,8 +420,9 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
     })();
     </script>
     <article class="sermon imp" aria-labelledby="mood-title">
-      <p class="sermon-label">오늘</p>
-      <h2 id="mood-title">오늘의 내 기분</h2>
+      <details class="fold" name="sw-fold" id="mood-sec">
+      <summary><span class="fold-txt"><span class="sermon-label">오늘</span>
+      <h2 id="mood-title">오늘의 내 기분</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
       <p>지금 내 기분에 가장 가까운 것을 하나 눌러 주세요. 다른 것을 누르면 바뀌고, 한 번 더 누르면 빠집니다.</p>
       <div class="wish-btns mood-btns" id="mood-btns" role="group" aria-label="오늘의 기분 고르기"></div>
       <div class="mood-show" id="mood-show" aria-live="polite">
@@ -332,7 +435,8 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
       </form>
       <p class="mood-count" id="mood-count">60자까지 적을 수 있어요.</p>
       <button type="button" class="wish-clear" id="mood-clear">처음부터 다시 고르기</button>
-      <p class="imp-note">고른 기분과 적은 말은 이 기기 브라우저에만 저장되고 다른 사람에게 자동으로 전달되지는 않습니다. 날짜(한국시간)가 바뀌면 비워집니다. (웹 프롬프트 Wmwssboll)</p>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">고른 기분과 적은 말은 이 기기 브라우저에만 저장되고 다른 사람에게 자동으로 전달되지는 않습니다. 날짜(한국시간)가 바뀌면 비워집니다. (웹 프롬프트 Wmwssboll)</p></details>
+      </details>
     </article>
     <script>
     (function(){
@@ -375,8 +479,9 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
     })();
     </script>
     <article class="sermon imp" aria-labelledby="mp-title">
-      <p class="sermon-label">음악</p>
-      <h2 id="mp-title">뉴에이지 음악 플레이어</h2>
+      <details class="fold" name="sw-fold" id="mp-sec">
+      <summary><span class="fold-txt"><span class="sermon-label">음악</span>
+      <h2 id="mp-title">뉴에이지 음악 플레이어</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
       <p>▶ 틀기를 누르면 잔잔한 뉴에이지 풍 음악이 나옵니다. 저작권 없이 이 페이지가 직접 만든 다섯 곡이 매주 새로 채워지고, 한 곡이 끝나면 다음 곡으로 넘어갑니다.</p>
       <p class="imp-note" id="mp-week">이번 주의 곡</p>
       <div class="mp">
@@ -389,11 +494,13 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
           <label>🔊 소리 <input type="range" id="mp-vol" min="0" max="100" value="60" aria-label="소리 크기"></label>
         </div>
       </div>
-      <p class="imp-note">노래 목록은 지우고 재생 중인 노래 제목만 보여 줍니다(다른 곡은 ⏮ 이전 · 다음 ⏭ 으로 넘깁니다). 다섯 곡은 모두 이 페이지가 그 자리에서 직접 만들어 연주하는 자체 제작 곡이라 저작권 걱정이 없습니다(음악 파일 없음, 곡마다 3분쯤). 다섯 곡은 매주 월요일(한국시간)에 새 곡으로 자동으로 바뀝니다. 자동 재생은 브라우저가 막으므로 ▶ 틀기를 눌러야 소리가 납니다. (웹 프롬프트 Wmwngk3a0 · Wmwnhtmes · Wmwnieibh)</p>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">노래 목록은 지우고 재생 중인 노래 제목만 보여 줍니다(다른 곡은 ⏮ 이전 · 다음 ⏭ 으로 넘깁니다). 다섯 곡은 모두 이 페이지가 그 자리에서 직접 만들어 연주하는 자체 제작 곡이라 저작권 걱정이 없습니다(음악 파일 없음, 곡마다 3분쯤). 다섯 곡은 매주 월요일(한국시간)에 새 곡으로 자동으로 바뀝니다. 자동 재생은 브라우저가 막으므로 ▶ 틀기를 눌러야 소리가 납니다. (웹 프롬프트 Wmwngk3a0 · Wmwnhtmes · Wmwnieibh)</p></details>
+      </details>
     </article>
     <article class="sermon imp" aria-labelledby="week-title">
-      <p class="sermon-label">학습일지를 바탕으로 정리 · 가명</p>
-      <h2 id="week-title">유바람님의 요일별 스케줄 (월~일)</h2>
+      <details class="fold" name="sw-fold" id="week-sec">
+      <summary><span class="fold-txt"><span class="sermon-label">학습일지를 바탕으로 정리 · 가명</span>
+      <h2 id="week-title">유바람님의 요일별 스케줄 (월~일)</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
       <p>요일을 누르면 그날의 스케줄이 보입니다. 요일마다 이번 주(월~일)의 날짜가 함께 나옵니다(예: 금요일 11월 20일). 처음에는 오늘 요일(한국시간)이 열립니다. 시각은 학습일지에 적힌 대략의 시간입니다.</p>
       <div class="wk-tabs" id="wk-tabs" role="tablist" aria-label="요일 고르기"></div>
       <div id="wk-panel" role="tabpanel" aria-live="polite">
@@ -402,7 +509,8 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
         <ol class="wk-list" id="wk-list"></ol>
         <p class="wk-tip" id="wk-tip"></p>
       </div>
-      <p class="imp-note">평일(월~금)은 내 집에서 일하러 다니는 날, 금요일 수영 뒤부터 주말은 본가에서 가족과 지내는 날로 정리했습니다. 주말은 학습일지에 시간별 기록이 적어, 기록된 내용만 넣었습니다. 스케줄이 갑자기 바뀌면 힘들어하므로 바뀌는 날에는 미리 알려 주세요. 이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. (웹 프롬프트 Wmwo8a90t · Wmwo8qz9d)</p>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">평일(월~금)은 내 집에서 일하러 다니는 날, 금요일 수영 뒤부터 주말은 본가에서 가족과 지내는 날로 정리했습니다. 주말은 학습일지에 시간별 기록이 적어, 기록된 내용만 넣었습니다. 스케줄이 갑자기 바뀌면 힘들어하므로 바뀌는 날에는 미리 알려 주세요. 이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. (웹 프롬프트 Wmwo8a90t · Wmwo8qz9d)</p></details>
+      </details>
     </article>
     <script>
     /* 내 페이지 전용: 유바람님의 요일별 스케줄 */
@@ -474,8 +582,9 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
     })();
     </script>
     <article class="sermon imp" aria-labelledby="family-title">
-      <p class="sermon-label">학습일지를 바탕으로 정리 · 가명</p>
-      <h2 id="family-title">유바람님의 가족 구성과 성장 환경</h2>
+      <details class="fold" name="sw-fold" id="family-sec">
+      <summary><span class="fold-txt"><span class="sermon-label">학습일지를 바탕으로 정리 · 가명</span>
+      <h2 id="family-title">유바람님의 가족 구성과 성장 환경</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
       <h3>가족 구성</h3>
       <ul class="imp-list">
         <li><b>아버님</b><span>바람님을 가장 가까이에서 돌봐 온 분입니다. 바람님에게 아버님은 가장 친하고 편한 사람이라, 친근함의 표현도 힘든 감정도 아버님에게 가장 먼저 나타납니다. 바람님의 자립과 지원주택 입주를 바라면서도, 혼자 지낼 때의 위험을 걱정하고 있습니다.</span></li>
@@ -490,11 +599,13 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
         <li><b>2026년 6월 · 내 집으로 주거 독립</b><span>새 집으로 이사해 첫날부터 잠도 잘 자고 TV·컴퓨터도 익숙하게 다루었습니다. 두 달쯤 지나 “매우 안정된 모습”이라는 평가를 받았고, 요즘은 “집이 제일 좋아요”라고 말합니다.</span></li>
         <li><b>2026년 8월 · 새 일터</b><span>동서울자립생활일자리센터로 첫 출근을 했습니다.</span></li>
       </ul>
-      <p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 학습일지에 어린 시절 기록은 거의 없어, 기록된 최근 생활을 중심으로 정리했습니다. (sahm_all 요청 26)</p>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 학습일지에 어린 시절 기록은 거의 없어, 기록된 최근 생활을 중심으로 정리했습니다. (sahm_all 요청 26)</p></details>
+      </details>
     </article>
     <article class="sermon imp" aria-labelledby="culture-title">
-      <p class="sermon-label">학습일지를 바탕으로 정리 · 가명</p>
-      <h2 id="culture-title">유바람님이 좋아하는 문화 목록</h2>
+      <details class="fold" name="sw-fold" id="culture-sec">
+      <summary><span class="fold-txt"><span class="sermon-label">학습일지를 바탕으로 정리 · 가명</span>
+      <h2 id="culture-title">유바람님이 좋아하는 문화 목록</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
       <p>학습일지에서 바람님이 즐거워한 기록이 있는 문화 활동을 모았습니다.</p>
       <h3>음악 · 공연</h3>
       <ul class="imp-list">
@@ -525,7 +636,8 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
         <li><b>쇼핑 · 카페</b><span>다이소에서 손 선풍기 같은 작은 물건 고르기, 카페에서 딸기스무디 마시기.</span></li>
         <li><b>음식</b><span>돈까스, 김밥, 계란후라이, 바나나우유.</span></li>
       </ul>
-      <p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 드라마·영화 기록은 학습일지에 없어 넣지 않았습니다. (웹 프롬프트 Wmwnf19ru)</p>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 드라마·영화 기록은 학습일지에 없어 넣지 않았습니다. (웹 프롬프트 Wmwnf19ru)</p></details>
+      </details>
     </article>
     <a class="back" href="/#people">← 함께 만든 사람으로 돌아가기</a>
   </section>
@@ -538,7 +650,7 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-23 내 페이지: 맨 위에 “도움은 함께, 선택은 내가!” 문구 추가 (웹 프롬프트 Wmwssqrbd)</span>
+    <span>현재 사이트 버전 · 2026-11-23 내 페이지: 큰 글씨·넓은 간격·접었다 펴기로 보기 쉽게 정리 (웹 프롬프트 Wmwst6jmp)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
@@ -647,6 +759,23 @@ body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 320px) no-repeat v
   $('mp-next').addEventListener('click',function(){ go(cur+1); });
   vol.addEventListener('input',function(){ if(master) master.gain.value=vol.value/100*0.5; });
   draw();
+})();
+</script>
+<script>
+/* 내 페이지 전용: 바로가기 버튼으로 한 번에 한 칸만 펼치기 (웹 프롬프트 Wmwst6jmp) */
+(function(){
+  var folds=[].slice.call(document.querySelectorAll('details.fold'));
+  var btns=[].slice.call(document.querySelectorAll('.quick-btns button'));
+  function mark(){btns.forEach(function(b){var d=document.getElementById(b.getAttribute('data-go')+'-sec');b.setAttribute('aria-current',d&&d.open?'true':'false');});}
+  function open(d,scroll){
+    folds.forEach(function(x){if(x!==d)x.open=false;});
+    d.open=true;mark();
+    if(scroll)setTimeout(function(){d.parentNode.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});},30);
+  }
+  folds.forEach(function(d){d.addEventListener('toggle',function(){if(d.open)folds.forEach(function(x){if(x!==d)x.open=false;});mark();});});
+  btns.forEach(function(b){b.addEventListener('click',function(){var d=document.getElementById(b.getAttribute('data-go')+'-sec');if(d)open(d,true);});});
+  function fromHash(){var t=location.hash&&document.getElementById(location.hash.slice(1));if(!t)return;var d=t.closest&&t.closest('details.fold');if(d)open(d,true);}
+  window.addEventListener('hashchange',fromHash);fromHash();mark();
 })();
 </script>
 <script src="/app.js" defer></script>
