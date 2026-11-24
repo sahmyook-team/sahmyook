@@ -335,3 +335,4 @@
 [approval] Amwudl9c5 | 2026-11-24 16:32 | 준비 | 검토 도구 준비 완료
 [approval] Amwudl9c5 | 2026-11-24 16:32 | 검토 | 1/1건 검토 중
 [approval] Amwudl9c5 | 2026-11-24 16:35 | 보고서 | 보고서 작성 완료 https://docs.google.com/document/d/16Pp_fPZl7wm8n6PrvuBUNW2ly5jU6Dq0y7vBklT0R10/edit
+[approval] Amwudl9c5 | 2026-11-24 16:35 | 정리 | 검토 끝난 파일 0개 삭제, 실패 0건 남김 (파일 1개는 삭제 권한이 없어 결재 폴더에 남음)
