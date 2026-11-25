@@ -212,6 +212,15 @@ main{line-height:1.8}
 .one-show.is-empty{border-style:dashed;border-color:var(--line);background:var(--bg)}
 .one-show.is-empty p{font-size:1.15rem;font-weight:700;color:var(--muted)}
 @media (max-width:640px){.one-btns{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+/* 메뉴 6개 정리 (웹 프롬프트 Wmwvlbdxe) */
+.quick-btns{grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.quick-btns button{min-height:112px;font-size:1.2rem;border-radius:24px}
+.quick-btns button span{font-size:2.2rem}
+article[hidden]{display:none!important}
+.sub{padding-top:6px}
+.sub+.sub{margin-top:34px;padding-top:28px;border-top:2px dashed var(--line)}
+.sub-h{margin:0 0 12px;font-size:clamp(1.2rem,4.5vw,1.45rem);font-weight:800;line-height:1.35;word-break:keep-all}
+@media (max-width:640px){.quick-btns{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px}.quick-btns button{min-height:100px}}
 </style>
 </head>
 <body>
@@ -269,15 +278,11 @@ main{line-height:1.8}
     <p class="quick-k">보고 싶은 곳을 눌러 주세요. 한 번에 하나씩 펼쳐집니다.</p>
     <div class="quick-btns">
       <button type="button" data-go="today"><span aria-hidden="true">🕒</span>오늘·날씨</button>
-      <button type="button" data-go="wish"><span aria-hidden="true">🌟</span>하고 싶은 일</button>
+      <button type="button" data-go="pick"><span aria-hidden="true">🌼</span>오늘의 선택</button>
       <button type="button" data-go="help"><span aria-hidden="true">🙋</span>필요한 도움</button>
       <button type="button" data-go="mood"><span aria-hidden="true">😊</span>내 기분</button>
-      <button type="button" data-go="how"><span aria-hidden="true">💬</span>어떻게 도와드릴까요?</button>
-      <button type="button" data-go="one"><span aria-hidden="true">🌼</span>오늘의 선택</button>
-      <button type="button" data-go="mp"><span aria-hidden="true">🎵</span>음악</button>
       <button type="button" data-go="week"><span aria-hidden="true">📅</span>스케줄</button>
-      <button type="button" data-go="family"><span aria-hidden="true">👪</span>가족</button>
-      <button type="button" data-go="culture"><span aria-hidden="true">🎭</span>좋아하는 문화</button>
+      <button type="button" data-go="mc"><span aria-hidden="true">🎵</span>음악·문화</button>
     </div>
   </nav>
   <section class="wrap profile" aria-labelledby="profile-name">
@@ -326,10 +331,24 @@ main{line-height:1.8}
       <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">요일·날짜는 한국시간 기준이고, 날씨는 서울 기준으로 페이지를 열 때 Open-Meteo에서 가져옵니다. 시계는 한국시간으로 1초마다 움직입니다. (웹 프롬프트 Wmwnf524q · Wmwngeluj)</p></details>
       </details>
     </article>
-    <article class="sermon imp" aria-labelledby="wish-title">
-      <details class="fold" name="sw-fold" id="wish-sec">
+    <article class="sermon imp" aria-labelledby="pick-title">
+      <details class="fold" name="sw-fold" id="pick-sec">
       <summary><span class="fold-txt"><span class="sermon-label">오늘</span>
-      <h2 id="wish-title">오늘 내가 하고 싶은 일</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
+      <h2 id="pick-title">오늘의 선택</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
+      <div class="sub" id="one-part">
+      <h3 class="sub-h" id="one-title"><span aria-hidden="true">🌼</span> 오늘의 선택 한 가지</h3>
+      <p class="one-q">🌼 오늘 내가 직접 고르고 싶은 것은 무엇인가요?</p>
+      <div class="wish-btns one-btns" id="one-btns" role="group" aria-label="오늘의 선택 한 가지 고르기"></div>
+      <form class="wish-add one-form" id="one-form" hidden>
+        <input type="text" id="one-input" maxlength="30" placeholder="고르고 싶은 것을 적어 보세요" aria-label="고르고 싶은 것 직접 적기" autocomplete="off">
+        <button type="submit">정하기</button>
+      </form>
+      <div class="one-show is-empty" id="one-show" aria-live="polite"><p id="one-say">아직 고르지 않았어요.</p></div>
+      <button type="button" class="wish-clear" id="one-clear">지우기</button>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">하나만 고를 수 있고, 다른 것을 누르면 바뀝니다. ‘직접 입력’을 누르면 적는 칸이 나옵니다. 고른 내용은 이 기기 브라우저에만 저장되고 다른 사람에게 자동으로 전달되지는 않으며, 날짜(한국시간)가 바뀌면 비워집니다. (웹 프롬프트 Wmwstqedo)</p></details>
+      </div>
+      <div class="sub" id="wish-part">
+      <h3 class="sub-h" id="wish-title"><span aria-hidden="true">🌟</span> 오늘 내가 하고 싶은 일</h3>
       <p>하고 싶은 일을 눌러서 골라 보세요. 여러 개를 골라도 되고, 한 번 더 누르면 빠집니다.</p>
       <div class="wish-btns" id="wish-btns" role="group" aria-label="하고 싶은 일 고르기"></div>
       <form class="wish-add" id="wish-form">
@@ -339,8 +358,55 @@ main{line-height:1.8}
       <p class="wish-result" id="wish-result" aria-live="polite">아직 고르지 않았어요.</p>
       <button type="button" class="wish-clear" id="wish-clear">처음부터 다시 고르기</button>
       <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">고른 내용은 이 기기 브라우저에만 저장되고, 날짜(한국시간)가 바뀌면 새로 고를 수 있게 비워집니다. (웹 프롬프트 Wmwspr22n)</p></details>
+      </div>
       </details>
     </article>
+    <script>
+    (function(){
+      var BASE=[['🍚','식사'],['🚶','외출'],['🛋️','휴식']];
+      var KEY='seongwon-one-v1';
+      var today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul'}).format(new Date());
+      var st={date:today,pick:'',custom:false};
+      try{var o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&o.date===today&&typeof o.pick==='string')st={date:today,pick:o.pick,custom:!!o.custom};}catch(e){}
+      function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+      var box=document.getElementById('one-btns'),show=document.getElementById('one-show'),say=document.getElementById('one-say'),
+          form=document.getElementById('one-form'),inp=document.getElementById('one-input'),clr=document.getElementById('one-clear');
+      var typing=st.custom;
+      function btn(ico,name,on,fn){
+        var b=document.createElement('button');b.type='button';
+        var i=document.createElement('span');i.className='wish-ico';i.setAttribute('aria-hidden','true');i.textContent=ico;
+        var t=document.createElement('span');t.textContent=name;
+        b.appendChild(i);b.appendChild(t);
+        b.setAttribute('aria-pressed',on?'true':'false');
+        b.addEventListener('click',fn);box.appendChild(b);
+      }
+      function draw(){
+        box.textContent='';
+        BASE.forEach(function(x){
+          var on=!st.custom&&st.pick===x[1];
+          btn(x[0],x[1],on,function(){typing=false;st.custom=false;st.pick=on?'':x[1];save();draw();});
+        });
+        btn('✏️','직접 입력',typing,function(){
+          typing=!typing;
+          if(!typing&&st.custom){st.custom=false;st.pick='';save();}
+          draw();if(typing)inp.focus();
+        });
+        form.hidden=!typing;
+        if(typing&&st.custom)inp.value=st.pick;
+        say.textContent=st.pick?'오늘의 선택: '+st.pick:'아직 고르지 않았어요.';
+        show.classList.toggle('is-empty',!st.pick);
+        clr.hidden=!st.pick;
+      }
+      form.addEventListener('submit',function(ev){
+        ev.preventDefault();
+        var v=inp.value.replace(/\s+/g,' ').trim().slice(0,30);
+        if(!v)return;
+        st.pick=v;st.custom=true;save();draw();
+      });
+      clr.addEventListener('click',function(){st={date:today,pick:'',custom:false};typing=false;inp.value='';save();draw();});
+      draw();
+    })();
+    </script>
     <script>
     (function(){
       var BASE=[['🚶','외출하기'],['🏃','운동하기'],['🛋️','쉬기'],['🧑‍🤝‍🧑','사람 만나기']];
@@ -384,8 +450,10 @@ main{line-height:1.8}
     </script>
     <article class="sermon imp" aria-labelledby="help-title">
       <details class="fold" name="sw-fold" id="help-sec">
-      <summary><span class="fold-txt"><span class="sermon-label">지금</span>
-      <h2 id="help-title">지금 필요한 도움</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
+      <summary><span class="fold-txt"><span class="sermon-label">지금 · 도움 받는 방법</span>
+      <h2 id="help-title">필요한 도움</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
+      <div class="sub" id="help-part">
+      <h3 class="sub-h" id="help-need-title"><span aria-hidden="true">🙋</span> 지금 필요한 도움</h3>
       <p>지금 필요한 도움을 눌러서 골라 보세요. 여러 개를 골라도 되고, 한 번 더 누르면 빠집니다.</p>
       <div class="wish-btns help-btns" id="help-btns" role="group" aria-label="필요한 도움 고르기"></div>
       <form class="wish-add" id="help-form">
@@ -395,6 +463,18 @@ main{line-height:1.8}
       <p class="wish-result" id="help-result" aria-live="polite">지금은 고른 도움이 없어요.</p>
       <button type="button" class="wish-clear" id="help-clear">처음부터 다시 고르기</button>
       <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">고른 내용은 이 기기 브라우저에만 저장되고 다른 사람에게 자동으로 전달되지는 않습니다. 화면을 옆 사람에게 보여 주세요. 날짜(한국시간)가 바뀌면 비워집니다. (웹 프롬프트 Wmwss28od)</p></details>
+      </div>
+      <div class="sub" id="how-part">
+      <h3 class="sub-h" id="how-title"><span aria-hidden="true">💬</span> 어떻게 도와드릴까요?</h3>
+      <p>내가 바라는 것을 하나 눌러 주세요. 고른 말이 아래에 크게 나옵니다.</p>
+      <div class="wish-btns how-btns" id="how-btns" role="group" aria-label="도움 받는 방법 고르기"></div>
+      <div class="how-show is-empty" id="how-show" aria-live="polite">
+        <span class="how-big" id="how-big" aria-hidden="true">💬</span>
+        <p class="how-say" id="how-say">아직 고르지 않았어요.</p>
+      </div>
+      <button type="button" class="wish-clear" id="how-clear">지우기</button>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">고른 말은 이 기기 브라우저에만 저장되고 다른 사람에게 자동으로 전달되지는 않습니다. 화면을 옆 사람에게 보여 주세요. 다른 버튼을 누르면 바뀌고, 날짜(한국시간)가 바뀌면 비워집니다. (웹 프롬프트 Wmwstjujm)</p></details>
+      </div>
       </details>
     </article>
     <script>
@@ -435,6 +515,38 @@ main{line-height:1.8}
         inp.value='';save();draw();
       });
       document.getElementById('help-clear').addEventListener('click',function(){st={date:today,picked:[],custom:[]};save();draw();});
+      draw();
+    })();
+    </script>
+    <script>
+    (function(){
+      var BASE=[['🙋','먼저 물어봐 주세요'],['🐢','천천히 설명해 주세요'],['⏳','잠시 기다려 주세요'],['🗣️','제가 원하는 방법을 말씀드릴게요']];
+      var KEY='seongwon-how-v1';
+      var today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul'}).format(new Date());
+      var st={date:today,pick:''};
+      try{var o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&o.date===today&&typeof o.pick==='string')st=o;}catch(e){}
+      function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+      var box=document.getElementById('how-btns'),show=document.getElementById('how-show'),
+          big=document.getElementById('how-big'),say=document.getElementById('how-say'),clr=document.getElementById('how-clear');
+      function draw(){
+        box.textContent='';
+        var ico='💬',found=false;
+        BASE.forEach(function(x){
+          var b=document.createElement('button');b.type='button';
+          var i=document.createElement('span');i.className='wish-ico';i.setAttribute('aria-hidden','true');i.textContent=x[0];
+          var t=document.createElement('span');t.textContent=x[1];
+          b.appendChild(i);b.appendChild(t);
+          var on=st.pick===x[1];if(on){ico=x[0];found=true;}
+          b.setAttribute('aria-pressed',on?'true':'false');
+          b.addEventListener('click',function(){st.pick=on?'':x[1];save();draw();});
+          box.appendChild(b);
+        });
+        big.textContent=ico;
+        say.textContent=found?'“'+st.pick+'”':'아직 고르지 않았어요.';
+        show.classList.toggle('is-empty',!found);
+        clr.hidden=!found;
+      }
+      clr.addEventListener('click',function(){st.pick='';save();draw();});
       draw();
     })();
     </script>
@@ -497,132 +609,6 @@ main{line-height:1.8}
       draw();
     })();
     </script>
-    <article class="sermon imp" aria-labelledby="how-title">
-      <details class="fold" name="sw-fold" id="how-sec">
-      <summary><span class="fold-txt"><span class="sermon-label">도움 받는 방법</span>
-      <h2 id="how-title">어떻게 도와드릴까요?</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
-      <p>내가 바라는 것을 하나 눌러 주세요. 고른 말이 아래에 크게 나옵니다.</p>
-      <div class="wish-btns how-btns" id="how-btns" role="group" aria-label="도움 받는 방법 고르기"></div>
-      <div class="how-show is-empty" id="how-show" aria-live="polite">
-        <span class="how-big" id="how-big" aria-hidden="true">💬</span>
-        <p class="how-say" id="how-say">아직 고르지 않았어요.</p>
-      </div>
-      <button type="button" class="wish-clear" id="how-clear">지우기</button>
-      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">고른 말은 이 기기 브라우저에만 저장되고 다른 사람에게 자동으로 전달되지는 않습니다. 화면을 옆 사람에게 보여 주세요. 다른 버튼을 누르면 바뀌고, 날짜(한국시간)가 바뀌면 비워집니다. (웹 프롬프트 Wmwstjujm)</p></details>
-      </details>
-    </article>
-    <script>
-    (function(){
-      var BASE=[['🙋','먼저 물어봐 주세요'],['🐢','천천히 설명해 주세요'],['⏳','잠시 기다려 주세요'],['🗣️','제가 원하는 방법을 말씀드릴게요']];
-      var KEY='seongwon-how-v1';
-      var today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul'}).format(new Date());
-      var st={date:today,pick:''};
-      try{var o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&o.date===today&&typeof o.pick==='string')st=o;}catch(e){}
-      function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
-      var box=document.getElementById('how-btns'),show=document.getElementById('how-show'),
-          big=document.getElementById('how-big'),say=document.getElementById('how-say'),clr=document.getElementById('how-clear');
-      function draw(){
-        box.textContent='';
-        var ico='💬',found=false;
-        BASE.forEach(function(x){
-          var b=document.createElement('button');b.type='button';
-          var i=document.createElement('span');i.className='wish-ico';i.setAttribute('aria-hidden','true');i.textContent=x[0];
-          var t=document.createElement('span');t.textContent=x[1];
-          b.appendChild(i);b.appendChild(t);
-          var on=st.pick===x[1];if(on){ico=x[0];found=true;}
-          b.setAttribute('aria-pressed',on?'true':'false');
-          b.addEventListener('click',function(){st.pick=on?'':x[1];save();draw();});
-          box.appendChild(b);
-        });
-        big.textContent=ico;
-        say.textContent=found?'“'+st.pick+'”':'아직 고르지 않았어요.';
-        show.classList.toggle('is-empty',!found);
-        clr.hidden=!found;
-      }
-      clr.addEventListener('click',function(){st.pick='';save();draw();});
-      draw();
-    })();
-    </script>
-    <article class="sermon imp" aria-labelledby="one-title">
-      <details class="fold" name="sw-fold" id="one-sec">
-      <summary><span class="fold-txt"><span class="sermon-label">오늘</span>
-      <h2 id="one-title">오늘의 선택 한 가지</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
-      <p class="one-q">🌼 오늘 내가 직접 고르고 싶은 것은 무엇인가요?</p>
-      <div class="wish-btns one-btns" id="one-btns" role="group" aria-label="오늘의 선택 한 가지 고르기"></div>
-      <form class="wish-add one-form" id="one-form" hidden>
-        <input type="text" id="one-input" maxlength="30" placeholder="고르고 싶은 것을 적어 보세요" aria-label="고르고 싶은 것 직접 적기" autocomplete="off">
-        <button type="submit">정하기</button>
-      </form>
-      <div class="one-show is-empty" id="one-show" aria-live="polite"><p id="one-say">아직 고르지 않았어요.</p></div>
-      <button type="button" class="wish-clear" id="one-clear">지우기</button>
-      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">하나만 고를 수 있고, 다른 것을 누르면 바뀝니다. ‘직접 입력’을 누르면 적는 칸이 나옵니다. 고른 내용은 이 기기 브라우저에만 저장되고 다른 사람에게 자동으로 전달되지는 않으며, 날짜(한국시간)가 바뀌면 비워집니다. (웹 프롬프트 Wmwstqedo)</p></details>
-      </details>
-    </article>
-    <script>
-    (function(){
-      var BASE=[['🍚','식사'],['🚶','외출'],['🛋️','휴식']];
-      var KEY='seongwon-one-v1';
-      var today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul'}).format(new Date());
-      var st={date:today,pick:'',custom:false};
-      try{var o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&o.date===today&&typeof o.pick==='string')st={date:today,pick:o.pick,custom:!!o.custom};}catch(e){}
-      function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
-      var box=document.getElementById('one-btns'),show=document.getElementById('one-show'),say=document.getElementById('one-say'),
-          form=document.getElementById('one-form'),inp=document.getElementById('one-input'),clr=document.getElementById('one-clear');
-      var typing=st.custom;
-      function btn(ico,name,on,fn){
-        var b=document.createElement('button');b.type='button';
-        var i=document.createElement('span');i.className='wish-ico';i.setAttribute('aria-hidden','true');i.textContent=ico;
-        var t=document.createElement('span');t.textContent=name;
-        b.appendChild(i);b.appendChild(t);
-        b.setAttribute('aria-pressed',on?'true':'false');
-        b.addEventListener('click',fn);box.appendChild(b);
-      }
-      function draw(){
-        box.textContent='';
-        BASE.forEach(function(x){
-          var on=!st.custom&&st.pick===x[1];
-          btn(x[0],x[1],on,function(){typing=false;st.custom=false;st.pick=on?'':x[1];save();draw();});
-        });
-        btn('✏️','직접 입력',typing,function(){
-          typing=!typing;
-          if(!typing&&st.custom){st.custom=false;st.pick='';save();}
-          draw();if(typing)inp.focus();
-        });
-        form.hidden=!typing;
-        if(typing&&st.custom)inp.value=st.pick;
-        say.textContent=st.pick?'오늘의 선택: '+st.pick:'아직 고르지 않았어요.';
-        show.classList.toggle('is-empty',!st.pick);
-        clr.hidden=!st.pick;
-      }
-      form.addEventListener('submit',function(ev){
-        ev.preventDefault();
-        var v=inp.value.replace(/\s+/g,' ').trim().slice(0,30);
-        if(!v)return;
-        st.pick=v;st.custom=true;save();draw();
-      });
-      clr.addEventListener('click',function(){st={date:today,pick:'',custom:false};typing=false;inp.value='';save();draw();});
-      draw();
-    })();
-    </script>
-    <article class="sermon imp" aria-labelledby="mp-title">
-      <details class="fold" name="sw-fold" id="mp-sec">
-      <summary><span class="fold-txt"><span class="sermon-label">음악</span>
-      <h2 id="mp-title">뉴에이지 음악 플레이어</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
-      <p>▶ 틀기를 누르면 잔잔한 뉴에이지 풍 음악이 나옵니다. 저작권 없이 이 페이지가 직접 만든 다섯 곡이 매주 새로 채워지고, 한 곡이 끝나면 다음 곡으로 넘어갑니다.</p>
-      <p class="imp-note" id="mp-week">이번 주의 곡</p>
-      <div class="mp">
-        <p class="mp-now" id="mp-now" aria-live="polite">—</p>
-        <p class="mp-state" id="mp-state" aria-live="polite">멈춤</p>
-        <div class="mp-ctrl">
-          <button type="button" id="mp-prev" aria-label="이전 곡">⏮ 이전</button>
-          <button type="button" class="mp-main" id="mp-play">▶ 틀기</button>
-          <button type="button" id="mp-next" aria-label="다음 곡">다음 ⏭</button>
-          <label>🔊 소리 <input type="range" id="mp-vol" min="0" max="100" value="60" aria-label="소리 크기"></label>
-        </div>
-      </div>
-      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">노래 목록은 지우고 재생 중인 노래 제목만 보여 줍니다(다른 곡은 ⏮ 이전 · 다음 ⏭ 으로 넘깁니다). 다섯 곡은 모두 이 페이지가 그 자리에서 직접 만들어 연주하는 자체 제작 곡이라 저작권 걱정이 없습니다(음악 파일 없음, 곡마다 3분쯤). 다섯 곡은 매주 월요일(한국시간)에 새 곡으로 자동으로 바뀝니다. 자동 재생은 브라우저가 막으므로 ▶ 틀기를 눌러야 소리가 납니다. (웹 프롬프트 Wmwngk3a0 · Wmwnhtmes · Wmwnieibh)</p></details>
-      </details>
-    </article>
     <article class="sermon imp" aria-labelledby="week-title">
       <details class="fold" name="sw-fold" id="week-sec">
       <summary><span class="fold-txt"><span class="sermon-label">학습일지를 바탕으로 정리 · 가명</span>
@@ -707,31 +693,28 @@ main{line-height:1.8}
       show(today);
     })();
     </script>
-    <article class="sermon imp" aria-labelledby="family-title">
-      <details class="fold" name="sw-fold" id="family-sec">
-      <summary><span class="fold-txt"><span class="sermon-label">학습일지를 바탕으로 정리 · 가명</span>
-      <h2 id="family-title">유바람님의 가족 구성과 성장 환경</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
-      <h3>가족 구성</h3>
-      <ul class="imp-list">
-        <li><b>아버님</b><span>바람님을 가장 가까이에서 돌봐 온 분입니다. 바람님에게 아버님은 가장 친하고 편한 사람이라, 친근함의 표현도 힘든 감정도 아버님에게 가장 먼저 나타납니다. 바람님의 자립과 지원주택 입주를 바라면서도, 혼자 지낼 때의 위험을 걱정하고 있습니다.</span></li>
-        <li><b>어머님</b><span>본가에서 함께 지냈습니다. 바람님의 도전행동이 심해졌던 시기에는 어머님이 몸과 마음으로 많이 힘들어하셨습니다.</span></li>
-        <li><b>바람님</b><span>자폐성 장애가 있는 성인 남성으로, 일하고 합창하고 수영하는 일상을 이어 가고 있습니다.</span></li>
-      </ul>
-      <h3>성장 환경과 생활의 변화</h3>
-      <ul class="imp-list">
-        <li><b>본가에서의 생활</b><span>송파구 오금동 본가(아파트)에서 부모님과 살며 은행·우체국 입금, 김밥 점심, 출근, 곰두리체육센터 수영, 저녁 컴퓨터 검색으로 이어지는 루틴을 만들어 왔습니다. 강남장애인종합복지관 합창단 활동도 오랫동안 해 왔습니다.</span></li>
-        <li><b>2025년 가을 · 자립 준비 시작</b><span>지원주택 입주를 목표로 지원이 시작되었고, 11월에는 단기체험으로 처음 집을 떠나 지내 보았습니다.</span></li>
-        <li><b>2026년 3월 · 긴급돌봄센터</b><span>집에서 도전행동이 잦아져 서울발달장애인긴급돌봄센터에 머물며 건강검진과 종합 평가를 받았습니다. 프로그램에 잘 참여했지만 “목요일에 아빠 와요”를 반복하며 아버님을 기다렸습니다.</span></li>
-        <li><b>2026년 6월 · 내 집으로 주거 독립</b><span>새 집으로 이사해 첫날부터 잠도 잘 자고 TV·컴퓨터도 익숙하게 다루었습니다. 두 달쯤 지나 “매우 안정된 모습”이라는 평가를 받았고, 요즘은 “집이 제일 좋아요”라고 말합니다.</span></li>
-        <li><b>2026년 8월 · 새 일터</b><span>동서울자립생활일자리센터로 첫 출근을 했습니다.</span></li>
-      </ul>
-      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 학습일지에 어린 시절 기록은 거의 없어, 기록된 최근 생활을 중심으로 정리했습니다. (sahm_all 요청 26)</p></details>
-      </details>
-    </article>
-    <article class="sermon imp" aria-labelledby="culture-title">
-      <details class="fold" name="sw-fold" id="culture-sec">
-      <summary><span class="fold-txt"><span class="sermon-label">학습일지를 바탕으로 정리 · 가명</span>
-      <h2 id="culture-title">유바람님이 좋아하는 문화 목록</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
+    <article class="sermon imp" aria-labelledby="mc-title">
+      <details class="fold" name="sw-fold" id="mc-sec">
+      <summary><span class="fold-txt"><span class="sermon-label">음악 · 문화</span>
+      <h2 id="mc-title">음악·문화</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
+      <div class="sub" id="mp-part">
+      <h3 class="sub-h" id="mp-title"><span aria-hidden="true">🎵</span> 뉴에이지 음악 플레이어</h3>
+      <p>▶ 틀기를 누르면 잔잔한 뉴에이지 풍 음악이 나옵니다. 저작권 없이 이 페이지가 직접 만든 다섯 곡이 매주 새로 채워지고, 한 곡이 끝나면 다음 곡으로 넘어갑니다.</p>
+      <p class="imp-note" id="mp-week">이번 주의 곡</p>
+      <div class="mp">
+        <p class="mp-now" id="mp-now" aria-live="polite">—</p>
+        <p class="mp-state" id="mp-state" aria-live="polite">멈춤</p>
+        <div class="mp-ctrl">
+          <button type="button" id="mp-prev" aria-label="이전 곡">⏮ 이전</button>
+          <button type="button" class="mp-main" id="mp-play">▶ 틀기</button>
+          <button type="button" id="mp-next" aria-label="다음 곡">다음 ⏭</button>
+          <label>🔊 소리 <input type="range" id="mp-vol" min="0" max="100" value="60" aria-label="소리 크기"></label>
+        </div>
+      </div>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">노래 목록은 지우고 재생 중인 노래 제목만 보여 줍니다(다른 곡은 ⏮ 이전 · 다음 ⏭ 으로 넘깁니다). 다섯 곡은 모두 이 페이지가 그 자리에서 직접 만들어 연주하는 자체 제작 곡이라 저작권 걱정이 없습니다(음악 파일 없음, 곡마다 3분쯤). 다섯 곡은 매주 월요일(한국시간)에 새 곡으로 자동으로 바뀝니다. 자동 재생은 브라우저가 막으므로 ▶ 틀기를 눌러야 소리가 납니다. (웹 프롬프트 Wmwngk3a0 · Wmwnhtmes · Wmwnieibh)</p></details>
+      </div>
+      <div class="sub" id="culture-part">
+      <h3 class="sub-h" id="culture-title"><span aria-hidden="true">🎭</span> 유바람님이 좋아하는 문화 목록</h3>
       <p>학습일지에서 바람님이 즐거워한 기록이 있는 문화 활동을 모았습니다.</p>
       <h3>음악 · 공연</h3>
       <ul class="imp-list">
@@ -763,6 +746,29 @@ main{line-height:1.8}
         <li><b>음식</b><span>돈까스, 김밥, 계란후라이, 바나나우유.</span></li>
       </ul>
       <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 드라마·영화 기록은 학습일지에 없어 넣지 않았습니다. (웹 프롬프트 Wmwnf19ru)</p></details>
+      </div>
+      </details>
+    </article>
+    <!-- 가족 칸: 내용은 그대로 두고 화면에서만 숨겼습니다. 다시 보이게 하려면 아래 article 의 hidden 을 지우세요. (웹 프롬프트 Wmwvlbdxe) -->
+    <article hidden data-hidden-note="가족 칸은 화면에서만 숨김(웹 프롬프트 Wmwvlbdxe) — hidden 을 지우면 다시 보임" class="sermon imp" aria-labelledby="family-title">
+      <details class="fold" name="sw-fold" id="family-sec">
+      <summary><span class="fold-txt"><span class="sermon-label">학습일지를 바탕으로 정리 · 가명</span>
+      <h2 id="family-title">유바람님의 가족 구성과 성장 환경</h2></span><span class="fold-arrow" aria-hidden="true"></span></summary>
+      <h3>가족 구성</h3>
+      <ul class="imp-list">
+        <li><b>아버님</b><span>바람님을 가장 가까이에서 돌봐 온 분입니다. 바람님에게 아버님은 가장 친하고 편한 사람이라, 친근함의 표현도 힘든 감정도 아버님에게 가장 먼저 나타납니다. 바람님의 자립과 지원주택 입주를 바라면서도, 혼자 지낼 때의 위험을 걱정하고 있습니다.</span></li>
+        <li><b>어머님</b><span>본가에서 함께 지냈습니다. 바람님의 도전행동이 심해졌던 시기에는 어머님이 몸과 마음으로 많이 힘들어하셨습니다.</span></li>
+        <li><b>바람님</b><span>자폐성 장애가 있는 성인 남성으로, 일하고 합창하고 수영하는 일상을 이어 가고 있습니다.</span></li>
+      </ul>
+      <h3>성장 환경과 생활의 변화</h3>
+      <ul class="imp-list">
+        <li><b>본가에서의 생활</b><span>송파구 오금동 본가(아파트)에서 부모님과 살며 은행·우체국 입금, 김밥 점심, 출근, 곰두리체육센터 수영, 저녁 컴퓨터 검색으로 이어지는 루틴을 만들어 왔습니다. 강남장애인종합복지관 합창단 활동도 오랫동안 해 왔습니다.</span></li>
+        <li><b>2025년 가을 · 자립 준비 시작</b><span>지원주택 입주를 목표로 지원이 시작되었고, 11월에는 단기체험으로 처음 집을 떠나 지내 보았습니다.</span></li>
+        <li><b>2026년 3월 · 긴급돌봄센터</b><span>집에서 도전행동이 잦아져 서울발달장애인긴급돌봄센터에 머물며 건강검진과 종합 평가를 받았습니다. 프로그램에 잘 참여했지만 “목요일에 아빠 와요”를 반복하며 아버님을 기다렸습니다.</span></li>
+        <li><b>2026년 6월 · 내 집으로 주거 독립</b><span>새 집으로 이사해 첫날부터 잠도 잘 자고 TV·컴퓨터도 익숙하게 다루었습니다. 두 달쯤 지나 “매우 안정된 모습”이라는 평가를 받았고, 요즘은 “집이 제일 좋아요”라고 말합니다.</span></li>
+        <li><b>2026년 8월 · 새 일터</b><span>동서울자립생활일자리센터로 첫 출근을 했습니다.</span></li>
+      </ul>
+      <details class="note-fold"><summary>ℹ️ 설명 보기</summary><p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 학습일지에 어린 시절 기록은 거의 없어, 기록된 최근 생활을 중심으로 정리했습니다. (sahm_all 요청 26)</p></details>
       </details>
     </article>
     <a class="back" href="/#people">← 함께 만든 사람으로 돌아가기</a>
@@ -776,7 +782,7 @@ main{line-height:1.8}
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-23 내 페이지: '오늘의 선택 한 가지' 칸 추가 (웹 프롬프트 Wmwstqedo)</span>
+    <span>현재 사이트 버전 · 2026-11-25 내 페이지: 메뉴를 6개로 합쳐 정리 (웹 프롬프트 Wmwvlbdxe)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
