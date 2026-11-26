@@ -85,6 +85,9 @@ html.kc-ok #kc-gate{display:none}
 .kc-music .km-btn:focus-visible{outline:3px solid var(--ai);outline-offset:2px}
 .kc-music .km-play{background:var(--ai);border-color:var(--ai);color:#fff;font-size:1.2rem}
 .kc-music .km-mic.on{background:var(--care);border-color:var(--care);color:#fff}
+.kc-music .km-frame{margin-top:14px}
+.kc-music .km-frame-tip{margin:0 0 8px;font-weight:700}
+.kc-music .km-frame iframe{display:block;width:100%;max-width:100%;height:120px;border:0;border-radius:12px;background:var(--ai-soft)}
 .kc-music .km-msg{min-height:1.5em;margin:12px 0 0;font-weight:600;overflow-wrap:anywhere}
 @media (max-width:640px){.kc-music .km-btns{grid-template-columns:repeat(2,minmax(0,1fr))}.kc-music .km-play{grid-row:1;grid-column:1/-1;min-height:88px}.kc-music .km-mic{grid-column:1/-1}}
 </style>
@@ -234,6 +237,7 @@ html.kc-ok #kc-gate{display:none}
     </div>
     <p class="km-msg" id="km-msg" role="status"></p>
     <audio id="km-audio" preload="none"></audio>
+    <div class="km-frame" id="km-frame-box" hidden><p class="km-frame-tip">바로 틀기가 안 되어 Google Drive 재생기로 열었어요. 아래 ▶ 를 눌러 주세요.</p><iframe id="km-frame" title="Google Drive 음악 재생기" allow="autoplay" loading="lazy"></iframe></div>
     <p class="imp-note">노래는 sahmyook 폴더 안 <a href="https://drive.google.com/drive/folders/1JBDqQnZomZC6n8yVIthxLcd81aQM-K5F" target="_blank" rel="noopener">음악 폴더</a>(하위 폴더 포함, 2026-11-26 기준 21곡)에서 바로 틉니다. 이 페이지는 듣는 기록을 저장하거나 어디로 보내지 않습니다(말로 틀 때 목소리 알아듣기는 브라우저의 음성 인식 기능이 처리합니다). 말로 틀기는 크롬·엣지·삼성 인터넷 등 음성 인식을 지원하는 브라우저에서 처음 한 번 마이크 사용을 허용해야 합니다. 폴더에 노래를 새로 넣으면 이 칸에 다시 반영해 달라고 요청해 주세요. (sahm_all 요청 57)</p>
   </section>
   <section class="wrap drive-folder" aria-labelledby="drive-title">
@@ -578,7 +582,7 @@ html.kc-ok #kc-gate{display:none}
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 말로 트는 음악 듣기 칸 추가 (sahm_all 요청 57)</span>
+    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 음악 듣기 칸에서 노래가 나오지 않던 문제 고침 (웹 프롬프트 Wmwx71qu6)</span>
     <span>황경아</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
@@ -671,15 +675,42 @@ html.kc-ok #kc-gate{display:none}
     $('km-play-ic').textContent=playing?'⏸':'▶';
     $('km-play-txt').textContent=playing?'잠깐 멈춤':'재생';
   }
+  /* 노래가 나오지 않던 문제 고침 (웹 프롬프트 Wmwx71qu6): Drive 주소를 차례로 시도하고, 모두 안 되면 Drive 재생기로 엶. 버튼을 누르자마자 바로 틀고 곡 이름은 소리를 줄인 채 함께 말함 */
+  var URLS=[
+    function(id){ return 'https://drive.usercontent.google.com/download?id='+id+'&export=download'; },
+    function(id){ return 'https://drive.google.com/uc?export=download&id='+id; },
+    function(id){ return 'https://docs.google.com/uc?export=open&id='+id; }
+  ];
+  var tries=0, waitT=null, duck=false;
+  function hideFrame(){ var b=$('km-frame-box'), f=$('km-frame'); if(b) b.hidden=true; if(f) f.removeAttribute('src'); }
+  function showFrame(){
+    var b=$('km-frame-box'), f=$('km-frame'); if(!b||!f||cur<0) return;
+    try{ audio.pause(); audio.removeAttribute('src'); audio.load(); }catch(e){}
+    f.src='https://drive.google.com/file/d/'+SONGS[cur][0]+'/preview';
+    b.hidden=false; showBtn();
+    msg('“'+SONGS[cur][1]+'” — 아래 Drive 재생기에서 ▶ 를 눌러 주세요.');
+  }
+  function clearWait(){ if(waitT){ clearTimeout(waitT); waitT=null; } }
+  function load(){
+    clearWait();
+    audio.src=URLS[tries](SONGS[cur][0]);
+    var p=audio.play();
+    if(p && p.catch) p.catch(function(e){ if(e && e.name==='NotAllowedError'){ clearWait(); msg('노래를 틀지 못했어요. ▶ 버튼을 한 번 눌러 주세요.'); } });
+    waitT=setTimeout(function(){ if(audio.readyState<2 && !audio.paused){ fail(); } }, 15000);
+  }
+  function fail(){
+    clearWait(); if(cur<0) return;
+    if(tries<URLS.length-1){ tries++; load(); } else { showFrame(); }
+  }
   function play(i, announce){
     cur=(i+SONGS.length)%SONGS.length;
     var s=SONGS[cur];
     $('km-title').textContent=label(cur);
-    audio.src='https://drive.google.com/uc?export=download&id='+s[0];
-    function go(){ var p=audio.play(); if(p && p.catch) p.catch(function(){ msg('노래를 틀지 못했어요. ▶ 버튼을 한 번 눌러 주세요.'); }); }
-    if(announce){ msg('“'+s[1]+'” 틀게요.'); speak(s[1]+', 틀게요.', go); } else { msg(''); go(); }
+    hideFrame(); tries=0; msg(announce?'“'+s[1]+'” 틀게요.':'');
+    load();
+    if(announce){ duck=true; audio.volume=0.25; speak(s[1]+', 틀게요.', function(){ if(duck){ duck=false; audio.volume=1; } }); }
   }
-  function stop(){ audio.pause(); try{ audio.currentTime=0; }catch(e){} showBtn(); }
+  function stop(){ clearWait(); audio.pause(); try{ audio.currentTime=0; }catch(e){} hideFrame(); showBtn(); }
   function find(q){
     var n=norm(q); if(!n) return {i:-1};
     for(var a=0;a<ARTISTS.length;a++){
@@ -741,7 +772,7 @@ html.kc-ok #kc-gate{display:none}
     if(listening) return;
     rec=new SR(); rec.lang='ko-KR'; rec.interimResults=false; rec.maxAlternatives=3; rec.continuous=false;
     var got=false;
-    vol=audio.volume; if(!audio.paused) audio.volume=Math.min(vol,0.2);
+    vol=duck?1:audio.volume; duck=false; if(!audio.paused) audio.volume=Math.min(vol,0.2);
     rec.onresult=function(e){
       got=true;
       var alts=e.results[0], pick=alts[0].transcript;
@@ -756,10 +787,12 @@ html.kc-ok #kc-gate{display:none}
     audio=$('km-audio'); if(!audio) return;
     audio.addEventListener('ended',function(){ play(cur+1,true); });
     audio.addEventListener('play',showBtn); audio.addEventListener('pause',showBtn);
-    audio.addEventListener('error',function(){ if(cur>=0) msg('“'+SONGS[cur][1]+'”을(를) 열지 못했어요. 잠시 뒤 다시 눌러 주세요.'); });
+    audio.addEventListener('error',function(){ if(cur>=0 && audio.getAttribute('src')) fail(); });
+    audio.addEventListener('playing',function(){ clearWait(); if(/열지 못|Drive 재생기/.test(($('km-msg')||{}).textContent||'')) msg(''); });
     $('km-mic').addEventListener('click',function(){ if(listening){ try{ rec.stop(); }catch(e){} } else { miss=0; listen(); } });
     $('km-play').addEventListener('click',function(){
       if(cur<0){ play(0,true); return; }
+      if(audio.paused && !audio.getAttribute('src')){ play(cur,false); return; }
       if(audio.paused){ var p=audio.play(); if(p&&p.catch) p.catch(function(){}); } else { audio.pause(); }
     });
     $('km-next').addEventListener('click',function(){ play(cur<0?0:cur+1,true); });
