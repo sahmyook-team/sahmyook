@@ -60,7 +60,7 @@
 .nw-box{display:flex;flex-direction:column;align-items:flex-end;max-width:100%}
 .nw-toggle{background:var(--ai)}
 .nw-panel{max-height:none}
-.nw-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.nw-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
 .nw-grid li{margin:0}
 .nw-grid a,.nw-grid button{font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;padding:6px 2px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg);text-decoration:none;font-size:.7rem;font-weight:700;line-height:1.2;text-align:center;word-break:keep-all}
 .nw-grid .od-pic{font-size:1.5rem}
@@ -764,16 +764,15 @@
         <div class="od-head"><h2 id="nw-title">📰 오늘의 뉴스 <small id="nw-date" style="font-size:.75rem;color:var(--muted);font-weight:600"></small></h2><button type="button" class="od-x" id="nw-close" aria-label="오늘의 뉴스 창 접기">✕</button></div>
         <ul class="nw-grid" id="nw-list">
           <li data-say="오늘도 아침 뉴스, 은행, 출근, 수영, 저녁과 컴퓨터, 밤 10시 잠자리로 익숙한 하루를 보냅니다."><button type="button" class="nw-say" title="오늘도 아침 뉴스, 은행, 출근, 수영, 저녁과 컴퓨터, 밤 10시 잠자리로 익숙한 하루를 보냅니다."><span class="od-pic" aria-hidden="true">🗓</span>오늘 하루 🔊</button></li>
-          <li data-say="YTN. 바람님이 아침마다 TV로 즐겨 보는 뉴스 채널입니다."><a href="https://www.ytn.co.kr/" target="_blank" rel="noopener" title="YTN. 바람님이 아침마다 TV로 즐겨 보는 뉴스 채널입니다."><span class="od-pic" aria-hidden="true">📺</span>YTN ↗</a></li>
-          <li data-say="연합뉴스 최신 기사. 국내외 소식을 시간 순서대로 볼 수 있습니다."><a href="https://www.yna.co.kr/news" target="_blank" rel="noopener" title="연합뉴스 최신 기사. 국내외 소식을 시간 순서대로 볼 수 있습니다."><span class="od-pic" aria-hidden="true">📰</span>연합뉴스 ↗</a></li>
-          <li data-say="KBS 뉴스. 공영방송 뉴스입니다."><a href="https://news.kbs.co.kr/" target="_blank" rel="noopener" title="KBS 뉴스. 공영방송 뉴스입니다."><span class="od-pic" aria-hidden="true">📡</span>KBS ↗</a></li>
+          <li data-say="유튜브. 영상과 노래, 뉴스를 볼 수 있습니다."><a href="https://www.youtube.com/" target="_blank" rel="noopener" title="유튜브. 영상과 노래, 뉴스를 볼 수 있습니다."><span class="od-pic" aria-hidden="true">▶️</span>유튜브 ↗</a></li>
+          <li data-say="GPT. 궁금한 것을 물어보면 인공지능 챗GPT가 답해 줍니다."><a href="https://chatgpt.com/" target="_blank" rel="noopener" title="GPT. 궁금한 것을 물어보면 인공지능 챗GPT가 답해 줍니다."><span class="od-pic" aria-hidden="true">🤖</span>GPT ↗</a></li>
         </ul>
         <div class="od-bar">
           <button type="button" class="od-main" id="nw-all">🔊 모두 듣기</button>
           <button type="button" id="nw-stop">⏹ 멈춤</button>
         </div>
-        <p class="od-state" id="nw-state" aria-live="polite">🔊 바람님 소식 듣기 · ↗ 언론사 뉴스 새 창</p>
-        <p class="od-note">바람님 소식: 가명, 본인 동의 자료(kyoung 폴더 학습일지) 바탕. 세상 뉴스는 언론사 링크로 안내.</p>
+        <p class="od-state" id="nw-state" aria-live="polite">🔊 바람님 소식 듣기 · ↗ 유튜브·GPT 새 창</p>
+        <p class="od-note">바람님 소식: 가명, 본인 동의 자료(kyoung 폴더 학습일지) 바탕. 유튜브·GPT는 새 창 링크로 안내.</p>
       </div>
       </div>
       <button type="button" class="od-toggle" id="od-toggle" aria-expanded="false" aria-controls="od-panel">🗓 <span>유바람님의 보통 하루</span></button>
@@ -865,7 +864,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 오늘의 뉴스에서 합창대회를 빼고 사진 기록 글씨를 저장 후 작은 글씨로 보이게 함 (웹 프롬프트 Wmwxgtmv6)</span>
+    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 오늘의 뉴스에서 YTN·연합뉴스·KBS 아이콘을 빼고 유튜브·GPT 아이콘을 만듦 (웹 프롬프트 Wmwxgvy93)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
