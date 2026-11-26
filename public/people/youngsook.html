@@ -55,6 +55,20 @@
 .od-note{margin:4px 2px 0;font-size:.72rem;color:var(--muted);line-height:1.35}
 .od-panel[hidden],.od-toggle[hidden]{display:none}
 @media print{.od-fab{display:none}}
+/* 내 페이지 전용: 오늘의 뉴스 — 보통 하루 창 바로 위칸 아이콘 세로 창 (웹 프롬프트 Wmwxghsiv) */
+.od-fab{gap:8px}
+.nw-box{display:flex;flex-direction:column;align-items:flex-end;max-width:100%}
+.nw-toggle{background:var(--ai)}
+.nw-panel{max-height:none}
+.nw-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.nw-grid li{margin:0}
+.nw-grid a,.nw-grid button{font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;padding:6px 2px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg);text-decoration:none;font-size:.7rem;font-weight:700;line-height:1.2;text-align:center;word-break:keep-all}
+.nw-grid .od-pic{font-size:1.5rem}
+.nw-grid .on{border-color:var(--care);background:var(--care-soft)}
+.nw-grid a:hover,.nw-grid button:hover{border-color:var(--ai)}
+.nw-panel .od-bar{margin-top:6px}
+.nw-panel .od-bar button{padding:5px 8px;font-size:.82rem}
+.nw-panel[hidden],.nw-toggle[hidden]{display:none}
 /* 내 페이지 전용: 검색하기 창 — 노래 플레이와 같은 크기의 작은 창, 노래 플레이 바로 아래칸 */
 .sr-fab{position:fixed;top:var(--sr-top,120px);right:10px;z-index:59;display:flex;flex-direction:column;align-items:flex-end;gap:6px;max-width:calc(100vw - 20px)}
 .sr-form{display:flex;align-items:center;gap:4px;padding:5px 6px;border-radius:999px;border:1px solid var(--line);background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.18)}
@@ -735,6 +749,26 @@
     </div>
     <!-- 내 페이지 전용: 유바람님의 보통 하루 — 화면 오른쪽 아래 세로 창 (웹 프롬프트 Wmwxg5e1p) -->
     <aside class="od-fab" id="od-fab" aria-labelledby="od-title">
+      <!-- 내 페이지 전용: 오늘의 뉴스 — 보통 하루 창 바로 위칸 (웹 프롬프트 Wmwxghsiv) -->
+      <div class="nw-box" id="nw-box">
+      <button type="button" class="od-toggle nw-toggle" id="nw-toggle" aria-expanded="false" aria-controls="nw-panel">📰 <span>오늘의 뉴스</span></button>
+      <div class="od-panel nw-panel" id="nw-panel" role="region" aria-labelledby="nw-title" hidden>
+        <div class="od-head"><h2 id="nw-title">📰 오늘의 뉴스 <small id="nw-date" style="font-size:.75rem;color:var(--muted);font-weight:600"></small></h2><button type="button" class="od-x" id="nw-close" aria-label="오늘의 뉴스 창 접기">✕</button></div>
+        <ul class="nw-grid" id="nw-list">
+          <li data-say="작년 11월, 바람님은 액티브 합창단과 함께 1박 2일로 전국장애인합창대회 무대에 섰습니다."><button type="button" class="nw-say" title="작년 11월, 바람님은 액티브 합창단과 함께 1박 2일로 전국장애인합창대회 무대에 섰습니다."><span class="od-pic" aria-hidden="true">🎤</span>합창대회 🔊</button></li>
+          <li data-say="오늘도 아침 뉴스, 은행, 출근, 수영, 저녁과 컴퓨터, 밤 10시 잠자리로 익숙한 하루를 보냅니다."><button type="button" class="nw-say" title="오늘도 아침 뉴스, 은행, 출근, 수영, 저녁과 컴퓨터, 밤 10시 잠자리로 익숙한 하루를 보냅니다."><span class="od-pic" aria-hidden="true">🗓</span>오늘 하루 🔊</button></li>
+          <li data-say="YTN. 바람님이 아침마다 TV로 즐겨 보는 뉴스 채널입니다."><a href="https://www.ytn.co.kr/" target="_blank" rel="noopener" title="YTN. 바람님이 아침마다 TV로 즐겨 보는 뉴스 채널입니다."><span class="od-pic" aria-hidden="true">📺</span>YTN ↗</a></li>
+          <li data-say="연합뉴스 최신 기사. 국내외 소식을 시간 순서대로 볼 수 있습니다."><a href="https://www.yna.co.kr/news" target="_blank" rel="noopener" title="연합뉴스 최신 기사. 국내외 소식을 시간 순서대로 볼 수 있습니다."><span class="od-pic" aria-hidden="true">📰</span>연합뉴스 ↗</a></li>
+          <li data-say="KBS 뉴스. 공영방송 뉴스입니다."><a href="https://news.kbs.co.kr/" target="_blank" rel="noopener" title="KBS 뉴스. 공영방송 뉴스입니다."><span class="od-pic" aria-hidden="true">📡</span>KBS ↗</a></li>
+        </ul>
+        <div class="od-bar">
+          <button type="button" class="od-main" id="nw-all">🔊 모두 듣기</button>
+          <button type="button" id="nw-stop">⏹ 멈춤</button>
+        </div>
+        <p class="od-state" id="nw-state" aria-live="polite">🔊 바람님 소식 듣기 · ↗ 언론사 뉴스 새 창</p>
+        <p class="od-note">바람님 소식: 가명, 본인 동의 자료(kyoung 폴더 학습일지) 바탕. 세상 뉴스는 언론사 링크로 안내.</p>
+      </div>
+      </div>
       <button type="button" class="od-toggle" id="od-toggle" aria-expanded="false" aria-controls="od-panel">🗓 <span>유바람님의 보통 하루</span></button>
       <div class="od-panel" id="od-panel" hidden>
         <div class="od-head"><h2 id="od-title">🗓 유바람님의 보통 하루</h2><button type="button" class="od-x" id="od-close" aria-label="보통 하루 창 접기">✕</button></div>
@@ -763,7 +797,7 @@
       var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
       setOpen(saved===null?window.innerWidth>=1200:saved==='1',false);
       /* 위쪽 노래·검색 창과 겹치지 않게 세로 길이 맞추기 */
-      function fit(){ var sf=document.getElementById('sr-fab'),top=sf?sf.getBoundingClientRect().bottom:0; pn.style.maxHeight=Math.max(220,Math.round(window.innerHeight-top-24))+'px'; }
+      function fit(){ var sf=document.getElementById('sr-fab'),nb=document.getElementById('nw-box'),top=sf?sf.getBoundingClientRect().bottom:0,nh=nb?nb.offsetHeight+8:0; pn.style.maxHeight=Math.max(160,Math.round(window.innerHeight-top-nh-24))+'px'; } window.odFit=fit;
       fit(); window.addEventListener('resize',function(){setTimeout(fit,0);}); window.addEventListener('load',fit); tg.addEventListener('click',fit);
       tg.addEventListener('click',function(){ setOpen(true,true); });
       document.getElementById('od-close').addEventListener('click',function(){ run++; if(S) S.cancel(); mark(-1); setOpen(false,true); tg.focus(); });
@@ -784,23 +818,35 @@
       window.addEventListener('pagehide',function(){ if(S) S.cancel(); });
     })();
     </script>
-    <article class="sermon imp" aria-labelledby="news-title">
-      <p class="sermon-label">오늘의 뉴스 · 2026-11-12 목요일</p>
-      <h2 id="news-title">오늘의 뉴스</h2>
-      <h3>바람님 소식</h3>
-      <ul class="imp-list">
-        <li><b>1년 전 오늘, 전국장애인합창대회 무대에</b><span>바람님은 작년 11월 11~12일, 강남장애인종합복지관 액티브 합창단과 함께 1박 2일로 전국장애인합창대회에 참가했습니다. 오랫동안 이어 온 합창 활동은 바람님이 가장 좋아하는 일 가운데 하나입니다.</span></li>
-        <li><b>오늘도 익숙한 하루</b><span>아침 TV 뉴스 → 은행 입금 → 출근 → 곰두리체육센터 수영 → 저녁과 컴퓨터 검색 → 밤 10시 약 먹고 잠자리. 오늘 일과 추천은 <a href="/people/kyungcheol">전경철 페이지</a>에 있습니다.</span></li>
-      </ul>
-      <h3>세상 뉴스 보러 가기</h3>
-      <p>바람님은 아침마다 TV로 YTN 뉴스를 봅니다. 오늘의 주요 뉴스는 아래 언론사 페이지에서 바로 볼 수 있습니다.</p>
-      <ul class="imp-list">
-        <li><b><a href="https://www.ytn.co.kr/" target="_blank" rel="noopener">YTN</a></b><span>바람님이 아침에 즐겨 보는 뉴스 채널입니다.</span></li>
-        <li><b><a href="https://www.yna.co.kr/news" target="_blank" rel="noopener">연합뉴스 최신 기사</a></b><span>국내외 소식을 시간 순서대로 볼 수 있습니다.</span></li>
-        <li><b><a href="https://news.kbs.co.kr/" target="_blank" rel="noopener">KBS 뉴스</a></b><span>공영방송 뉴스입니다.</span></li>
-      </ul>
-      <p class="imp-note">바람님 소식은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 세상 뉴스는 자동 작업이 내용을 확인할 수 없어 기사를 옮기지 않고 언론사 링크로 안내합니다. (sahm_all 요청 24)</p>
-    </article>
+    <script>
+    /* 내 페이지 전용: 오늘의 뉴스 아이콘 창 열고 닫기 + 음성 안내 (웹 프롬프트 Wmwxghsiv) */
+    (function(){
+      var tg=document.getElementById('nw-toggle'),pn=document.getElementById('nw-panel'),KEY='youngsook-nw-open';
+      try{ document.getElementById('nw-date').textContent=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',weekday:'short'}).format(new Date()); }catch(e){}
+      function refit(){ if(window.odFit) setTimeout(window.odFit,0); }
+      function setOpen(o,save){ pn.hidden=!o; tg.hidden=o; tg.setAttribute('aria-expanded',o?'true':'false'); if(save) try{localStorage.setItem(KEY,o?'1':'0');}catch(e){} refit(); }
+      var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+      setOpen(saved===null?window.innerWidth>=1200:saved==='1',false);
+      tg.addEventListener('click',function(){ setOpen(true,true); });
+      var S=window.speechSynthesis, U=window.SpeechSynthesisUtterance, st=document.getElementById('nw-state');
+      var items=[].slice.call(document.querySelectorAll('#nw-list li')), run=0;
+      function mark(i){ items.forEach(function(e,k){ e.firstElementChild.classList.toggle('on',k===i); }); }
+      function stop(msg){ run++; if(S) S.cancel(); mark(-1); if(msg) st.textContent=msg; }
+      document.getElementById('nw-close').addEventListener('click',function(){ stop(); setOpen(false,true); tg.focus(); });
+      function say(i,chain,id){
+        if(id!==run) return; if(i>=items.length){ mark(-1); st.textContent='뉴스 안내가 끝났습니다.'; return; }
+        var u=new U(items[i].getAttribute('data-say')); u.lang='ko-KR'; u.rate=0.9;
+        u.onend=function(){ if(id!==run) return; if(chain) say(i+1,true,id); else { mark(-1); st.textContent='뉴스 안내가 끝났습니다.'; } };
+        u.onerror=function(){ if(id===run){ mark(-1); st.textContent='음성 안내를 재생하지 못했어요.'; } };
+        mark(i); st.textContent=(i+1)+'번째 뉴스를 읽는 중…'; S.speak(u);
+      }
+      function begin(i,chain){ if(!S||!U){ st.textContent='이 기기에서는 음성 안내를 지원하지 않아요.'; return; } run++; S.cancel(); say(i,chain,run); }
+      document.getElementById('nw-all').addEventListener('click',function(){ begin(0,true); });
+      document.getElementById('nw-stop').addEventListener('click',function(){ stop('멈췄습니다.'); });
+      items.forEach(function(li,i){ var bt=li.querySelector('.nw-say'); if(bt) bt.addEventListener('click',function(){ begin(i,false); }); });
+      window.addEventListener('pagehide',function(){ if(S) S.cancel(); });
+    })();
+    </script>
     <a class="back" href="/#people">← 함께 만든 사람으로 돌아가기</a>
   </section>
   <section class="wrap drive-folder" aria-labelledby="drive-title">
@@ -812,7 +858,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 유바람님의 보통 하루를 화면 오른쪽 아래 세로 창으로 다시 만듦 (웹 프롬프트 Wmwxg5e1p)</span>
+    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 오늘의 뉴스를 아이콘 세로 창으로 만들어 보통 하루 위칸에 둠 (웹 프롬프트 Wmwxghsiv)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
