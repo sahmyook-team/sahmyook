@@ -99,6 +99,24 @@
 .memo-list li span{flex-basis:100%;color:var(--muted);font-size:.85rem}
 .memo-list button{padding:4px 12px;font-size:.88rem}
 .ph-card small,.memo-card small{display:block;margin-top:10px;color:var(--muted)}
+/* 내 페이지 전용: 오늘의 핫플레이스 best10 */
+.hp-card{margin:16px 0;padding:18px 20px;border-radius:14px;border:1px solid var(--line);background:var(--card);min-width:0}
+.hp-card h2{margin:0 0 8px;font-size:1.15rem}
+.hp-date{margin:0 0 10px;color:var(--muted);font-size:.9rem}
+.hp-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.hp-tabs button,.hp-bar button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:8px 16px;font-weight:700}
+.hp-tabs button[aria-selected="true"]{background:var(--care);border-color:var(--care);color:var(--on-accent)}
+.hp-list{list-style:none;margin:0;padding:0;counter-reset:hp}
+.hp-list li{counter-increment:hp;display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);min-width:0}
+.hp-list li::before{content:counter(hp);flex:0 0 2em;height:2em;line-height:2em;text-align:center;border-radius:999px;background:var(--care-soft);font-weight:800;font-variant-numeric:tabular-nums}
+.hp-list li:nth-child(-n+3)::before{background:var(--care);color:var(--on-accent)}
+.hp-list div{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.hp-list b{display:block;font-size:1.05rem}
+.hp-list span{display:block;color:var(--muted);font-size:.92rem}
+.hp-list a{flex:0 0 auto;font-size:.88rem;font-weight:700;white-space:nowrap;padding:4px 10px;border-radius:999px;border:1px solid var(--line);text-decoration:none}
+.hp-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.hp-bar button.main{background:var(--ai);border-color:var(--ai);color:var(--on-accent)}
+.hp-card small{display:block;margin-top:10px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -449,6 +467,61 @@
       (function tick(){ var ms=86400000-((Date.now()+9*3600000)%86400000)+1000; setTimeout(function(){ if(off===0) show(); tick(); },Math.min(ms,3600000)); })();
     })();
     </script>
+    <div class="hp-card" aria-labelledby="hp-title">
+      <h2 id="hp-title">🔥 오늘의 핫플레이스 best10</h2>
+      <p class="hp-date" id="hp-date">오늘의 추천</p>
+      <div class="hp-tabs" role="tablist" aria-label="핫플레이스 종류">
+        <button type="button" role="tab" data-k="0" aria-selected="true">🏛️ 장소</button>
+        <button type="button" role="tab" data-k="1" aria-selected="false">🎡 놀이</button>
+        <button type="button" role="tab" data-k="2" aria-selected="false">🍜 맛집</button>
+        <button type="button" role="tab" data-k="3" aria-selected="false">☕ 카페</button>
+      </div>
+      <ol class="hp-list" id="hp-list" role="tabpanel" aria-live="polite"></ol>
+      <div class="hp-bar">
+        <button type="button" class="main" id="hp-say">🔊 소리로 듣기</button>
+        <button type="button" id="hp-prev">◀ 어제 목록</button>
+        <button type="button" id="hp-today">오늘 목록</button>
+      </div>
+      <small>한국시간으로 날짜가 바뀌면 매일 장소·놀이·맛집·카페마다 새 best10이 자동으로 바뀌어 올라옵니다. 인터넷 실시간 순위가 아니라 서울에서 널리 알려진 곳들 가운데 날마다 골라 보여 주는 추천 목록이에요. 가기 전에 ‘지도’를 눌러 영업시간·휴무일을 꼭 확인하세요.</small>
+    </div>
+    <script>
+    /* 내 페이지 전용: 오늘의 핫플레이스 best10 (매일 자동으로 바뀜) */
+    (function(){
+      var P=[
+        [['경복궁','종로 · 조선의 으뜸 궁궐, 한복 입으면 무료 입장'],['창덕궁 후원','종로 · 숲길이 아름다운 궁궐 정원(예약 관람)'],['남산서울타워','중구 · 서울이 한눈에 보이는 전망대'],['북촌한옥마을','종로 · 한옥 골목 산책'],['청계천','종로·중구 · 도심 속 물길 산책로'],['서울숲','성동 · 넓은 숲과 꽃밭, 사슴 우리'],['반포한강공원','서초 · 달빛무지개분수와 한강 노을'],['올림픽공원','송파 · 나홀로나무와 넓은 잔디밭'],['국립중앙박물관','용산 · 무료 상설 전시, 쉬기 좋은 큰 박물관'],['동대문디자인플라자','중구 · 은빛 건물과 전시, 밤 조명'],['익선동 한옥거리','종로 · 작은 한옥 골목 구경'],['석촌호수','송파 · 호수 한 바퀴 산책'],['서울식물원','강서 · 사계절 따뜻한 온실 식물원'],['덕수궁 돌담길','중구 · 걷기 좋은 돌담 산책길'],['인사동 쌈지길','종로 · 전통 공예품 구경'],['북서울꿈의숲','강북 · 전망대와 연못이 있는 큰 공원'],['낙산공원','종로 · 성곽길과 서울 야경'],['선유도공원','영등포 · 한강 섬 속 정원'],['코엑스 별마당도서관','강남 · 커다란 책장이 있는 무료 도서관'],['하늘공원','마포 · 억새와 탁 트인 언덕']],
+        [['롯데월드 어드벤처','송파 · 실내외 놀이공원'],['서울랜드','과천 · 놀이기구와 공연'],['에버랜드','용인 · 동물원과 놀이기구가 있는 큰 놀이공원'],['코엑스 아쿠아리움','강남 · 바닷속 생물 구경'],['롯데월드 아쿠아리움','송파 · 벨루가와 바다 생물'],['서울대공원 동물원','과천 · 넓은 동물원 산책'],['서울어린이대공원','광진 · 무료 동물원과 놀이터'],['국립과천과학관','과천 · 직접 해 보는 과학 체험'],['한강 유람선','여의도 · 배 타고 한강 구경'],['남산 케이블카','중구 · 케이블카로 남산 오르기'],['서울스카이','송파 · 롯데월드타워 높은 전망대'],['서울로7017','중구 · 하늘 위 공중 산책길'],['노들섬','용산 · 한강 위 공연과 노을'],['국립민속박물관','종로 · 옛날 생활 모습 체험(무료)'],['서울시립과학관','노원 · 놀이처럼 배우는 과학관'],['따릉이 한강 자전거','한강공원 · 공공자전거로 강변 달리기'],['볼링장','가까운 곳 · 친구와 볼링 한 게임'],['코인노래방','가까운 곳 · 좋아하는 노래 부르기'],['찜질방','가까운 곳 · 따뜻하게 쉬기'],['영화관','가까운 곳 · 보고 싶은 영화 한 편']],
+        [['명동교자','명동 · 칼국수와 만두'],['하동관','명동 · 오래된 곰탕집'],['진주회관','시청 · 진한 콩국수'],['광장시장 먹자골목','종로 · 빈대떡과 육회, 마약김밥'],['이문설농탕','종로 · 아주 오래된 설렁탕집'],['토속촌 삼계탕','종로 서촌 · 진한 삼계탕'],['남대문시장 갈치조림골목','중구 · 매콤한 갈치조림'],['신당동 떡볶이골목','중구 · 즉석 떡볶이'],['장충동 족발골목','중구 · 족발 거리'],['왕십리 곱창골목','성동 · 곱창 구이'],['신림동 순대타운','관악 · 백순대 볶음'],['노량진수산시장','동작 · 신선한 회와 해산물'],['망원시장','마포 · 고로케·닭강정 시장 먹거리'],['통인시장','종로 · 엽전 도시락과 기름떡볶이'],['평양면옥','중구 장충동 · 평양냉면'],['을밀대','마포 · 시원한 물냉면'],['응암동 감자국거리','은평 · 뼈해장국(감자탕)'],['자하손만두','종로 부암동 · 손만두'],['우래옥','중구 · 오래된 냉면·불고기집'],['마포 최대포','마포 · 소금구이 고깃집']],
+        [['블루보틀 성수','성동 · 천천히 내리는 커피'],['어니언 성수','성동 · 옛 공장을 고친 빵집 카페'],['대림창고','성동 · 큰 창고 갤러리 카페'],['프릳츠 도화점','마포 · 빵과 커피가 맛있는 곳'],['커피한약방','중구 을지로 · 옛 다방 분위기'],['학림다방','종로 대학로 · 1956년부터 이어 온 다방'],['앤트러사이트 합정','마포 · 공장을 고친 넓은 카페'],['카페 레이어드 연남','마포 · 스콘이 유명한 카페'],['커피리브레 연남','마포 · 원두 커피 전문점'],['테라로사 서울','강릉에서 온 커피, 넓은 매장'],['펠트커피','마포·중구 · 깔끔한 스페셜티 커피'],['센터커피 성수','성동 · 서울숲 옆 커피'],['할아버지공장','성동 · 정원이 있는 큰 카페'],['한옥 카페','북촌·익선동 · 한옥에서 차 한잔'],['한강뷰 카페','한강 근처 · 강을 보며 쉬기'],['전통찻집','인사동 · 대추차·쌍화차']]
+      ];
+      var ul=document.getElementById('hp-list'),dt=document.getElementById('hp-date'),tabs=[].slice.call(document.querySelectorAll('.hp-tabs button')),k=0,off=0;
+      var NM=['장소','놀이','맛집','카페'];
+      function dayNo(o){ return Math.floor((Date.now()+9*3600000)/86400000)+o; }
+      function label(o){ var d=new Date(dayNo(o)*86400000); return (d.getUTCMonth()+1)+'월 '+d.getUTCDate()+'일'; }
+      function pick(c,n){ var a=P[c],L=a.length,s=((n*3+c*5)%L+L)%L,r=[]; for(var i=0;i<10;i++) r.push(a[(s+i*7)%L]); return r; }
+      function cur(){ return pick(k,dayNo(off)); }
+      function show(){
+        ul.textContent='';
+        cur().forEach(function(x){
+          var li=document.createElement('li'),d=document.createElement('div'),b=document.createElement('b'),s=document.createElement('span'),a=document.createElement('a');
+          b.textContent=x[0]; s.textContent=x[1];
+          a.href='https://map.naver.com/p/search/'+encodeURIComponent(x[0]); a.target='_blank'; a.rel='noopener'; a.textContent='지도'; a.setAttribute('aria-label',x[0]+' 지도에서 보기');
+          d.appendChild(b); d.appendChild(s); li.appendChild(d); li.appendChild(a); ul.appendChild(li);
+        });
+        dt.textContent=(off===0?'오늘':'어제')+' · '+label(off)+'의 '+NM[k]+' best10';
+        tabs.forEach(function(t,i){ t.setAttribute('aria-selected',i===k?'true':'false'); });
+      }
+      tabs.forEach(function(t,i){ t.addEventListener('click',function(){ k=i; show(); }); });
+      document.getElementById('hp-prev').addEventListener('click',function(){ off=-1; show(); });
+      document.getElementById('hp-today').addEventListener('click',function(){ off=0; show(); });
+      document.getElementById('hp-say').addEventListener('click',function(){
+        var S=window.speechSynthesis,U=window.SpeechSynthesisUtterance;
+        if(!S||!U){ dt.textContent='이 기기에서는 소리로 듣기를 지원하지 않아요.'; return; }
+        S.cancel(); var u=new U(dt.textContent+'입니다. '+cur().map(function(x,i){ return (i+1)+'위, '+x[0]; }).join('. ')); u.lang='ko-KR'; u.rate=0.95; S.speak(u);
+      });
+      show();
+      (function tick(){ var ms=86400000-((Date.now()+9*3600000)%86400000)+1000; setTimeout(function(){ if(off===0) show(); tick(); },Math.min(ms,3600000)); })();
+    })();
+    </script>
     <div class="memo-card" aria-labelledby="memo-title">
       <h2 id="memo-title">📝 메모장</h2>
       <label for="memo-text" class="memo-state">적고 싶은 것을 쓰고 ‘저장’을 누르세요.</label>
@@ -624,7 +697,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 검색하기 창을 노래 플레이 크기로 줄여 그 아래칸으로 옮김 (웹 프롬프트 Wmwxfxbl4)</span>
+    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 오늘의 핫플레이스(장소·놀이·맛집·카페) best10 칸 추가 (웹 프롬프트 Wmwxfysq6)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
