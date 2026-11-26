@@ -106,6 +106,17 @@
 .mp-fab.mini .mp-title,.mp-fab.mini #mp-play-txt .mp-word{display:none}
 .mp-fab.mini button{min-width:38px;height:38px;padding:0 8px}
 @media print{.mp-fab{display:none}}
+/* 내 페이지 전용: 노래·검색하기·오늘의 뉴스·보통 하루 창을 끌어서 어디든 옮기기 (웹 프롬프트 Wmwxh165b) */
+.od-box{display:flex;flex-direction:column;align-items:flex-end;max-width:100%}
+.dg-handle{touch-action:none;cursor:grab}
+.dg-handle:active{cursor:grabbing}
+.dg-grip{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:40px;color:var(--muted);font-size:1rem;cursor:grab;user-select:none;-webkit-user-select:none}
+.mp-fab .dg-grip{min-width:22px}
+.dg-moving{opacity:.88;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:none}
+.dg-moved{z-index:61}
+.dg-reset{position:fixed;left:10px;bottom:12px;z-index:62;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--fg);padding:6px 12px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.dg-reset[hidden]{display:none}
+@media print{.dg-reset{display:none}}
 /* 내 페이지 전용: 오늘의 철학이야기 · 메모장 */
 .ph-card,.memo-card{margin:16px 0;padding:18px 20px;border-radius:14px;border:1px solid var(--line);background:var(--card);min-width:0}
 .ph-card h2,.memo-card h2{margin:0 0 8px;font-size:1.15rem}
@@ -192,6 +203,7 @@
 
 <main>
   <div class="mp-fab" id="mp-fab" role="group" aria-label="노래 플레이">
+    <span class="dg-grip" aria-hidden="true" title="끌어서 옮기기">⠿</span>
     <button type="button" class="mp-play" id="mp-play" aria-pressed="false" aria-label="노래 틀기"><span class="mp-note" aria-hidden="true">♪</span> <span id="mp-play-txt">▶<span class="mp-word"> 노래</span></span></button>
     <span class="mp-title" id="mp-title" aria-live="polite">아리랑</span>
     <button type="button" id="mp-next" aria-label="다음 노래" title="다음 노래">⏭</button>
@@ -234,6 +246,7 @@
   </script>
   <div class="sr-card sr-fab" id="sr-fab" role="search" aria-label="검색하기">
     <form class="sr-form" id="sr-form">
+      <span class="dg-grip" aria-hidden="true" title="끌어서 옮기기">⠿</span>
       <input type="search" id="sr-q" placeholder="🔍 검색하기" aria-label="검색할 키워드 (예: 수영, 합창, 날씨)" title="키워드를 넣어 보세요 (예: 수영, 합창, 날씨)" autocomplete="off" maxlength="60">
       <button type="submit" aria-label="검색" title="검색">🔍</button>
     </form>
@@ -775,6 +788,7 @@
         <p class="od-note">바람님 소식: 가명, 본인 동의 자료(kyoung 폴더 학습일지) 바탕. 유튜브·GPT는 새 창 링크로 안내.</p>
       </div>
       </div>
+      <div class="od-box" id="od-box">
       <button type="button" class="od-toggle" id="od-toggle" aria-expanded="false" aria-controls="od-panel">🗓 <span>유바람님의 보통 하루</span></button>
       <div class="od-panel" id="od-panel" hidden>
         <div class="od-head"><h2 id="od-title">🗓 유바람님의 보통 하루</h2><button type="button" class="od-x" id="od-close" aria-label="보통 하루 창 접기">✕</button></div>
@@ -793,6 +807,7 @@
         </div>
         <p class="od-state" id="od-state" aria-live="polite">위에서 아래로, 아침부터 밤까지의 하루입니다.</p>
         <p class="od-note">학습일지를 바탕으로 정리 · 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 음성은 기기의 한국어 읽기 기능으로 나옵니다.</p>
+      </div>
       </div>
     </aside>
     <script>
@@ -853,6 +868,58 @@
       window.addEventListener('pagehide',function(){ if(S) S.cancel(); });
     })();
     </script>
+    <button type="button" class="dg-reset" id="dg-reset" hidden title="옮긴 창들을 처음 자리로 되돌립니다">↺ 창 자리 되돌리기</button>
+    <script>
+    /* 내 페이지 전용: 노래·검색하기·오늘의 뉴스·보통 하루 창을 마우스나 손가락으로 끌어서 어디든 옮기기 (웹 프롬프트 Wmwxh165b)
+       - 창의 ⠿ 표시, 제목 줄, 접힌 버튼을 누른 채 끌면 옮겨지고, 그냥 누르면 원래 기능이 그대로 됩니다.
+       - 옮긴 자리는 이 기기에만 기억되고, 왼쪽 아래 '↺ 창 자리 되돌리기'로 처음 자리로 돌아갑니다. */
+    (function(){
+      var KEY='youngsook-drag-v1',pos={},rb=document.getElementById('dg-reset');
+      try{pos=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){pos={};}
+      function save(){try{localStorage.setItem(KEY,JSON.stringify(pos));}catch(e){}}
+      var W=[{id:'mp-fab',h:'#mp-fab'},{id:'sr-fab',h:'#sr-form'},{id:'nw-box',h:'#nw-toggle,#nw-panel .od-head'},{id:'od-box',h:'#od-toggle,#od-panel .od-head'}];
+      function el(id){return document.getElementById(id);}
+      function clamp(e){var r=e.getBoundingClientRect(),x=r.left,y=r.top,w=window.innerWidth,h=window.innerHeight;
+        x=Math.min(Math.max(4,x),Math.max(4,w-r.width-4));y=Math.min(Math.max(4,y),Math.max(4,h-r.height-4));
+        if(x!==r.left)e.style.left=Math.round(x)+'px';if(y!==r.top)e.style.top=Math.round(y)+'px';}
+      function place(e,p){e.classList.add('dg-moved');e.style.position='fixed';e.style.left=Math.round(p.x)+'px';e.style.top=Math.round(p.y)+'px';e.style.right='auto';e.style.bottom='auto';}
+      function unplace(e){e.classList.remove('dg-moved');['position','left','top','right','bottom'].forEach(function(k){e.style[k]='';});}
+      function moved(id){return !!pos[id];}
+      function fixOd(){var pn=el('od-panel');if(!pn)return;var h=window.innerHeight;
+        if(moved('od-box')){pn.style.maxHeight=Math.max(160,Math.round(Math.min(640,h*0.72,h-24)))+'px';}
+        else{var sf=el('sr-fab'),nb=el('nw-box'),top=moved('sr-fab')||!sf?8:sf.getBoundingClientRect().bottom,nh=moved('nw-box')||!nb?0:nb.offsetHeight+8;
+          pn.style.maxHeight=Math.max(160,Math.round(h-top-nh-24))+'px';}}
+      var orig=window.odFit;window.odFit=function(){if(orig)orig();fixOd();};
+      function refresh(){rb.hidden=!W.some(function(w){return moved(w.id);});
+        W.forEach(function(w){var e=el(w.id);if(e&&moved(w.id))clamp(e);});fixOd();}
+      W.forEach(function(w){
+        var box=el(w.id);if(!box)return;
+        if(pos[w.id])place(box,pos[w.id]);
+        var hs=[].slice.call(document.querySelectorAll(w.h)),st=null,drag=false,block=false;
+        hs.forEach(function(hd){
+          hd.classList.add('dg-handle');if(!hd.title)hd.title='누르면 열리고, 누른 채 끌면 옮겨져요';
+          hd.addEventListener('pointerdown',function(ev){
+            if(ev.pointerType==='mouse'&&ev.button!==0)return;
+            if(ev.target.closest('input,textarea,select'))return;
+            var r=box.getBoundingClientRect();st={x:ev.clientX,y:ev.clientY,l:r.left,t:r.top,id:ev.pointerId,hd:hd};drag=false;});
+          window.addEventListener('pointermove',function(ev){
+            if(!st||st.hd!==hd||ev.pointerId!==st.id)return;var dx=ev.clientX-st.x,dy=ev.clientY-st.y;
+            if(!drag){if(Math.abs(dx)+Math.abs(dy)<7)return;drag=true;box.classList.add('dg-moving');}
+            ev.preventDefault();place(box,{x:st.l+dx,y:st.t+dy});clamp(box);});
+          function end(ev){if(!st||st.hd!==hd||ev.pointerId!==st.id)return;
+            if(drag){var r=box.getBoundingClientRect();pos[w.id]={x:Math.round(r.left),y:Math.round(r.top)};save();box.classList.remove('dg-moving');
+              block=true;setTimeout(function(){block=false;},0);refresh();}
+            st=null;drag=false;}
+          window.addEventListener('pointerup',end);window.addEventListener('pointercancel',end);
+        });
+        box.addEventListener('click',function(ev){if(block){ev.preventDefault();ev.stopPropagation();block=false;}},true);
+        if(window.ResizeObserver)new ResizeObserver(function(){if(moved(w.id))clamp(box);}).observe(box);
+      });
+      rb.addEventListener('click',function(){pos={};save();W.forEach(function(w){var e=el(w.id);if(e)unplace(e);});refresh();if(window.odFit)window.odFit();});
+      window.addEventListener('resize',function(){setTimeout(refresh,20);});window.addEventListener('load',refresh);
+      refresh();
+    })();
+    </script>
     <a class="back" href="/#people">← 함께 만든 사람으로 돌아가기</a>
   </section>
   <section class="wrap drive-folder" aria-labelledby="drive-title">
@@ -864,7 +931,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 오늘의 뉴스에서 YTN·연합뉴스·KBS 아이콘을 빼고 유튜브·GPT 아이콘을 만듦 (웹 프롬프트 Wmwxgvy93)</span>
+    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 노래·검색하기·오늘의 뉴스·보통 하루 창을 끌어서 어디든 옮길 수 있게 함 (웹 프롬프트 Wmwxh165b)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
