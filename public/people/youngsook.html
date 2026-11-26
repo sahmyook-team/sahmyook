@@ -564,6 +564,107 @@
       show();
     })();
     </script>
+    <style>
+    /* 내 페이지 전용: 📷 사진 기록 (사진만 넣는 칸, 사진 아래 기록) */
+    .pa-card{margin:16px 0;padding:18px 20px;border-radius:14px;border:1px solid var(--line);background:var(--card);min-width:0}
+    .pa-card h2{margin:0 0 8px;font-size:1.15rem}
+    .pa-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+    .pa-add{display:inline-flex;align-items:center;gap:6px;cursor:pointer;border-radius:999px;padding:8px 18px;font-weight:700;background:var(--ai);color:var(--on-accent)}
+    .pa-add:focus-within{outline:2px solid var(--care);outline-offset:2px}
+    .pa-add input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+    .pa-state{color:var(--muted);font-size:.9rem}
+    .pa-grid{list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+    .pa-item{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;min-width:0}
+    .pa-item img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--line);cursor:zoom-in}
+    .pa-body{padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+    .pa-body span{color:var(--muted);font-size:.82rem}
+    .pa-body textarea{display:block;box-sizing:border-box;width:100%;min-height:70px;font:inherit;font-size:1rem;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--fg);resize:vertical}
+    .pa-body textarea:focus{outline:none;border-color:var(--care)}
+    .pa-btns{display:flex;flex-wrap:wrap;gap:6px}
+    .pa-btns button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:4px 12px;font-size:.88rem;font-weight:700}
+    .pa-btns button.main{background:var(--ai);border-color:var(--ai);color:var(--on-accent)}
+    .pa-empty{color:var(--muted)}
+    .pa-view{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
+    .pa-view[hidden]{display:none}
+    .pa-view img{max-width:100%;max-height:100%;border-radius:8px}
+    .pa-card small{display:block;margin-top:10px;color:var(--muted)}
+    </style>
+    <div class="pa-card" aria-labelledby="pa-title">
+      <h2 id="pa-title">📷 사진 기록</h2>
+      <p class="pa-state">사진만 넣는 칸이에요. 사진을 고르면 아래에 올라가고, 사진 밑에 그날의 기록을 쓸 수 있어요.</p>
+      <div class="pa-bar">
+        <label class="pa-add">➕ 사진 넣기<input type="file" id="pa-file" accept="image/*" multiple></label>
+        <span class="pa-state" id="pa-state" aria-live="polite"></span>
+      </div>
+      <ul class="pa-grid" id="pa-grid" aria-label="넣은 사진과 기록"></ul>
+      <small>사진만 넣을 수 있습니다(동영상·문서는 안 돼요). 사진과 기록은 이 기기(브라우저)에만 저장되고 다른 사람에게 보내지 않습니다(사진은 크기를 줄여 저장, 최대 100장). 다른 기기에서도 보려면 사진을 <a href="https://drive.google.com/drive/folders/1TKxoHdmx1rbH-0B5Vc8cy9P_9YR7gM2x" target="_blank" rel="noopener">김영숙 Drive 폴더</a>에도 올려 두세요.</small>
+    </div>
+    <div class="pa-view" id="pa-view" hidden role="dialog" aria-label="사진 크게 보기"><img id="pa-big" alt=""></div>
+    <script>
+    /* 내 페이지 전용: 사진 기록 (IndexedDB, 이 기기에만 저장) */
+    (function(){
+      var grid=document.getElementById('pa-grid'),st=document.getElementById('pa-state'),file=document.getElementById('pa-file'),view=document.getElementById('pa-view'),big=document.getElementById('pa-big'),db=null,urls=[],fmt;
+      try{ fmt=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'long',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}); }catch(e){}
+      function open(cb){
+        if(db) return cb(db);
+        try{
+          var r=indexedDB.open('youngsook-photos',1);
+          r.onupgradeneeded=function(){ r.result.createObjectStore('p',{keyPath:'id'}); };
+          r.onsuccess=function(){ db=r.result; cb(db); };
+          r.onerror=function(){ cb(null); };
+        }catch(e){ cb(null); }
+      }
+      function all(cb){ open(function(d){ if(!d) return cb(null); try{ var q=d.transaction('p').objectStore('p').getAll(); q.onsuccess=function(){ cb(q.result||[]); }; q.onerror=function(){ cb(null); }; }catch(e){ cb(null); } }); }
+      function put(o,cb){ open(function(d){ if(!d) return cb&&cb(false); try{ var t=d.transaction('p','readwrite'); t.objectStore('p').put(o); t.oncomplete=function(){ cb&&cb(true); }; t.onerror=function(){ cb&&cb(false); }; }catch(e){ cb&&cb(false); } }); }
+      function del(id,cb){ open(function(d){ if(!d) return cb(); try{ var t=d.transaction('p','readwrite'); t.objectStore('p').delete(id); t.oncomplete=cb; t.onerror=cb; }catch(e){ cb(); } }); }
+      function shrink(f,cb){
+        var u=URL.createObjectURL(f),im=new Image();
+        im.onload=function(){
+          var m=1280,w=im.naturalWidth,h=im.naturalHeight,s=Math.min(1,m/Math.max(w,h)),c=document.createElement('canvas');
+          c.width=Math.max(1,Math.round(w*s)); c.height=Math.max(1,Math.round(h*s)); c.getContext('2d').drawImage(im,0,0,c.width,c.height); URL.revokeObjectURL(u);
+          if(c.toBlob) c.toBlob(function(b){ cb(b||f); },'image/jpeg',0.85); else cb(f);
+        };
+        im.onerror=function(){ URL.revokeObjectURL(u); cb(null); };
+        im.src=u;
+      }
+      function show(){
+        all(function(v){
+          urls.forEach(function(u){ URL.revokeObjectURL(u); }); urls=[]; grid.textContent='';
+          if(v===null){ var n=document.createElement('li'); n.className='pa-empty'; n.textContent='이 브라우저에서는 사진을 저장할 수 없어요(개인정보 보호 창이면 일반 창으로 열어 주세요).'; grid.appendChild(n); return; }
+          if(!v.length){ var e=document.createElement('li'); e.className='pa-empty'; e.textContent='아직 넣은 사진이 없어요. ‘사진 넣기’를 눌러 보세요.'; grid.appendChild(e); return; }
+          v.sort(function(a,b){ return b.id-a.id; });
+          v.forEach(function(o){
+            var li=document.createElement('li'),img=document.createElement('img'),bd=document.createElement('div'),s=document.createElement('span'),ta=document.createElement('textarea'),bt=document.createElement('div'),sv=document.createElement('button'),rm=document.createElement('button'),u=URL.createObjectURL(o.img),d=new Date(o.id);
+            urls.push(u); li.className='pa-item'; img.src=u; img.alt=o.note?('사진: '+o.note.slice(0,40)):'넣은 사진'; img.loading='lazy';
+            img.addEventListener('click',function(){ big.src=u; big.alt=img.alt; view.hidden=false; });
+            bd.className='pa-body'; s.textContent=fmt?fmt.format(d):d.toLocaleString();
+            ta.maxLength=1000; ta.placeholder='이 사진에 대한 기록을 써 보세요'; ta.value=o.note||''; ta.setAttribute('aria-label','사진 아래 기록');
+            bt.className='pa-btns'; sv.type='button'; sv.className='main'; sv.textContent='💾 기록 저장'; rm.type='button'; rm.textContent='사진 삭제';
+            sv.addEventListener('click',function(){ o.note=ta.value.trim(); put(o,function(ok){ st.textContent=ok?'기록을 저장했어요.':'저장하지 못했어요.'; }); });
+            rm.addEventListener('click',function(){ if(!confirm('이 사진과 기록을 지울까요?')) return; del(o.id,function(){ st.textContent='사진을 지웠어요.'; show(); }); });
+            bt.appendChild(sv); bt.appendChild(rm); bd.appendChild(s); bd.appendChild(ta); bd.appendChild(bt);
+            li.appendChild(img); li.appendChild(bd); grid.appendChild(li);
+          });
+        });
+      }
+      file.addEventListener('change',function(){
+        var fs=[].slice.call(file.files||[]).filter(function(f){ return /^image\//.test(f.type); }),skip=(file.files||[]).length-fs.length,n=0;
+        file.value='';
+        if(!fs.length){ st.textContent='사진 파일만 넣을 수 있어요.'; return; }
+        all(function(v){
+          var room=100-((v&&v.length)||0); if(room<=0){ st.textContent='사진은 100장까지예요. 오래된 사진을 지워 주세요.'; return; }
+          fs=fs.slice(0,room); st.textContent='사진을 넣는 중…';
+          (function next(i){
+            if(i>=fs.length){ st.textContent=n+'장을 넣었어요.'+(skip?' 사진이 아닌 파일 '+skip+'개는 뺐어요.':''); show(); return; }
+            shrink(fs[i],function(b){ if(!b) return next(i+1); put({id:Date.now()+i,img:b,note:''},function(ok){ if(ok) n++; next(i+1); }); });
+          })(0);
+        });
+      });
+      view.addEventListener('click',function(){ view.hidden=true; big.removeAttribute('src'); });
+      document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!view.hidden){ view.hidden=true; big.removeAttribute('src'); } });
+      show();
+    })();
+    </script>
     <div class="visit-card" aria-labelledby="visit-title">
       <h2 id="visit-title">방문자 목록 · 방문 횟수</h2>
       <p class="visit-count">방문 횟수 <b id="visit-count">0</b>번</p>
@@ -697,7 +798,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 오늘의 핫플레이스(장소·놀이·맛집·카페) best10 칸 추가 (웹 프롬프트 Wmwxfysq6)</span>
+    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 사진만 넣는 ‘📷 사진 기록’ 칸을 만들고 사진 아래에 기록을 쓰게 함 (웹 프롬프트 Wmwxg00fh)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
