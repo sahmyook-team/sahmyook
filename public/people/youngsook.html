@@ -10,12 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 <style>
-/* 내 페이지 전용: 오늘 날짜와 지금 시간 */
-.now-card{margin:16px 0;padding:18px 20px;border-radius:14px;border:1px solid var(--line);background:var(--card);display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
-.now-date{font-size:1.15rem;font-weight:700}
-.now-time{font-size:2rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--care)}
-.now-card small{flex-basis:100%;color:#6b635a}
-.now-weather{font-size:1.15rem;font-weight:700;padding:2px 12px;border-radius:999px;border:1px solid var(--line)}
+/* 내 페이지 전용: 날짜·시간·날씨 한 줄 — '삼육 함께 만든 사람' 아래 아주 작게 (웹 프롬프트 Wmwxic5tv) */
+.now-mini{margin:2px 0 0;font-size:.72rem;line-height:1.4;color:var(--muted);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.now-mini b{font-weight:600}
 /* 내 페이지 전용: 방문자 목록 · 방문 횟수 */
 .visit-card{margin:16px 0;padding:18px 20px;border-radius:14px;border:1px solid var(--line);background:var(--card)}
 .visit-card h2{margin:0 0 8px;font-size:1.15rem}
@@ -309,27 +306,25 @@
         </details>
         </div>
         <p class="profile-role">sahmyook 함께 만든 사람</p>
+        <p class="now-mini" aria-label="오늘 날짜와 지금 시간, 서울 날씨" title="한국시간 기준 · 날씨는 서울(Open-Meteo)"><b id="now-stamp">--.--.-- --.--:--</b> <span id="now-weather"></span> <span id="now-weather-sub"></span></p>
       </div>
-    </div>
-    <div class="now-card" aria-label="오늘 날짜와 지금 시간">
-      <span class="now-date" id="now-date">오늘 날짜</span>
-      <span class="now-weather" id="now-weather" aria-label="오늘의 날씨(서울)">날씨 불러오는 중…</span>
-      <span class="now-time" id="now-time">--:--:--</span>
-      <small id="now-weather-sub"></small>
-      <small>한국시간 기준 · 1초마다 바뀝니다 · 날씨는 서울 기준으로 페이지를 열 때 Open-Meteo에서 가져옵니다</small>
     </div>
     <script>
     (function(){
-      var d=document.getElementById('now-date'),t=document.getElementById('now-time'),fd,ft;
-      try{
-        fd=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'long',day:'numeric',weekday:'long'});
-        ft=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
-      }catch(e){}
-      (function tick(){var n=new Date();d.textContent=fd?fd.format(n):n.toLocaleDateString();t.textContent=ft?ft.format(n):n.toLocaleTimeString();setTimeout(tick,1000-(Date.now()%1000));})();
+      var el=document.getElementById('now-stamp');
+      function parts(n){
+        var o={};
+        try{new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',year:'2-digit',month:'2-digit',day:'2-digit',hour:'numeric',minute:'2-digit',hour12:true}).formatToParts(n).forEach(function(p){o[p.type]=p.value;});}
+        catch(e){var h=n.getHours();o={year:String(n.getFullYear()).slice(2),month:('0'+(n.getMonth()+1)).slice(-2),day:('0'+n.getDate()).slice(-2),hour:String(h%12||12),minute:('0'+n.getMinutes()).slice(-2),dayPeriod:h<12?'AM':'PM'};}
+        return o;
+      }
+      (function tick(){var o=parts(new Date());
+        el.textContent=o.year+'.'+o.month+'.'+o.day+' '+String(o.dayPeriod||'').toLowerCase()+'.'+o.hour+':'+o.minute;
+        setTimeout(tick,1000-(Date.now()%1000));})();
     })();
     </script>
     <script>
-    /* 내 페이지 전용: 날짜 옆 오늘의 날씨(서울) */
+    /* 내 페이지 전용: 날짜 옆 오늘의 날씨(서울) — 그림 아이콘만 */
     (function(){
       var w=document.getElementById('now-weather'),sub=document.getElementById('now-weather-sub');
       function name(c){
@@ -341,13 +336,14 @@
       fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.978&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FSeoul&forecast_days=1')
         .then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
         .then(function(j){
-          w.textContent=name(j.current.weather_code)+' '+Math.round(j.current.temperature_2m)+'°C';
+          var nm=name(j.current.weather_code),sp=nm.indexOf(' ');
+          w.textContent=sp>0?nm.slice(0,sp):nm; w.title=(sp>0?nm.slice(sp+1):nm)+' '+Math.round(j.current.temperature_2m)+'°C';
           var t='오늘 서울 최저 '+Math.round(j.daily.temperature_2m_min[0])+'° · 최고 '+Math.round(j.daily.temperature_2m_max[0])+'°';
           var pp=j.daily.precipitation_probability_max&&j.daily.precipitation_probability_max[0];
           if(pp!=null) t+=' · 비 올 확률 '+pp+'%';
           sub.textContent=t;
         })
-        .catch(function(){ w.textContent='날씨를 불러오지 못했어요'; sub.textContent='잠시 뒤 새로 고침해 주세요.'; });
+        .catch(function(){ w.textContent=''; sub.textContent='날씨를 불러오지 못했어요'; });
     })();
     </script>
     <script>
@@ -963,7 +959,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 방문자 목록·횟수를 위쪽 이름 옆에 아주 작게 둠 (웹 프롬프트 Wmwxh3acd)</span>
+    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 날짜·날씨를 이름 아래 아주 작게 한 줄로 둠 (웹 프롬프트 Wmwxic5tv)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
