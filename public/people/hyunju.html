@@ -14,6 +14,21 @@
 .term-clock-below{margin:12px 0;padding:12px 16px;border:1px solid var(--line);border-radius:14px;background:var(--card);display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;font-variant-numeric:tabular-nums}
 .term-clock-below small{opacity:.7;font-size:.85rem}
 .term-clock-below b{font-size:1.25rem;font-weight:700}
+/* 내 페이지 전용: 유바람님 하루 스케줄 (시간 순 · 좋아하는 것/싫어하는 것 이모티콘) */
+.ds-list{list-style:none;margin:14px 0 0;padding:0;position:relative}
+.ds-list::before{content:"";position:absolute;left:21px;top:6px;bottom:6px;width:3px;border-radius:2px;background:var(--line)}
+.ds-item{position:relative;display:grid;grid-template-columns:46px minmax(0,1fr);gap:10px;margin:0 0 14px}
+.ds-dot{position:relative;z-index:1;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:var(--card);border:3px solid var(--care)}
+.ds-body{min-width:0;padding:10px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.ds-time{display:inline-block;font-size:.82rem;font-weight:700;color:var(--on-accent);background:var(--ai);border-radius:999px;padding:2px 10px}
+.ds-body h3{margin:6px 0 4px;font-size:1.05rem}
+.ds-body p{margin:0 0 6px;line-height:1.6;overflow-wrap:anywhere}
+.ds-tags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0;padding:0;list-style:none}
+.ds-tags li{font-size:.88rem;border-radius:999px;padding:3px 10px;line-height:1.5;overflow-wrap:anywhere}
+.ds-like{background:var(--care-soft);border:1px solid var(--care)}
+.ds-dis{background:var(--ai-soft);border:1px dashed var(--ai)}
+.ds-legend{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0;padding:0;list-style:none}
+.ds-legend li{font-size:.88rem;border-radius:999px;padding:3px 10px}
 </style>
 </head>
 <body>
@@ -95,6 +110,59 @@
       </ul>
       <p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. (sahm_all 요청 28)</p>
     </article>
+    <article class="sermon imp" aria-labelledby="ds-title">
+      <p class="sermon-label">학습일지를 바탕으로 정리 · 가명</p>
+      <h2 id="ds-title">🕒 유바람님의 하루 스케줄</h2>
+      <p>유바람님의 하루를 시간 순으로 정리했습니다. 각 시간에 <b>좋아하는 것</b>과 <b>싫어하는 것</b>을 종목에 맞는 이모티콘으로 표시했어요.</p>
+      <ul class="ds-legend" aria-label="표시 방법">
+        <li class="ds-like">💖 + 이모티콘 = 좋아하는 것</li>
+        <li class="ds-dis">🚫 + 이모티콘 = 싫어하는 것 · 조심할 것</li>
+      </ul>
+      <ol class="ds-list">
+        <li class="ds-item"><span class="ds-dot" aria-hidden="true">🌅</span><div class="ds-body">
+          <span class="ds-time">아침</span><h3>일어나 아침 먹기 · 뉴스 보기</h3>
+          <p>토스트, 누룽지, 계란 요리 같은 아침을 먹고 TV로 YTN 뉴스를 봅니다. 머리를 묶고 나갈 준비를 합니다.</p>
+          <ul class="ds-tags"><li class="ds-like">💖🍳 계란후라이·햄</li><li class="ds-like">💖📺 TV 뉴스</li><li class="ds-like">💖🔁 늘 같은 순서의 하루</li><li class="ds-dis">🚫🎀 느슨하게 묶인 머리 — 짱짱하게 묶어 주세요</li></ul>
+        </div></li>
+        <li class="ds-item"><span class="ds-dot" aria-hidden="true">🏦</span><div class="ds-body">
+          <span class="ds-time">오전</span><h3>은행과 우체국</h3>
+          <p>하나은행과 송파우체국에서 1천 원씩 입금하고 통장을 정리합니다.</p>
+          <ul class="ds-tags"><li class="ds-like">💖🤝 이름을 불러 주고 악수하는 반가운 사람</li><li class="ds-dis">🚫🔀 갑자기 바뀌는 길·일정</li></ul>
+        </div></li>
+        <li class="ds-item"><span class="ds-dot" aria-hidden="true">🍙</span><div class="ds-body">
+          <span class="ds-time">점심</span><h3>김밥 2줄</h3>
+          <p>늘 가는 김밥집에서 “김밥 2줄 주세요” 하고 먹습니다.</p>
+          <ul class="ds-tags"><li class="ds-like">💖🍙 김밥</li><li class="ds-like">💖🍛 치즈돈까스</li><li class="ds-like">💖🥛 바나나우유</li></ul>
+        </div></li>
+        <li class="ds-item"><span class="ds-dot" aria-hidden="true">🚌</span><div class="ds-body">
+          <span class="ds-time">낮</span><h3>버스 타고 출근 · 일하기</h3>
+          <p>버스를 타고 송파에 있는 근무지로 출근해 일합니다.</p>
+          <ul class="ds-tags"><li class="ds-like">💖💼 익숙한 일과 순서</li><li class="ds-dis">🚫🚏 내릴 역(정류장)을 놓치는 것</li><li class="ds-dis">🚫🔀 갑작스러운 변화</li></ul>
+        </div></li>
+        <li class="ds-item"><span class="ds-dot" aria-hidden="true">🏠</span><div class="ds-body">
+          <span class="ds-time">오후 4시쯤</span><h3>퇴근</h3>
+          <p>일을 마치고 4시쯤 퇴근합니다.</p>
+          <ul class="ds-tags"><li class="ds-like">💖🔁 매일 같은 길로 다니기</li><li class="ds-dis">🚫🗺️ 길이 갑자기 바뀌는 것 — 미리 말해 주세요</li></ul>
+        </div></li>
+        <li class="ds-item"><span class="ds-dot" aria-hidden="true">🏊</span><div class="ds-body">
+          <span class="ds-time">저녁 전</span><h3>간식 · 노래 · 곰두리체육센터 수영</h3>
+          <p>과자와 두유를 먹고 「우산 셋이 나란히」를 부른 뒤 수영합니다.</p>
+          <ul class="ds-tags"><li class="ds-like">💖🍪 과자·두유</li><li class="ds-like">💖🎤 노래·합창 「우산 셋이 나란히」</li><li class="ds-like">💖🏊 수영</li></ul>
+        </div></li>
+        <li class="ds-item"><span class="ds-dot" aria-hidden="true">🍽️</span><div class="ds-body">
+          <span class="ds-time">저녁</span><h3>저녁 식사 · 컴퓨터 검색</h3>
+          <p>집(숙소)에서 저녁을 먹고 컴퓨터로 좋아하는 것을 검색합니다.</p>
+          <ul class="ds-tags"><li class="ds-like">💖🍚 김치볶음밥·햄</li><li class="ds-like">💖💻 컴퓨터 검색</li><li class="ds-like">💖🏀 농구 경기 보기</li><li class="ds-dis">🚫🍠 고구마</li><li class="ds-dis">🚫🐟 생선조림</li></ul>
+        </div></li>
+        <li class="ds-item"><span class="ds-dot" aria-hidden="true">🌙</span><div class="ds-body">
+          <span class="ds-time">밤 10시</span><h3>약 먹고 씻고 잠자리</h3>
+          <p>스스로 약을 챙겨 먹고 씻은 뒤 “잘 자요” 인사를 하고 잡니다.</p>
+          <ul class="ds-tags"><li class="ds-like">💖😴 “잘 자요” 인사</li><li class="ds-dis">🚫🪥 꼼꼼한 양치 지도(“아니야”) — 그래도 꾸준한 연습이 필요해요</li></ul>
+        </div></li>
+      </ol>
+      <p class="imp-note">💡 힘들어할 때(어느 시간이든): 🚫❓ “왜 울어요? 아파요?” 같은 질문을 쏟아내거나 🚫✋ 다가가 만지는 것은 더 힘들게 합니다. 조용히 기다려 주세요.</p>
+      <p class="imp-note">이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 시간은 하루 흐름에 맞춘 대략의 순서입니다. (웹 프롬프트 Wmwxg3cea)</p>
+    </article>
     <a class="back" href="/#people">← 함께 만든 사람으로 돌아가기</a>
   </section>
   <section class="wrap drive-folder" aria-labelledby="drive-title">
@@ -106,7 +174,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-19 내 페이지: 프롬프트 창 밑에 현재 시각 표시 (웹 프롬프트 Wmwnf716e)</span>
+    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 유바람님의 하루 스케줄을 시간 순으로, 좋아하는 것·싫어하는 것을 이모티콘으로 표시 (웹 프롬프트 Wmwxg3cea)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
