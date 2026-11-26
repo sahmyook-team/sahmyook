@@ -43,23 +43,30 @@
 .od-bar button{padding:8px 18px;font-weight:700}
 .od-bar button.od-main{background:var(--ai);border-color:var(--ai);color:var(--on-accent)}
 .od-bar span{color:var(--muted);font-size:.9rem}
-/* 내 페이지 전용: 검색하기 창 */
-.sr-card{margin:16px 0;padding:18px 20px;border-radius:14px;border:1px solid var(--line);background:var(--card)}
-.sr-card h2{margin:0 0 10px;font-size:1.15rem}
-.sr-form{display:flex;flex-wrap:wrap;gap:8px}
-.sr-form input{flex:1 1 180px;min-width:0;font:inherit;padding:10px 14px;border-radius:999px;border:2px solid var(--line);background:var(--bg);color:var(--fg)}
+/* 내 페이지 전용: 검색하기 창 — 노래 플레이와 같은 크기의 작은 창, 노래 플레이 바로 아래칸 */
+.sr-fab{position:fixed;top:var(--sr-top,120px);right:10px;z-index:59;display:flex;flex-direction:column;align-items:flex-end;gap:6px;max-width:calc(100vw - 20px)}
+.sr-form{display:flex;align-items:center;gap:4px;padding:5px 6px;border-radius:999px;border:1px solid var(--line);background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.sr-form input{width:9.5em;min-width:0;height:40px;box-sizing:border-box;font:inherit;font-size:.92rem;padding:0 12px;border-radius:999px;border:2px solid var(--line);background:var(--bg);color:var(--fg)}
 .sr-form input:focus{outline:none;border-color:var(--care)}
-.sr-form button{font:inherit;font-weight:700;cursor:pointer;padding:10px 20px;border-radius:999px;border:1px solid var(--ai);background:var(--ai);color:var(--on-accent)}
-.sr-form button.sr-clear{background:var(--bg);color:var(--fg);border-color:var(--line)}
-.sr-status{margin:10px 0 0;color:var(--muted);font-size:.92rem}
-.sr-results{list-style:none;margin:8px 0 0;padding:0;max-height:420px;overflow:auto}
+.sr-form button{font:inherit;font-weight:800;cursor:pointer;min-width:40px;height:40px;padding:0 14px;border-radius:999px;border:0;background:var(--ai);color:var(--on-accent);font-size:1.05rem}
+.sr-form button:focus-visible{outline:2px solid var(--care);outline-offset:2px}
+.sr-panel{box-sizing:border-box;width:min(360px,calc(100vw - 20px));max-height:min(60vh,460px);overflow:auto;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,.2)}
+.sr-panel[hidden]{display:none}
+.sr-bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.sr-bar button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:4px 12px;font-size:.88rem;font-weight:700}
+.sr-status{margin:8px 0 0;color:var(--muted);font-size:.92rem}
+.sr-results{list-style:none;margin:8px 0 0;padding:0}
 .sr-results li{padding:9px 0;border-top:1px solid var(--line);overflow-wrap:anywhere}
 .sr-results a{font-weight:700}
 .sr-results p{margin:2px 0 0;font-size:.92rem;color:var(--muted)}
 .sr-results mark,.sr-hit{background:var(--care-soft);color:inherit;border-radius:4px;padding:0 2px}
 .sr-web{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .sr-web a{padding:6px 14px;border-radius:999px;border:1px solid var(--line);font-size:.92rem;text-decoration:none}
-.sr-card small{display:block;margin-top:10px;color:var(--muted)}
+.sr-panel small{display:block;margin-top:10px;color:var(--muted)}
+.sr-fab.mini .sr-form{padding:3px 4px}
+.sr-fab.mini .sr-form input{width:7.5em;height:38px}
+.sr-fab.mini .sr-form button{min-width:38px;height:38px;padding:0 8px}
+@media print{.sr-fab{display:none}}
 /* 내 페이지 전용: 오른쪽 위 모퉁이 노래 플레이 */
 .mp-fab{position:fixed;top:var(--mp-top,70px);right:10px;z-index:60;display:flex;align-items:center;gap:4px;max-width:calc(100vw - 20px);padding:5px 6px;border-radius:999px;border:1px solid var(--line);background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.18)}
 .mp-fab button{font:inherit;cursor:pointer;border:0;border-radius:999px;background:transparent;color:var(--fg);min-width:40px;height:40px;padding:0 10px;font-size:1.05rem}
@@ -180,6 +187,28 @@
     show();
   })();
   </script>
+  <div class="sr-card sr-fab" id="sr-fab" role="search" aria-label="검색하기">
+    <form class="sr-form" id="sr-form">
+      <input type="search" id="sr-q" placeholder="🔍 검색하기" aria-label="검색할 키워드 (예: 수영, 합창, 날씨)" title="키워드를 넣어 보세요 (예: 수영, 합창, 날씨)" autocomplete="off" maxlength="60">
+      <button type="submit" aria-label="검색" title="검색">🔍</button>
+    </form>
+    <div class="sr-panel" id="sr-panel" hidden>
+      <div class="sr-bar"><button type="button" id="sr-clear">지우기</button><button type="button" id="sr-close">닫기 ✕</button></div>
+      <p class="sr-status" id="sr-status" aria-live="polite">키워드를 넣고 검색을 누르면 이 페이지와 사이트의 모든 페이지에서 찾아 줍니다.</p>
+      <ul class="sr-results" id="sr-results"></ul>
+      <div class="sr-web" id="sr-web" hidden></div>
+      <small>이 페이지 · careworld-in · 사람 페이지 전체에서 찾고, 인터넷 검색(네이버·구글·유튜브)은 새 창으로 열립니다. 검색어는 저장하지 않습니다.</small>
+    </div>
+  </div>
+  <script>
+  /* 검색하기 창 자리: 노래 플레이 바로 아래칸 */
+  (function(){
+    var sf=document.getElementById('sr-fab'),mp=document.getElementById('mp-fab');
+    function place(){var r=mp?mp.getBoundingClientRect():null;sf.classList.toggle('mini',window.innerWidth<700);
+      sf.style.setProperty('--sr-top',(r?Math.round(r.bottom+8):120)+'px');}
+    place();window.addEventListener('resize',function(){setTimeout(place,0);});window.addEventListener('load',place);
+  })();
+  </script>
   <section class="wrap profile" aria-labelledby="profile-name">
     <div class="profile-head">
       <span class="profile-avatar" aria-hidden="true">김</span>
@@ -227,23 +256,11 @@
         .catch(function(){ w.textContent='날씨를 불러오지 못했어요'; sub.textContent='잠시 뒤 새로 고침해 주세요.'; });
     })();
     </script>
-    <div class="sr-card" role="search" aria-labelledby="sr-title">
-      <h2 id="sr-title">🔍 검색하기</h2>
-      <form class="sr-form" id="sr-form">
-        <input type="search" id="sr-q" placeholder="키워드를 넣어 보세요 (예: 수영, 합창, 날씨)" aria-label="검색할 키워드" autocomplete="off" maxlength="60">
-        <button type="submit">검색</button>
-        <button type="button" class="sr-clear" id="sr-clear">지우기</button>
-      </form>
-      <p class="sr-status" id="sr-status" aria-live="polite">키워드를 넣고 검색을 누르면 이 페이지와 사이트의 모든 페이지에서 찾아 줍니다.</p>
-      <ul class="sr-results" id="sr-results"></ul>
-      <div class="sr-web" id="sr-web" hidden></div>
-      <small>이 페이지 · careworld-in · 사람 페이지 전체에서 찾고, 인터넷 검색(네이버·구글·유튜브)은 새 창으로 열립니다. 검색어는 저장하지 않습니다.</small>
-    </div>
     <script>
     /* 내 페이지 전용: 키워드 검색 (이 페이지 + 사이트 모든 페이지 + 인터넷 검색 링크) */
     (function(){
       var form=document.getElementById('sr-form'),q=document.getElementById('sr-q'),st=document.getElementById('sr-status'),
-          out=document.getElementById('sr-results'),web=document.getElementById('sr-web'),card=form.parentNode,cache=null,seq=0;
+          out=document.getElementById('sr-results'),web=document.getElementById('sr-web'),card=form.parentNode,panel=document.getElementById('sr-panel'),cache=null,seq=0;
       function clean(root){
         var c=root.cloneNode(true),bad=c.querySelectorAll('script,style,noscript,.sr-card,svg'),i;
         for(i=0;i<bad.length;i++) bad[i].parentNode.removeChild(bad[i]);
@@ -317,7 +334,7 @@
       form.addEventListener('submit',function(ev){
         ev.preventDefault();
         var raw=q.value.replace(/\s+/g,' ').trim(),k=raw.toLowerCase();
-        reset();
+        reset(); panel.hidden=false;
         if(!k){ st.textContent='키워드를 먼저 넣어 주세요.'; q.focus(); return; }
         var my=seq,total=0,first=markHere(k),here=clean(document.querySelector('main')),r=find(here,k);
         weblinks(raw);
@@ -331,6 +348,8 @@
         });
       });
       document.getElementById('sr-clear').addEventListener('click',function(){ reset(); q.value=''; st.textContent='키워드를 넣고 검색을 누르면 이 페이지와 사이트의 모든 페이지에서 찾아 줍니다.'; q.focus(); });
+      document.getElementById('sr-close').addEventListener('click',function(){ panel.hidden=true; q.focus(); });
+      document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!panel.hidden){ panel.hidden=true; } });
     })();
     </script>
     <div class="ph-card" aria-labelledby="ph-title">
@@ -605,7 +624,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 오늘의 철학이야기·메모장 추가 (웹 프롬프트 Wmwxfokpq, Wmwxfshlh)</span>
+    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 검색하기 창을 노래 플레이 크기로 줄여 그 아래칸으로 옮김 (웹 프롬프트 Wmwxfxbl4)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
