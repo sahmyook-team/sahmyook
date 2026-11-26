@@ -29,6 +29,23 @@
 .visit-list li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 12px;padding:7px 0;border-top:1px solid var(--line);overflow-wrap:anywhere}
 .visit-list li span{color:#6b635a;font-variant-numeric:tabular-nums}
 .visit-card small{display:block;margin-top:10px;color:#6b635a}
+/* 내 페이지 전용: 방문자 목록·횟수를 이름 옆에 아주 작게 (웹 프롬프트 Wmwxh3acd) */
+.pn-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+.pn-row h1{margin:0}
+.visit-mini{position:relative;margin:0;padding:0;border:0;background:none;font-size:.75rem}
+.visit-mini summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:3px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-weight:700;white-space:nowrap}
+.visit-mini summary::-webkit-details-marker{display:none}
+.visit-mini summary b{color:var(--care);font-variant-numeric:tabular-nums}
+.visit-mini[open] summary{border-color:var(--care)}
+.visit-pop{position:absolute;left:0;top:calc(100% + 6px);z-index:40;box-sizing:border-box;width:300px;max-width:calc(100vw - 24px);max-height:min(60vh,420px);overflow:auto;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,.18);font-size:.78rem}
+.visit-mini h2{font-size:.85rem;margin:0 0 6px}
+.visit-mini .visit-stats{grid-template-columns:repeat(3,1fr);gap:4px;margin:0 0 6px}
+.visit-mini .visit-stat{padding:4px 6px;border-radius:8px}
+.visit-mini .visit-stat span{font-size:.68rem}
+.visit-mini .visit-stat b{font-size:.9rem}
+.visit-mini .visit-list{max-height:180px}
+.visit-mini .visit-list li{padding:4px 0;font-size:.75rem}
+.visit-mini small{font-size:.66rem;line-height:1.4;margin-top:6px}
 /* 내 페이지 전용: 유바람님의 보통 하루 — 오른쪽 아래 세로 창 */
 .od-fab{position:fixed;right:10px;bottom:12px;z-index:58;display:flex;flex-direction:column;align-items:flex-end;max-width:calc(100vw - 20px)}
 .od-toggle{font:inherit;cursor:pointer;border:1px solid var(--line);border-radius:999px;background:var(--care);color:var(--on-accent);font-weight:800;padding:9px 16px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
@@ -271,7 +288,26 @@
     <div class="profile-head">
       <span class="profile-avatar" aria-hidden="true">김</span>
       <div>
+        <div class="pn-row">
         <h1 id="profile-name">김영숙</h1>
+        <!-- 내 페이지 전용: 방문자 목록·횟수 — 이름 옆에 아주 작게 (웹 프롬프트 Wmwxh3acd) -->
+        <details class="visit-card visit-mini" id="visit-mini">
+          <summary title="눌러서 방문자 목록·누적 보기" aria-label="방문자 목록과 방문 횟수 보기">👣 방문 <b id="visit-count">0</b>번</summary>
+          <div class="visit-pop" id="visit-pop">
+            <h2 id="visit-title">방문자 목록 · 방문 횟수</h2>
+            <div class="visit-stats" aria-label="방문 횟수 누적 분류">
+              <div class="visit-stat"><span>이번 주 누적</span><b id="visit-week">0</b></div>
+              <div class="visit-stat"><span>이번 달 누적</span><b id="visit-month">0</b></div>
+              <div class="visit-stat"><span>새벽 (0~6시)</span><b id="visit-h0">0</b></div>
+              <div class="visit-stat"><span>오전 (6~12시)</span><b id="visit-h1">0</b></div>
+              <div class="visit-stat"><span>오후 (12~18시)</span><b id="visit-h2">0</b></div>
+              <div class="visit-stat"><span>저녁 (18~24시)</span><b id="visit-h3">0</b></div>
+            </div>
+            <ul class="visit-list" id="visit-list" aria-label="방문자 목록"></ul>
+            <small>이 기기(브라우저)에서 이 페이지를 연 기록입니다(최근 30번까지 보임). 로그인하고 열면 이름이, 아니면 '손님'으로 적힙니다. 주(월~일)·한 달·시간대 누적은 한국시간 기준으로 이 기기의 방문을 나누어 센 것입니다. 다른 기기의 방문까지 모두 모아 세는 것과 남·녀 분류는 사이트 서버와 가입 정보를 고쳐야 하므로(지금 사이트에는 성별 정보가 없음) careworld-in 공동 프롬프트 창이나 sahm_all 에 요청해 주세요.</small>
+          </div>
+        </details>
+        </div>
         <p class="profile-role">sahmyook 함께 만든 사람</p>
       </div>
     </div>
@@ -714,20 +750,16 @@
       show();
     })();
     </script>
-    <div class="visit-card" aria-labelledby="visit-title">
-      <h2 id="visit-title">방문자 목록 · 방문 횟수</h2>
-      <p class="visit-count">방문 횟수 <b id="visit-count">0</b>번</p>
-      <div class="visit-stats" aria-label="방문 횟수 누적 분류">
-        <div class="visit-stat"><span>이번 주 누적</span><b id="visit-week">0</b></div>
-        <div class="visit-stat"><span>이번 달 누적</span><b id="visit-month">0</b></div>
-        <div class="visit-stat"><span>새벽 (0~6시)</span><b id="visit-h0">0</b></div>
-        <div class="visit-stat"><span>오전 (6~12시)</span><b id="visit-h1">0</b></div>
-        <div class="visit-stat"><span>오후 (12~18시)</span><b id="visit-h2">0</b></div>
-        <div class="visit-stat"><span>저녁 (18~24시)</span><b id="visit-h3">0</b></div>
-      </div>
-      <ul class="visit-list" id="visit-list" aria-label="방문자 목록"></ul>
-      <small>이 기기(브라우저)에서 이 페이지를 연 기록입니다(최근 30번까지 보임). 로그인하고 열면 이름이, 아니면 '손님'으로 적힙니다. 주(월~일)·한 달·시간대 누적은 한국시간 기준으로 이 기기의 방문을 나누어 센 것입니다. 다른 기기의 방문까지 모두 모아 세는 것과 남·녀 분류는 사이트 서버와 가입 정보를 고쳐야 하므로(지금 사이트에는 성별 정보가 없음) careworld-in 공동 프롬프트 창이나 sahm_all 에 요청해 주세요.</small>
-    </div>
+    <script>
+    /* 방문자 작은 창이 화면 밖으로 나가지 않게 (웹 프롬프트 Wmwxh3acd) */
+    (function(){
+      var d=document.getElementById('visit-mini'),pp=document.getElementById('visit-pop');if(!d||!pp)return;
+      function fit(){pp.style.left='0px';if(!d.open)return;var r=pp.getBoundingClientRect(),w=document.documentElement.clientWidth;
+        if(r.right>w-8)pp.style.left=Math.round(w-8-r.right)+'px';}
+      d.addEventListener('toggle',fit);window.addEventListener('resize',fit);
+      document.addEventListener('click',function(e){if(d.open&&!d.contains(e.target))d.open=false;});
+    })();
+    </script>
     <script>
     (function(){
       var K='youngsook-visits',cEl=document.getElementById('visit-count'),lEl=document.getElementById('visit-list'),fmt;
@@ -931,7 +963,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 노래·검색하기·오늘의 뉴스·보통 하루 창을 끌어서 어디든 옮길 수 있게 함 (웹 프롬프트 Wmwxh165b)</span>
+    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 방문자 목록·횟수를 위쪽 이름 옆에 아주 작게 둠 (웹 프롬프트 Wmwxh3acd)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
