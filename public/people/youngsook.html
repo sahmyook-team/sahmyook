@@ -85,6 +85,7 @@
 .ph-card h2,.memo-card h2{margin:0 0 8px;font-size:1.15rem}
 .ph-date{margin:0 0 8px;color:var(--muted);font-size:.9rem}
 .ph-quote{margin:0;padding:14px 16px;border-left:5px solid var(--care);border-radius:10px;background:var(--care-soft);font-size:1.2rem;font-weight:700;line-height:1.6;word-break:keep-all;overflow-wrap:anywhere}
+.ph-en{margin:8px 0 0;padding:8px 16px;border-left:5px solid var(--ai);border-radius:10px;background:var(--ai-soft);font-size:1.02rem;font-style:italic;line-height:1.55;color:var(--fg);overflow-wrap:anywhere}
 .ph-who{margin:8px 0 0;text-align:right;font-weight:700;color:var(--ai)}
 .ph-talk{margin:8px 0 0;line-height:1.6;word-break:keep-all}
 .ph-bar,.memo-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
@@ -374,6 +375,7 @@
       <h2 id="ph-title">📜 오늘의 철학이야기</h2>
       <p class="ph-date" id="ph-date">오늘의 명언</p>
       <blockquote class="ph-quote" id="ph-quote">너 자신을 알라.</blockquote>
+      <p class="ph-en" id="ph-en" lang="en">Know thyself.</p>
       <p class="ph-who" id="ph-who">— 소크라테스</p>
       <p class="ph-talk" id="ph-talk"></p>
       <div class="ph-bar">
@@ -381,79 +383,79 @@
         <button type="button" id="ph-prev">◀ 어제 명언</button>
         <button type="button" id="ph-today">오늘 명언</button>
       </div>
-      <small>한국시간으로 날짜가 바뀌면 매일 하나씩 새 철학 명언이 나옵니다(모두 60개를 차례로 보여 줌). 명언 번역은 널리 알려진 뜻을 쉽게 옮긴 것입니다.</small>
+      <small>한국시간으로 날짜가 바뀌면 매일 하나씩 새 철학 명언이 나옵니다(모두 60개를 차례로 보여 줌). 명언 번역은 널리 알려진 뜻을 쉽게 옮긴 것이고, 명언 바로 아래에 영어 표현(🇬🇧)을 함께 적었습니다. ‘소리로 듣기’는 한국어 다음에 영어로도 읽어 줍니다.</small>
     </div>
     <script>
     /* 내 페이지 전용: 오늘의 철학이야기 (매일 하루 하나 철학 명언) */
     (function(){
       var Q=[
-        ['너 자신을 알라.','소크라테스','내가 무엇을 좋아하고 무엇을 잘하는지 아는 것이 지혜의 시작이에요.'],
-        ['검토하지 않는 삶은 살 가치가 없다.','소크라테스','오늘 하루를 돌아보는 짧은 시간이 내일을 더 좋게 만들어요.'],
-        ['우리는 반복적으로 하는 행동의 결과다. 탁월함은 행동이 아니라 습관이다.','아리스토텔레스','매일 하는 작은 일이 모여 나를 만들어요.'],
-        ['행복은 우리 자신에게 달려 있다.','아리스토텔레스','행복은 멀리 있지 않고 내 마음가짐 가까이에 있어요.'],
-        ['시작이 반이다.','아리스토텔레스','첫걸음을 떼면 벌써 절반은 온 거예요.'],
-        ['친구란 두 몸에 깃든 하나의 영혼이다.','아리스토텔레스','마음을 나누는 친구는 큰 힘이 돼요.'],
-        ['배우고 때때로 익히면 또한 기쁘지 아니한가.','공자','배운 것을 다시 해 보는 기쁨을 느껴 보세요.'],
-        ['아는 것을 안다 하고 모르는 것을 모른다 하는 것, 이것이 아는 것이다.','공자','모르는 것을 솔직하게 말하는 것도 용기예요.'],
-        ['내가 하기 싫은 일은 남에게 시키지 마라.','공자','다른 사람의 마음을 내 마음처럼 생각해요.'],
-        ['세 사람이 길을 가면 그중에 반드시 나의 스승이 있다.','공자','누구에게서나 배울 점을 찾을 수 있어요.'],
-        ['천 리 길도 한 걸음부터.','노자','큰일도 오늘의 작은 한 걸음에서 시작해요.'],
-        ['가장 좋은 것은 물과 같다.','노자','물처럼 부드럽게 흐르면 어디든 갈 수 있어요.'],
-        ['남을 아는 사람은 지혜롭고, 자신을 아는 사람은 밝다.','노자','나를 아는 것이 가장 밝은 지혜예요.'],
-        ['만족을 아는 사람이 부자다.','노자','지금 가진 것에 고마워하면 마음이 넉넉해져요.'],
-        ['측은히 여기는 마음은 어짊의 시작이다.','맹자','다른 사람을 안타깝게 여기는 마음이 사랑의 첫걸음이에요.'],
-        ['나는 생각한다, 그러므로 나는 존재한다.','데카르트','생각하는 나는 그 자체로 소중한 존재예요.'],
-        ['인간은 생각하는 갈대다.','파스칼','약해 보여도 생각하는 힘이 우리를 크게 만들어요.'],
-        ['우리를 괴롭히는 것은 일 자체가 아니라 그 일에 대한 우리의 생각이다.','에픽테토스','같은 일도 다르게 생각하면 마음이 가벼워져요.'],
-        ['우리가 바꿀 수 있는 것과 바꿀 수 없는 것을 구별하라.','에픽테토스','바꿀 수 있는 일에 힘을 쓰면 마음이 편해져요.'],
-        ['오늘이 마지막 날인 것처럼 하루를 살아라.','마르쿠스 아우렐리우스','오늘 하루를 소중히 보내요.'],
-        ['우리의 삶은 우리의 생각이 만드는 것이다.','마르쿠스 아우렐리우스','좋은 생각이 좋은 하루를 만들어요.'],
-        ['시간이 짧은 것이 아니라 우리가 많이 낭비하는 것이다.','세네카','하고 싶은 일에 시간을 써 봐요.'],
-        ['어려움은 마음을 단단하게 만든다.','세네카','힘든 일을 지나면 더 단단한 내가 돼요.'],
-        ['같은 강물에 두 번 들어갈 수 없다.','헤라클레이토스','모든 것은 변하고, 오늘은 다시 오지 않는 새날이에요.'],
-        ['적게 가진 사람이 아니라 많이 바라는 사람이 가난하다.','세네카','바라는 것을 조금 줄이면 마음이 넉넉해져요.'],
-        ['행복이란 몸에 고통이 없고 마음에 불안이 없는 것이다.','에피쿠로스','편안한 몸과 마음을 위해 잘 쉬어요.'],
-        ['인생에서 가장 큰 기쁨은 우정이다.','에피쿠로스','좋은 친구와 함께하는 시간을 아껴요.'],
-        ['너의 의지의 원칙이 모두의 법칙이 될 수 있도록 행동하라.','칸트','모두가 해도 좋은 일을 하면 바른 길이에요.'],
-        ['사람을 언제나 목적으로 대하고 결코 수단으로만 대하지 마라.','칸트','모든 사람은 그 자체로 귀한 사람이에요.'],
-        ['나를 죽이지 못하는 것은 나를 더 강하게 만든다.','니체','어려움을 이겨 낸 경험이 나를 키워요.'],
-        ['춤추는 별을 낳으려면 내 안에 혼돈을 품고 있어야 한다.','니체','복잡한 마음도 새로운 것을 만드는 힘이 돼요.'],
-        ['사람은 자유롭도록 선고받았다.','사르트르','나는 스스로 고르고 정할 수 있는 사람이에요.'],
-        ['행복은 습관이다. 그것을 몸에 지녀라.','엘버트 허버드','웃는 습관, 고마워하는 습관을 길러요.'],
-        ['말할 수 없는 것에 대해서는 침묵해야 한다.','비트겐슈타인','잘 모를 때는 잠시 멈추고 생각해도 괜찮아요.'],
-        ['내 언어의 한계는 내 세계의 한계다.','비트겐슈타인','새 낱말을 배우면 내 세상도 넓어져요.'],
-        ['삶은 뒤를 돌아보아야 이해되지만, 앞을 향해 살아야 한다.','키르케고르','지난날에서 배우고 오늘은 앞으로 나아가요.'],
-        ['자연은 서두르지 않지만 모든 것을 이룬다.','노자','천천히 해도 괜찮아요. 꾸준함이 이뤄 내요.'],
-        ['아는 것이 힘이다.','프랜시스 베이컨','배울수록 할 수 있는 일이 많아져요.'],
-        ['자유는 스스로 선택하는 것이다.','존 스튜어트 밀','내 삶은 내가 고르며 살아가요.'],
-        ['배부른 돼지보다 배고픈 소크라테스가 낫다.','존 스튜어트 밀','생각하고 배우는 삶이 값진 삶이에요.'],
-        ['사람은 사회적 동물이다.','아리스토텔레스','함께 어울려 살 때 우리는 더 행복해져요.'],
-        ['용기는 두려움이 없는 것이 아니라 두려움을 이기는 것이다.','아리스토텔레스','떨려도 한 번 해 보는 것이 용기예요.'],
-        ['지혜는 놀라움에서 시작된다.','소크라테스','궁금해하는 마음을 소중히 해요.'],
-        ['하늘은 스스로 돕는 자를 돕는다.','벤저민 프랭클린','내가 먼저 해 보면 도움도 함께 와요.'],
-        ['참을성은 쓰지만 그 열매는 달다.','루소','기다림 끝에 좋은 일이 와요.'],
-        ['사랑은 모든 것을 견딘다.','바울(성경)','사랑하는 마음은 어려움도 이겨 내요.'],
-        ['오늘 할 수 있는 일을 내일로 미루지 마라.','벤저민 프랭클린','작은 일부터 오늘 해 봐요.'],
-        ['고요한 마음이 가장 큰 힘이다.','붓다','숨을 천천히 쉬면 마음이 고요해져요.'],
-        ['미움은 미움으로 그치지 않고 사랑으로만 그친다.','붓다','따뜻한 마음이 다툼을 멈추게 해요.'],
-        ['과거에 머물지 말고 미래를 꿈꾸지 말고 지금 이 순간에 집중하라.','붓다','지금 여기의 나를 느껴 봐요.'],
-        ['마음이 모든 것을 만든다.','원효','어떤 마음으로 보느냐에 따라 세상이 달라져요.'],
-        ['나무를 심기에 가장 좋은 때는 20년 전이었고, 두 번째로 좋은 때는 지금이다.','속담(동양 격언)','늦었다고 생각할 때가 시작하기 좋은 때예요.'],
-        ['행복은 나누면 두 배가 되고, 슬픔은 나누면 반이 된다.','격언','기쁜 일도 슬픈 일도 함께 나눠요.'],
-        ['모든 사람은 저마다 귀하다.','칸트','나도, 내 친구도 모두 소중해요.'],
-        ['단순함이 궁극의 정교함이다.','레오나르도 다빈치','쉽고 간단한 것이 가장 좋을 때가 많아요.'],
-        ['감사하는 마음은 가장 큰 덕일 뿐 아니라 모든 덕의 어머니다.','키케로','고마워요 한마디가 하루를 밝게 해요.'],
-        ['살아 있는 동안 희망은 있다.','키케로','오늘도 좋은 일이 생길 수 있어요.'],
-        ['진정한 지혜는 자신이 아무것도 모른다는 것을 아는 것이다.','소크라테스','겸손한 마음으로 배워요.'],
-        ['인내는 모든 문을 연다.','라퐁텐','꾸준히 하면 열리지 않던 문도 열려요.'],
-        ['오늘은 남은 인생의 첫날이다.','격언','오늘 하루를 새 마음으로 시작해요.']
+        ['너 자신을 알라.','소크라테스','내가 무엇을 좋아하고 무엇을 잘하는지 아는 것이 지혜의 시작이에요.',"Know thyself."],
+        ['검토하지 않는 삶은 살 가치가 없다.','소크라테스','오늘 하루를 돌아보는 짧은 시간이 내일을 더 좋게 만들어요.',"The unexamined life is not worth living."],
+        ['우리는 반복적으로 하는 행동의 결과다. 탁월함은 행동이 아니라 습관이다.','아리스토텔레스','매일 하는 작은 일이 모여 나를 만들어요.',"We are what we repeatedly do. Excellence, then, is not an act, but a habit."],
+        ['행복은 우리 자신에게 달려 있다.','아리스토텔레스','행복은 멀리 있지 않고 내 마음가짐 가까이에 있어요.',"Happiness depends upon ourselves."],
+        ['시작이 반이다.','아리스토텔레스','첫걸음을 떼면 벌써 절반은 온 거예요.',"Well begun is half done."],
+        ['친구란 두 몸에 깃든 하나의 영혼이다.','아리스토텔레스','마음을 나누는 친구는 큰 힘이 돼요.',"A friend is a single soul dwelling in two bodies."],
+        ['배우고 때때로 익히면 또한 기쁘지 아니한가.','공자','배운 것을 다시 해 보는 기쁨을 느껴 보세요.',"Is it not a pleasure to learn and to practice what you have learned?"],
+        ['아는 것을 안다 하고 모르는 것을 모른다 하는 것, 이것이 아는 것이다.','공자','모르는 것을 솔직하게 말하는 것도 용기예요.',"To know what you know and to know what you do not know, that is true knowledge."],
+        ['내가 하기 싫은 일은 남에게 시키지 마라.','공자','다른 사람의 마음을 내 마음처럼 생각해요.',"Do not impose on others what you do not wish for yourself."],
+        ['세 사람이 길을 가면 그중에 반드시 나의 스승이 있다.','공자','누구에게서나 배울 점을 찾을 수 있어요.',"When three people walk together, one of them can surely be my teacher."],
+        ['천 리 길도 한 걸음부터.','노자','큰일도 오늘의 작은 한 걸음에서 시작해요.',"A journey of a thousand miles begins with a single step."],
+        ['가장 좋은 것은 물과 같다.','노자','물처럼 부드럽게 흐르면 어디든 갈 수 있어요.',"The highest good is like water."],
+        ['남을 아는 사람은 지혜롭고, 자신을 아는 사람은 밝다.','노자','나를 아는 것이 가장 밝은 지혜예요.',"He who knows others is wise; he who knows himself is enlightened."],
+        ['만족을 아는 사람이 부자다.','노자','지금 가진 것에 고마워하면 마음이 넉넉해져요.',"He who knows he has enough is rich."],
+        ['측은히 여기는 마음은 어짊의 시작이다.','맹자','다른 사람을 안타깝게 여기는 마음이 사랑의 첫걸음이에요.',"The feeling of compassion is the beginning of humaneness."],
+        ['나는 생각한다, 그러므로 나는 존재한다.','데카르트','생각하는 나는 그 자체로 소중한 존재예요.',"I think, therefore I am."],
+        ['인간은 생각하는 갈대다.','파스칼','약해 보여도 생각하는 힘이 우리를 크게 만들어요.',"Man is a thinking reed."],
+        ['우리를 괴롭히는 것은 일 자체가 아니라 그 일에 대한 우리의 생각이다.','에픽테토스','같은 일도 다르게 생각하면 마음이 가벼워져요.',"Men are disturbed not by things, but by the views they take of them."],
+        ['우리가 바꿀 수 있는 것과 바꿀 수 없는 것을 구별하라.','에픽테토스','바꿀 수 있는 일에 힘을 쓰면 마음이 편해져요.',"Distinguish what is within our power from what is not."],
+        ['오늘이 마지막 날인 것처럼 하루를 살아라.','마르쿠스 아우렐리우스','오늘 하루를 소중히 보내요.',"Live each day as if it were your last."],
+        ['우리의 삶은 우리의 생각이 만드는 것이다.','마르쿠스 아우렐리우스','좋은 생각이 좋은 하루를 만들어요.',"Our life is what our thoughts make it."],
+        ['시간이 짧은 것이 아니라 우리가 많이 낭비하는 것이다.','세네카','하고 싶은 일에 시간을 써 봐요.',"It is not that we have a short time to live, but that we waste a lot of it."],
+        ['어려움은 마음을 단단하게 만든다.','세네카','힘든 일을 지나면 더 단단한 내가 돼요.',"Difficulties strengthen the mind."],
+        ['같은 강물에 두 번 들어갈 수 없다.','헤라클레이토스','모든 것은 변하고, 오늘은 다시 오지 않는 새날이에요.',"No man ever steps in the same river twice."],
+        ['적게 가진 사람이 아니라 많이 바라는 사람이 가난하다.','세네카','바라는 것을 조금 줄이면 마음이 넉넉해져요.',"It is not the man who has too little, but the man who craves more, that is poor."],
+        ['행복이란 몸에 고통이 없고 마음에 불안이 없는 것이다.','에피쿠로스','편안한 몸과 마음을 위해 잘 쉬어요.',"Happiness is the absence of pain in the body and of trouble in the soul."],
+        ['인생에서 가장 큰 기쁨은 우정이다.','에피쿠로스','좋은 친구와 함께하는 시간을 아껴요.',"Of all the things that wisdom provides for a happy life, the greatest is friendship."],
+        ['너의 의지의 원칙이 모두의 법칙이 될 수 있도록 행동하라.','칸트','모두가 해도 좋은 일을 하면 바른 길이에요.',"Act only according to that maxim by which you can at the same time will that it should become a universal law."],
+        ['사람을 언제나 목적으로 대하고 결코 수단으로만 대하지 마라.','칸트','모든 사람은 그 자체로 귀한 사람이에요.',"Treat humanity always as an end and never merely as a means."],
+        ['나를 죽이지 못하는 것은 나를 더 강하게 만든다.','니체','어려움을 이겨 낸 경험이 나를 키워요.',"What does not kill me makes me stronger."],
+        ['춤추는 별을 낳으려면 내 안에 혼돈을 품고 있어야 한다.','니체','복잡한 마음도 새로운 것을 만드는 힘이 돼요.',"One must still have chaos in oneself to give birth to a dancing star."],
+        ['사람은 자유롭도록 선고받았다.','사르트르','나는 스스로 고르고 정할 수 있는 사람이에요.',"Man is condemned to be free."],
+        ['행복은 습관이다. 그것을 몸에 지녀라.','엘버트 허버드','웃는 습관, 고마워하는 습관을 길러요.',"Happiness is a habit. Cultivate it."],
+        ['말할 수 없는 것에 대해서는 침묵해야 한다.','비트겐슈타인','잘 모를 때는 잠시 멈추고 생각해도 괜찮아요.',"Whereof one cannot speak, thereof one must be silent."],
+        ['내 언어의 한계는 내 세계의 한계다.','비트겐슈타인','새 낱말을 배우면 내 세상도 넓어져요.',"The limits of my language mean the limits of my world."],
+        ['삶은 뒤를 돌아보아야 이해되지만, 앞을 향해 살아야 한다.','키르케고르','지난날에서 배우고 오늘은 앞으로 나아가요.',"Life can only be understood backwards; but it must be lived forwards."],
+        ['자연은 서두르지 않지만 모든 것을 이룬다.','노자','천천히 해도 괜찮아요. 꾸준함이 이뤄 내요.',"Nature does not hurry, yet everything is accomplished."],
+        ['아는 것이 힘이다.','프랜시스 베이컨','배울수록 할 수 있는 일이 많아져요.',"Knowledge is power."],
+        ['자유는 스스로 선택하는 것이다.','존 스튜어트 밀','내 삶은 내가 고르며 살아가요.',"Freedom is choosing for oneself."],
+        ['배부른 돼지보다 배고픈 소크라테스가 낫다.','존 스튜어트 밀','생각하고 배우는 삶이 값진 삶이에요.',"It is better to be Socrates dissatisfied than a pig satisfied."],
+        ['사람은 사회적 동물이다.','아리스토텔레스','함께 어울려 살 때 우리는 더 행복해져요.',"Man is by nature a social animal."],
+        ['용기는 두려움이 없는 것이 아니라 두려움을 이기는 것이다.','아리스토텔레스','떨려도 한 번 해 보는 것이 용기예요.',"Courage is not the absence of fear, but the conquering of it."],
+        ['지혜는 놀라움에서 시작된다.','소크라테스','궁금해하는 마음을 소중히 해요.',"Wisdom begins in wonder."],
+        ['하늘은 스스로 돕는 자를 돕는다.','벤저민 프랭클린','내가 먼저 해 보면 도움도 함께 와요.',"God helps those who help themselves."],
+        ['참을성은 쓰지만 그 열매는 달다.','루소','기다림 끝에 좋은 일이 와요.',"Patience is bitter, but its fruit is sweet."],
+        ['사랑은 모든 것을 견딘다.','바울(성경)','사랑하는 마음은 어려움도 이겨 내요.',"Love bears all things."],
+        ['오늘 할 수 있는 일을 내일로 미루지 마라.','벤저민 프랭클린','작은 일부터 오늘 해 봐요.',"Never put off till tomorrow what you can do today."],
+        ['고요한 마음이 가장 큰 힘이다.','붓다','숨을 천천히 쉬면 마음이 고요해져요.',"A calm mind is the greatest strength."],
+        ['미움은 미움으로 그치지 않고 사랑으로만 그친다.','붓다','따뜻한 마음이 다툼을 멈추게 해요.',"Hatred does not cease by hatred, but only by love."],
+        ['과거에 머물지 말고 미래를 꿈꾸지 말고 지금 이 순간에 집중하라.','붓다','지금 여기의 나를 느껴 봐요.',"Do not dwell in the past, do not dream of the future; concentrate the mind on the present moment."],
+        ['마음이 모든 것을 만든다.','원효','어떤 마음으로 보느냐에 따라 세상이 달라져요.',"All things are created by the mind."],
+        ['나무를 심기에 가장 좋은 때는 20년 전이었고, 두 번째로 좋은 때는 지금이다.','속담(동양 격언)','늦었다고 생각할 때가 시작하기 좋은 때예요.',"The best time to plant a tree was 20 years ago. The second best time is now."],
+        ['행복은 나누면 두 배가 되고, 슬픔은 나누면 반이 된다.','격언','기쁜 일도 슬픈 일도 함께 나눠요.',"Shared joy is a double joy; shared sorrow is half a sorrow."],
+        ['모든 사람은 저마다 귀하다.','칸트','나도, 내 친구도 모두 소중해요.',"Every person is precious."],
+        ['단순함이 궁극의 정교함이다.','레오나르도 다빈치','쉽고 간단한 것이 가장 좋을 때가 많아요.',"Simplicity is the ultimate sophistication."],
+        ['감사하는 마음은 가장 큰 덕일 뿐 아니라 모든 덕의 어머니다.','키케로','고마워요 한마디가 하루를 밝게 해요.',"Gratitude is not only the greatest of virtues, but the parent of all the others."],
+        ['살아 있는 동안 희망은 있다.','키케로','오늘도 좋은 일이 생길 수 있어요.',"While there is life, there is hope."],
+        ['진정한 지혜는 자신이 아무것도 모른다는 것을 아는 것이다.','소크라테스','겸손한 마음으로 배워요.',"The only true wisdom is in knowing you know nothing."],
+        ['인내는 모든 문을 연다.','라퐁텐','꾸준히 하면 열리지 않던 문도 열려요.',"Patience opens all doors."],
+        ['오늘은 남은 인생의 첫날이다.','격언','오늘 하루를 새 마음으로 시작해요.',"Today is the first day of the rest of your life."]
       ];
-      var q=document.getElementById('ph-quote'),who=document.getElementById('ph-who'),talk=document.getElementById('ph-talk'),dt=document.getElementById('ph-date'),off=0;
+      var q=document.getElementById('ph-quote'),en=document.getElementById('ph-en'),who=document.getElementById('ph-who'),talk=document.getElementById('ph-talk'),dt=document.getElementById('ph-date'),off=0;
       function dayNo(o){ return Math.floor((Date.now()+9*3600000)/86400000)+o; }
       function label(o){ var d=new Date((dayNo(o))*86400000); return (d.getUTCMonth()+1)+'월 '+d.getUTCDate()+'일'; }
       function show(){
         var n=dayNo(off),x=Q[((n%Q.length)+Q.length)%Q.length];
-        q.textContent=x[0]; who.textContent='— '+x[1]; talk.textContent='💡 '+x[2];
+        q.textContent=x[0]; en.textContent='🇬🇧 '+x[3]; who.textContent='— '+x[1]; talk.textContent='💡 '+x[2];
         dt.textContent=(off===0?'오늘':off===-1?'어제':(-off)+'일 전')+' · '+label(off)+'의 명언';
       }
       document.getElementById('ph-prev').addEventListener('click',function(){ if(off>-6) off--; show(); });
@@ -461,7 +463,7 @@
       document.getElementById('ph-say').addEventListener('click',function(){
         var S=window.speechSynthesis,U=window.SpeechSynthesisUtterance;
         if(!S||!U){ talk.textContent='이 기기에서는 소리로 듣기를 지원하지 않아요.'; return; }
-        S.cancel(); var u=new U(q.textContent+' '+who.textContent.replace('— ','')+'의 말입니다. '+talk.textContent.replace('💡 ','')); u.lang='ko-KR'; u.rate=0.9; S.speak(u);
+        S.cancel(); var u=new U(q.textContent+' '+who.textContent.replace('— ','')+'의 말입니다. '+talk.textContent.replace('💡 ','')); u.lang='ko-KR'; u.rate=0.9; S.speak(u); var ue=new U(en.textContent.replace('🇬🇧 ','')); ue.lang='en-US'; ue.rate=0.9; S.speak(ue);
       });
       show();
       (function tick(){ var ms=86400000-((Date.now()+9*3600000)%86400000)+1000; setTimeout(function(){ if(off===0) show(); tick(); },Math.min(ms,3600000)); })();
@@ -798,7 +800,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 사진만 넣는 ‘📷 사진 기록’ 칸을 만들고 사진 아래에 기록을 쓰게 함 (웹 프롬프트 Wmwxg00fh)</span>
+    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 오늘의 철학이야기 명언 아래에 영어 표현을 함께 표기 (웹 프롬프트 Wmwxg28tn)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
