@@ -9,6 +9,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<!-- 음악 듣기를 휴대폰 홈 화면에 앱처럼 추가 (sahm_all 요청 58) -->
+<link rel="manifest" href="/music.webmanifest">
+<link rel="apple-touch-icon" href="/music-icon-192.png">
+<meta name="theme-color" content="#3f8f8a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="음악 듣기">
 <style>
 /* 내 페이지 전용: 터미널(실행결과 창)은 지금 크기보다 커지지 않고 안에서 스크롤 (웹 프롬프트 Wmwhxefo3) */
 .term-out{min-height:160px;max-height:min(420px,60vh);overflow-y:auto;overscroll-behavior:contain;scroll-behavior:auto}
@@ -88,6 +95,7 @@ html.kc-ok #kc-gate{display:none}
 .kc-music .km-frame{margin-top:14px}
 .kc-music .km-frame-tip{margin:0 0 8px;font-weight:700}
 .kc-music .km-frame iframe{display:block;width:100%;max-width:100%;height:120px;border:0;border-radius:12px;background:var(--ai-soft)}
+.kc-music .km-ios{margin:12px 0 0;padding:10px 14px;border-radius:12px;border:2px dashed var(--line);font-weight:600}
 .kc-music .km-msg{min-height:1.5em;margin:12px 0 0;font-weight:600;overflow-wrap:anywhere}
 @media (max-width:640px){.kc-music .km-btns{grid-template-columns:repeat(2,minmax(0,1fr))}.kc-music .km-play{grid-row:1;grid-column:1/-1;min-height:88px}.kc-music .km-mic{grid-column:1/-1}}
 </style>
@@ -236,9 +244,10 @@ html.kc-ok #kc-gate{display:none}
       <button type="button" class="km-btn" id="km-stop"><span aria-hidden="true">⏹</span><span>그만</span></button>
     </div>
     <p class="km-msg" id="km-msg" role="status"></p>
+    <p class="km-ios">📱 아이폰·아이패드는 처음 한 번 <b>▶ 재생</b> 버튼(또는 화면)을 눌러야 소리가 나요. 휴대폰에서는 <a href="/music">/music</a> 주소로 바로 열 수 있고, 브라우저 메뉴의 <b>‘홈 화면에 추가’</b>를 누르면 앱처럼 열려요.</p>
     <audio id="km-audio" preload="none"></audio>
     <div class="km-frame" id="km-frame-box" hidden><p class="km-frame-tip">바로 틀기가 안 되어 Google Drive 재생기로 열었어요. 아래 ▶ 를 눌러 주세요.</p><iframe id="km-frame" title="Google Drive 음악 재생기" allow="autoplay" loading="lazy"></iframe></div>
-    <p class="imp-note">노래는 sahmyook 폴더 안 <a href="https://drive.google.com/drive/folders/1JBDqQnZomZC6n8yVIthxLcd81aQM-K5F" target="_blank" rel="noopener">음악 폴더</a>(하위 폴더 포함, 2026-11-26 기준 21곡)에서 바로 틉니다. 이 페이지는 듣는 기록을 저장하거나 어디로 보내지 않습니다(말로 틀 때 목소리 알아듣기는 브라우저의 음성 인식 기능이 처리합니다). 말로 틀기는 크롬·엣지·삼성 인터넷 등 음성 인식을 지원하는 브라우저에서 처음 한 번 마이크 사용을 허용해야 합니다. 폴더에 노래를 새로 넣으면 이 칸에 다시 반영해 달라고 요청해 주세요. (sahm_all 요청 57)</p>
+    <p class="imp-note">노래는 sahmyook 폴더 안 <a href="https://drive.google.com/drive/folders/1JBDqQnZomZC6n8yVIthxLcd81aQM-K5F" target="_blank" rel="noopener">음악 폴더</a>(하위 폴더 포함, 2026-11-26 기준 20곡)에서 사이트 서버를 거쳐 바로 틉니다. 전경철님으로 로그인해야 들을 수 있고, 그래도 안 되면 Google Drive 재생기로 엽니다(sahm_all 요청 58). 이 페이지는 듣는 기록을 저장하거나 어디로 보내지 않습니다(말로 틀 때 목소리 알아듣기는 브라우저의 음성 인식 기능이 처리합니다). 말로 틀기는 크롬·엣지·삼성 인터넷 등 음성 인식을 지원하는 브라우저에서 처음 한 번 마이크 사용을 허용해야 합니다. 폴더에 노래를 새로 넣으면 이 칸에 다시 반영해 달라고 요청해 주세요. (sahm_all 요청 57)</p>
   </section>
   <section class="wrap drive-folder" aria-labelledby="drive-title">
     <h2 id="drive-title">내 Google Drive 폴더</h2>
@@ -676,7 +685,9 @@ html.kc-ok #kc-gate{display:none}
     $('km-play-txt').textContent=playing?'잠깐 멈춤':'재생';
   }
   /* 노래가 나오지 않던 문제 고침 (웹 프롬프트 Wmwx71qu6): Drive 주소를 차례로 시도하고, 모두 안 되면 Drive 재생기로 엶. 버튼을 누르자마자 바로 틀고 곡 이름은 소리를 줄인 채 함께 말함 */
+  /* sahm_all 요청 58: 사이트 서버 경로(/api/music, 전경철 로그인 필요)로 한 번에 바로 틀고, 안 되면 Drive 주소 → Drive 재생기 순서로 예비 */
   var URLS=[
+    function(id){ return '/api/music/'+id; },
     function(id){ return 'https://drive.usercontent.google.com/download?id='+id+'&export=download'; },
     function(id){ return 'https://drive.google.com/uc?export=download&id='+id; },
     function(id){ return 'https://docs.google.com/uc?export=open&id='+id; }

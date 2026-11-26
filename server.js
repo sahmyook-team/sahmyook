@@ -291,11 +291,72 @@ async function fireRoutine(name, text, slot = 'site') {
   return run;
 }
 
+// ── 전경철 음악 듣기: sahmyook/음악 폴더(하위 폴더 포함)의 노래만 Drive 에서 받아 이어 보내기 (sahm_all 요청 58) ──
+// 전경철로 로그인한 사람만, 아래 목록(2026-11-26 음악 폴더 1JBDqQnZomZC6n8yVIthxLcd81aQM-K5F 의 mp3 20곡)에 있는 파일만.
+// 휴대폰에서 끊기지 않게 구간 재생(Range)을 그대로 넘김. 듣는 기록은 남기지 않음
+const MUSIC_OWNER = '전경철';
+const MUSIC_IDS = new Set([
+  '1Gd3JxZRHS3rVOVkeEdyZPHdc7gIFgz2u',
+  '1eVLkLlBTTyvDvF7SL19DHAxh6Nt7ojjY',
+  '1TTWOA215yT9DJWGLk8_cqiXei-0GZzgL',
+  '1HEkHNWy7tLWqTiN--FaJNxqkf65msgD8',
+  '19buM-SjWwIIcDWhs-ilx3ybxySwXSq1u',
+  '1Hz_XBVjTCCKkBzd6F1nb3pPdYuJnLDV6',
+  '1U0W1xv37eSp9lAiY0R1BGz2HdZdxg87x',
+  '15hfP5pjK4ELmIsm6DmittMuxoJYqIJ_s',
+  '1nBINpxm0a74gPL4tfWMygahpcye2xJeq',
+  '169KsJOiQy7FApL4Jgua6RoezjDio0bM2',
+  '1Uyp1lfoCGKDcEFi1Zkem84cOJ2qX8ajw',
+  '1NEdB_ZG5jRZ54gZ2JvYbxvrSbpUECW1_',
+  '110gTCfMPDvII8uYhBP_Q-yVkuk3yrWrm',
+  '1zE-FsB5HteKuDbSe24ahnC38rdY7nyYc',
+  '1JsnKkpRer2_H_lCsPh6GavOynQu3oeYE',
+  '1zxqhAlfZMRb1cS7he-ffbwG-0npUGBpr',
+  '1Uu2J1O6brHfZjK_7DInYyZp28GAtJLXz',
+  '1I3rqNrFTcoLgBcPVCM3OISgYogBCjZaY',
+  '12Iucp5M9AI2VXM_pW69J9FDdt82TP4lm',
+  '1B2qstxKdOVKRfmPJqH20ItUxIwwdLrIZ',
+]);
+const MUSIC_DL = process.env.MUSIC_DOWNLOAD_BASE || 'https://drive.usercontent.google.com/download';
+async function music(req, res, me, id) {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, { error: 'GET 만 됩니다.' });
+  if (!me) return send(res, 401, { error: '먼저 로그인해 주세요.' });
+  if (me !== MUSIC_OWNER) return send(res, 403, { error: `음악 듣기는 ${MUSIC_OWNER}님만 쓸 수 있습니다.` });
+  if (!MUSIC_IDS.has(id)) return send(res, 404, { error: '음악 폴더에 있는 노래가 아닙니다.' });
+  const headers = { 'Accept-Encoding': 'identity' };
+  const range = String(req.headers.range || '');
+  if (/^bytes=\d*-\d*$/.test(range) && range !== 'bytes=-') headers.Range = range;
+  const ac = new AbortController();
+  res.on('close', () => ac.abort());
+  let up;
+  try {
+    up = await fetch(`${MUSIC_DL}?id=${encodeURIComponent(id)}&export=download&confirm=t`, { headers, redirect: 'follow', signal: ac.signal });
+  } catch (e) {
+    return send(res, 502, { error: 'Google Drive 에서 노래를 받지 못했습니다.' });
+  }
+  const ct = up.headers.get('content-type') || '';
+  if (![200, 206, 416].includes(up.status) || /text\/html/.test(ct)) {
+    if (up.body) up.body.cancel().catch(() => {});
+    return send(res, 502, { error: 'Google Drive 에서 노래를 받지 못했습니다.' });
+  }
+  const out = {
+    'Content-Type': /^audio\//.test(ct) ? ct : 'audio/mpeg', 'Accept-Ranges': 'bytes',
+    'Cache-Control': 'private, max-age=3600', 'X-Content-Type-Options': 'nosniff',
+  };
+  const len = up.headers.get('content-length'); if (len) out['Content-Length'] = len;
+  const cr = up.headers.get('content-range'); if (cr) out['Content-Range'] = cr;
+  res.writeHead(up.status, out);
+  if (req.method === 'HEAD' || !up.body || up.status === 416) { if (up.body) up.body.cancel().catch(() => {}); return res.end(); }
+  require('stream').Readable.fromWeb(up.body).on('error', () => res.destroy()).pipe(res);
+}
+
 // ── API ─────────────────────────────────────────────────────────────────
 async function api(req, res, url) {
   let me = readSession(req);
   try {
     if (me && !byNameFn(me)) { await readSahm(); if (!byNameFn(me)) me = null; }
+    const mu = url.match(/^\/api\/music\/([A-Za-z0-9_-]{10,80})$/);
+    if (mu) return await music(req, res, me, mu[1]);
     if (url === '/api/people' && req.method === 'GET') {
       await readSahm();
       const { data } = await readPins();
@@ -415,6 +476,11 @@ async function api(req, res, url) {
 }
 
 // 결재검토: careworld-in 과 따로 떨어진 페이지(바로가기 + [검토 실행]). 검토는 예약작업이 Drive 결재 폴더에서 함 (approval/ROUTINE.md)
+// 전경철 음악 듣기: 짧은 주소 /music 과 홈 화면 앱(manifest·아이콘) (sahm_all 요청 58). 노래 받기는 로그인 필요(/api/music)
+routes['/music.webmanifest'] = { type: 'application/manifest+json; charset=utf-8', body: pub('music.webmanifest') };
+routes['/music-icon-192.png'] = { type: 'image/png', body: pub('music-icon-192.png') };
+routes['/music-icon-512.png'] = { type: 'image/png', body: pub('music-icon-512.png') };
+
 routes['/approval'] = { type: HTML, body: pub('approval', 'index.html') };
 routes['/approval/style.css'] = { type: 'text/css; charset=utf-8', body: pub('approval', 'approval.css') };
 routes['/approval/app.js'] = { type: 'text/javascript; charset=utf-8', body: pub('approval', 'approval.js') };
@@ -424,6 +490,7 @@ http.createServer((req, res) => {
   if (url.length > 1 && url.endsWith('/')) url = url.slice(0, -1);
   if (url === '/healthz') { res.writeHead(200); return res.end('ok'); }
   if (url.startsWith('/api/')) return api(req, res, url);
+  if (url === '/music') { res.writeHead(302, { Location: '/people/kyungcheol#music', 'Cache-Control': 'no-store' }); return res.end(); }
   const r = routes[url];
   const mm = !r && url.match(/^\/people\/([a-z0-9-]+)$/);
   if (mm) {

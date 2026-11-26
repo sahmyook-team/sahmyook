@@ -1,0 +1,15 @@
+{
+  "name": "전경철 음악 듣기 · sahmyook",
+  "short_name": "음악 듣기",
+  "description": "sahmyook 음악 폴더의 노래를 말로·큰 버튼으로 듣기 (전경철 로그인 필요)",
+  "lang": "ko",
+  "start_url": "/music",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3f8f8a",
+  "icons": [
+    { "src": "/music-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/music-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
