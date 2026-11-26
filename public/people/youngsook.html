@@ -29,20 +29,32 @@
 .visit-list li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 12px;padding:7px 0;border-top:1px solid var(--line);overflow-wrap:anywhere}
 .visit-list li span{color:#6b635a;font-variant-numeric:tabular-nums}
 .visit-card small{display:block;margin-top:10px;color:#6b635a}
-/* 내 페이지 전용: 유바람님의 보통 하루 (그림 · 리스트 · 음성 안내) */
-.od-pics{list-style:none;margin:12px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px;counter-reset:od}
-.od-card{counter-increment:od;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 8px;min-width:0;word-break:keep-all}
-.od-card.on,.od-list li.on{border-color:var(--care);background:var(--care-soft)}
-.od-pic{font-size:2.6rem;line-height:1.2}
-.od-when{font-size:.85rem;color:var(--ai);font-weight:700}
+/* 내 페이지 전용: 유바람님의 보통 하루 — 오른쪽 아래 세로 창 */
+.od-fab{position:fixed;right:10px;bottom:12px;z-index:58;display:flex;flex-direction:column;align-items:flex-end;max-width:calc(100vw - 20px)}
+.od-toggle{font:inherit;cursor:pointer;border:1px solid var(--line);border-radius:999px;background:var(--care);color:var(--on-accent);font-weight:800;padding:9px 16px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.od-panel{width:270px;max-width:calc(100vw - 20px);max-height:min(72vh,640px);display:flex;flex-direction:column;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 26px rgba(0,0,0,.22);padding:10px 10px 8px}
+.od-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:0 2px 6px}
+.od-head h2{font-size:1rem;margin:0;line-height:1.3}
+.od-x{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;width:32px;height:32px;flex:none}
+.od-v{list-style:none;margin:0;padding:0 2px 0 0;overflow-y:auto;flex:1 1 auto;display:flex;flex-direction:column;gap:0;counter-reset:od}
+.od-v li{counter-increment:od;position:relative;display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:8px;padding:7px 6px;border:2px solid transparent;border-radius:12px;word-break:keep-all}
+.od-v li:not(:last-child)::after{content:"";position:absolute;left:25px;top:44px;bottom:-8px;border-left:2px dashed var(--line)}
+.od-v li.on{border-color:var(--care);background:var(--care-soft)}
+.od-pic{font-size:1.7rem;line-height:1;text-align:center}
+.od-v div{min-width:0}
+.od-when{display:block;font-size:.78rem;color:var(--ai);font-weight:700}
 .od-when::before{content:counter(od) ". "}
-.od-list li{border:2px solid transparent;border-radius:12px}
+.od-v b{display:block;font-size:.93rem;line-height:1.3}
+.od-v small{display:block;font-size:.78rem;color:var(--muted);line-height:1.35;margin-top:1px}
 .od-say,.od-bar button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px}
-.od-say{font-size:.82rem;padding:1px 10px;margin-left:4px;white-space:nowrap}
-.od-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
-.od-bar button{padding:8px 18px;font-weight:700}
+.od-say{width:34px;height:34px;padding:0;font-size:.9rem}
+.od-bar{display:flex;gap:6px;margin-top:8px}
+.od-bar button{flex:1;padding:7px 8px;font-weight:700;font-size:.9rem}
 .od-bar button.od-main{background:var(--ai);border-color:var(--ai);color:var(--on-accent)}
-.od-bar span{color:var(--muted);font-size:.9rem}
+.od-state{margin:6px 2px 0;font-size:.8rem;color:var(--muted)}
+.od-note{margin:4px 2px 0;font-size:.72rem;color:var(--muted);line-height:1.35}
+.od-panel[hidden],.od-toggle[hidden]{display:none}
+@media print{.od-fab{display:none}}
 /* 내 페이지 전용: 검색하기 창 — 노래 플레이와 같은 크기의 작은 창, 노래 플레이 바로 아래칸 */
 .sr-fab{position:fixed;top:var(--sr-top,120px);right:10px;z-index:59;display:flex;flex-direction:column;align-items:flex-end;gap:6px;max-width:calc(100vw - 20px)}
 .sr-form{display:flex;align-items:center;gap:4px;padding:5px 6px;border-radius:999px;border:1px solid var(--line);background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.18)}
@@ -721,43 +733,43 @@
       <p>아직 소개 글이 없습니다. 소개 글은 Google 문서 <b>sahm_all</b>에 적어 주시면 이 페이지에 반영됩니다.</p>
       <a class="btn primary" href="https://docs.google.com/document/d/1tJDne4SayMP-kPmeWIrXVFBN_VoGfY7hZAsKZJZHMSY/edit" target="_blank" rel="noopener">sahm_all 문서 열기 →</a>
     </div>
-    <article class="sermon imp" aria-labelledby="od-title">
-      <p class="sermon-label">학습일지를 바탕으로 정리 · 가명</p>
-      <h2 id="od-title">유바람님의 보통 하루</h2>
-      <h3>그림으로 보기</h3>
-      <ol class="od-pics" id="od-pics">
-        <li class="od-card"><span class="od-pic" aria-hidden="true">🌅</span><span class="od-when">아침</span><b>일어나 아침 먹기</b></li>
-        <li class="od-card"><span class="od-pic" aria-hidden="true">🏦</span><span class="od-when">오전</span><b>은행과 우체국</b></li>
-        <li class="od-card"><span class="od-pic" aria-hidden="true">🍙</span><span class="od-when">점심</span><b>김밥 2줄</b></li>
-        <li class="od-card"><span class="od-pic" aria-hidden="true">💼</span><span class="od-when">낮</span><b>출근해서 일하기</b></li>
-        <li class="od-card"><span class="od-pic" aria-hidden="true">🏊</span><span class="od-when">저녁 전</span><b>곰두리체육센터 수영</b></li>
-        <li class="od-card"><span class="od-pic" aria-hidden="true">🍚</span><span class="od-when">저녁</span><b>저녁 식사와 컴퓨터</b></li>
-        <li class="od-card"><span class="od-pic" aria-hidden="true">🌙</span><span class="od-when">밤 10시</span><b>약 먹고 잠자리</b></li>
-      </ol>
-      <h3>음성 안내</h3>
-      <div class="od-bar">
-        <button type="button" class="od-main" id="od-all">🔊 처음부터 모두 듣기</button>
-        <button type="button" id="od-stop">⏹ 멈춤</button>
-        <span id="od-state" aria-live="polite">버튼을 누르면 하루 일과를 순서대로 읽어 드립니다.</span>
+    <!-- 내 페이지 전용: 유바람님의 보통 하루 — 화면 오른쪽 아래 세로 창 (웹 프롬프트 Wmwxg5e1p) -->
+    <aside class="od-fab" id="od-fab" aria-labelledby="od-title">
+      <button type="button" class="od-toggle" id="od-toggle" aria-expanded="false" aria-controls="od-panel">🗓 <span>유바람님의 보통 하루</span></button>
+      <div class="od-panel" id="od-panel" hidden>
+        <div class="od-head"><h2 id="od-title">🗓 유바람님의 보통 하루</h2><button type="button" class="od-x" id="od-close" aria-label="보통 하루 창 접기">✕</button></div>
+        <ol class="od-v" id="od-list">
+        <li data-say="아침. 일어나 아침 먹기. 토스트, 누룽지, 계란 요리 같은 아침을 먹고 TV로 YTN 뉴스를 봅니다."><span class="od-pic" aria-hidden="true">🌅</span><div><span class="od-when">아침</span><b>일어나 아침 먹기</b><small>토스트, 누룽지, 계란 요리 같은 아침을 먹고 TV로 YTN 뉴스를 봅니다.</small></div><button type="button" class="od-say" aria-label="일어나 아침 먹기 음성으로 듣기">🔊</button></li>
+        <li data-say="오전. 은행과 우체국. 하나은행과 송파우체국에서 천 원씩 입금하고 통장을 정리합니다."><span class="od-pic" aria-hidden="true">🏦</span><div><span class="od-when">오전</span><b>은행과 우체국</b><small>하나은행과 송파우체국에서 천 원씩 입금하고 통장을 정리합니다.</small></div><button type="button" class="od-say" aria-label="은행과 우체국 음성으로 듣기">🔊</button></li>
+        <li data-say="점심. 김밥 2줄. 늘 가는 김밥집에서 김밥 두 줄을 주문해 먹습니다."><span class="od-pic" aria-hidden="true">🍙</span><div><span class="od-when">점심</span><b>김밥 2줄</b><small>늘 가는 김밥집에서 김밥 두 줄을 주문해 먹습니다.</small></div><button type="button" class="od-say" aria-label="김밥 2줄 음성으로 듣기">🔊</button></li>
+        <li data-say="낮. 출근해서 일하기. 버스를 타고 출근해 일하고, 오후 4시쯤 퇴근합니다."><span class="od-pic" aria-hidden="true">💼</span><div><span class="od-when">낮</span><b>출근해서 일하기</b><small>버스를 타고 출근해 일하고, 오후 4시쯤 퇴근합니다.</small></div><button type="button" class="od-say" aria-label="출근해서 일하기 음성으로 듣기">🔊</button></li>
+        <li data-say="저녁 전. 곰두리체육센터 수영. 과자와 두유를 먹고 「우산 셋이 나란히」를 부른 뒤 수영합니다."><span class="od-pic" aria-hidden="true">🏊</span><div><span class="od-when">저녁 전</span><b>곰두리체육센터 수영</b><small>과자와 두유를 먹고 「우산 셋이 나란히」를 부른 뒤 수영합니다.</small></div><button type="button" class="od-say" aria-label="곰두리체육센터 수영 음성으로 듣기">🔊</button></li>
+        <li data-say="저녁. 저녁 식사와 컴퓨터. 집에서 저녁을 먹고 컴퓨터로 좋아하는 것을 검색합니다."><span class="od-pic" aria-hidden="true">🍚</span><div><span class="od-when">저녁</span><b>저녁 식사와 컴퓨터</b><small>집에서 저녁을 먹고 컴퓨터로 좋아하는 것을 검색합니다.</small></div><button type="button" class="od-say" aria-label="저녁 식사와 컴퓨터 음성으로 듣기">🔊</button></li>
+        <li data-say="밤 10시. 약 먹고 잠자리. 스스로 약을 챙겨 먹고 씻은 뒤 잘 자요 인사를 하고 잡니다."><span class="od-pic" aria-hidden="true">🌙</span><div><span class="od-when">밤 10시</span><b>약 먹고 잠자리</b><small>스스로 약을 챙겨 먹고 씻은 뒤 잘 자요 인사를 하고 잡니다.</small></div><button type="button" class="od-say" aria-label="약 먹고 잠자리 음성으로 듣기">🔊</button></li>
+        </ol>
+        <div class="od-bar">
+          <button type="button" class="od-main" id="od-all">🔊 모두 듣기</button>
+          <button type="button" id="od-stop">⏹ 멈춤</button>
+        </div>
+        <p class="od-state" id="od-state" aria-live="polite">위에서 아래로, 아침부터 밤까지의 하루입니다.</p>
+        <p class="od-note">학습일지를 바탕으로 정리 · 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. 음성은 기기의 한국어 읽기 기능으로 나옵니다.</p>
       </div>
-      <h3>리스트로 보기</h3>
-      <ol class="imp-list od-list" id="od-list">
-        <li data-say="아침. 일어나 아침 먹기. 토스트, 누룽지, 계란 요리 같은 아침을 먹고 TV로 YTN 뉴스를 봅니다."><b>아침 · 일어나 아침 먹기</b><span>토스트, 누룽지, 계란 요리 같은 아침을 먹고 TV로 YTN 뉴스를 봅니다. <button type="button" class="od-say" aria-label="일어나 아침 먹기 음성으로 듣기">🔊 듣기</button></span></li>
-        <li data-say="오전. 은행과 우체국. 하나은행과 송파우체국에서 천 원씩 입금하고 통장을 정리합니다."><b>오전 · 은행과 우체국</b><span>하나은행과 송파우체국에서 천 원씩 입금하고 통장을 정리합니다. <button type="button" class="od-say" aria-label="은행과 우체국 음성으로 듣기">🔊 듣기</button></span></li>
-        <li data-say="점심. 김밥 2줄. 늘 가는 김밥집에서 김밥 두 줄을 주문해 먹습니다."><b>점심 · 김밥 2줄</b><span>늘 가는 김밥집에서 김밥 두 줄을 주문해 먹습니다. <button type="button" class="od-say" aria-label="김밥 2줄 음성으로 듣기">🔊 듣기</button></span></li>
-        <li data-say="낮. 출근해서 일하기. 버스를 타고 출근해 일하고, 오후 4시쯤 퇴근합니다."><b>낮 · 출근해서 일하기</b><span>버스를 타고 출근해 일하고, 오후 4시쯤 퇴근합니다. <button type="button" class="od-say" aria-label="출근해서 일하기 음성으로 듣기">🔊 듣기</button></span></li>
-        <li data-say="저녁 전. 곰두리체육센터 수영. 과자와 두유를 먹고 「우산 셋이 나란히」를 부른 뒤 수영합니다."><b>저녁 전 · 곰두리체육센터 수영</b><span>과자와 두유를 먹고 「우산 셋이 나란히」를 부른 뒤 수영합니다. <button type="button" class="od-say" aria-label="곰두리체육센터 수영 음성으로 듣기">🔊 듣기</button></span></li>
-        <li data-say="저녁. 저녁 식사와 컴퓨터. 집에서 저녁을 먹고 컴퓨터로 좋아하는 것을 검색합니다."><b>저녁 · 저녁 식사와 컴퓨터</b><span>집에서 저녁을 먹고 컴퓨터로 좋아하는 것을 검색합니다. <button type="button" class="od-say" aria-label="저녁 식사와 컴퓨터 음성으로 듣기">🔊 듣기</button></span></li>
-        <li data-say="밤 10시. 약 먹고 잠자리. 스스로 약을 챙겨 먹고 씻은 뒤 잘 자요 인사를 하고 잡니다."><b>밤 10시 · 약 먹고 잠자리</b><span>스스로 약을 챙겨 먹고 씻은 뒤 잘 자요 인사를 하고 잡니다. <button type="button" class="od-say" aria-label="약 먹고 잠자리 음성으로 듣기">🔊 듣기</button></span></li>
-      </ol>
-      <p class="imp-note">음성 안내는 기기에 들어 있는 한국어 읽기 기능으로 나오며, 기기에 따라 목소리가 다르거나 지원되지 않을 수 있습니다. 이 내용은 가명으로 작성되었으며 본인 동의를 받은 자료(kyoung 폴더 학습일지)를 바탕으로 함. (웹 프롬프트 Wmwnghhw4)</p>
-    </article>
+    </aside>
     <script>
-    /* 내 페이지 전용: 보통 하루 음성 안내 */
+    /* 내 페이지 전용: 보통 하루 세로 창 열고 닫기 + 음성 안내 */
     (function(){
+      var fab=document.getElementById('od-fab'),tg=document.getElementById('od-toggle'),pn=document.getElementById('od-panel'),KEY='youngsook-od-open';
+      function setOpen(o,save){ pn.hidden=!o; tg.hidden=o; tg.setAttribute('aria-expanded',o?'true':'false'); fab.classList.toggle('open',o); if(save) try{localStorage.setItem(KEY,o?'1':'0');}catch(e){} }
+      var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+      setOpen(saved===null?window.innerWidth>=1200:saved==='1',false);
+      /* 위쪽 노래·검색 창과 겹치지 않게 세로 길이 맞추기 */
+      function fit(){ var sf=document.getElementById('sr-fab'),top=sf?sf.getBoundingClientRect().bottom:0; pn.style.maxHeight=Math.max(220,Math.round(window.innerHeight-top-24))+'px'; }
+      fit(); window.addEventListener('resize',function(){setTimeout(fit,0);}); window.addEventListener('load',fit); tg.addEventListener('click',fit);
+      tg.addEventListener('click',function(){ setOpen(true,true); });
+      document.getElementById('od-close').addEventListener('click',function(){ run++; if(S) S.cancel(); mark(-1); setOpen(false,true); tg.focus(); });
       var S=window.speechSynthesis, U=window.SpeechSynthesisUtterance, st=document.getElementById('od-state');
-      var items=[].slice.call(document.querySelectorAll('#od-list li')), cards=[].slice.call(document.querySelectorAll('#od-pics li')), run=0;
-      function mark(i){ items.forEach(function(e,k){e.classList.toggle('on',k===i);}); cards.forEach(function(e,k){e.classList.toggle('on',k===i);}); }
+      var items=[].slice.call(document.querySelectorAll('#od-list li')), run=0;
+      function mark(i){ items.forEach(function(e,k){e.classList.toggle('on',k===i); if(k===i&&e.scrollIntoView) e.scrollIntoView({block:'nearest'});}); }
       function say(i,chain,id){
         if(id!==run) return; if(i>=items.length){ mark(-1); st.textContent='안내가 끝났습니다.'; return; }
         var u=new U((i+1)+'번. '+items[i].getAttribute('data-say')); u.lang='ko-KR'; u.rate=0.9;
@@ -765,7 +777,7 @@
         u.onerror=function(){ if(id===run){ mark(-1); st.textContent='음성 안내를 재생하지 못했어요.'; } };
         mark(i); st.textContent=(i+1)+'번째 일과를 읽는 중…'; S.speak(u);
       }
-      function begin(i,chain){ if(!S||!U){ st.textContent='이 기기에서는 음성 안내를 지원하지 않아요. 리스트로 봐 주세요.'; return; } run++; S.cancel(); say(i,chain,run); }
+      function begin(i,chain){ if(!S||!U){ st.textContent='이 기기에서는 음성 안내를 지원하지 않아요.'; return; } run++; S.cancel(); say(i,chain,run); }
       document.getElementById('od-all').addEventListener('click',function(){ begin(0,true); });
       document.getElementById('od-stop').addEventListener('click',function(){ run++; if(S) S.cancel(); mark(-1); st.textContent='멈췄습니다.'; });
       items.forEach(function(li,i){ li.querySelector('.od-say').addEventListener('click',function(){ begin(i,false); }); });
@@ -800,7 +812,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 오늘의 철학이야기 명언 아래에 영어 표현을 함께 표기 (웹 프롬프트 Wmwxg28tn)</span>
+    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 유바람님의 보통 하루를 화면 오른쪽 아래 세로 창으로 다시 만듦 (웹 프롬프트 Wmwxg5e1p)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
