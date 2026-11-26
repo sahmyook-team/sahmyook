@@ -611,6 +611,9 @@
     .pa-btns{display:flex;flex-wrap:wrap;gap:6px}
     .pa-btns button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:4px 12px;font-size:.88rem;font-weight:700}
     .pa-btns button.main{background:var(--ai);border-color:var(--ai);color:var(--on-accent)}
+    .pa-body [hidden]{display:none!important}
+    .pa-note{margin:0;font-size:.8rem;line-height:1.5;color:var(--fg);white-space:pre-wrap;overflow-wrap:anywhere;word-break:keep-all}
+    .pa-btns button.pa-edit{padding:2px 10px;font-size:.75rem;font-weight:600;color:var(--muted)}
     .pa-empty{color:var(--muted)}
     .pa-view{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
     .pa-view[hidden]{display:none}
@@ -662,15 +665,20 @@
           if(!v.length){ var e=document.createElement('li'); e.className='pa-empty'; e.textContent='아직 넣은 사진이 없어요. ‘사진 넣기’를 눌러 보세요.'; grid.appendChild(e); return; }
           v.sort(function(a,b){ return b.id-a.id; });
           v.forEach(function(o){
-            var li=document.createElement('li'),img=document.createElement('img'),bd=document.createElement('div'),s=document.createElement('span'),ta=document.createElement('textarea'),bt=document.createElement('div'),sv=document.createElement('button'),rm=document.createElement('button'),u=URL.createObjectURL(o.img),d=new Date(o.id);
+            var li=document.createElement('li'),img=document.createElement('img'),bd=document.createElement('div'),s=document.createElement('span'),ta=document.createElement('textarea'),nt=document.createElement('p'),bt=document.createElement('div'),sv=document.createElement('button'),ed=document.createElement('button'),rm=document.createElement('button'),u=URL.createObjectURL(o.img),d=new Date(o.id);
             urls.push(u); li.className='pa-item'; img.src=u; img.alt=o.note?('사진: '+o.note.slice(0,40)):'넣은 사진'; img.loading='lazy';
             img.addEventListener('click',function(){ big.src=u; big.alt=img.alt; view.hidden=false; });
             bd.className='pa-body'; s.textContent=fmt?fmt.format(d):d.toLocaleString();
             ta.maxLength=1000; ta.placeholder='이 사진에 대한 기록을 써 보세요'; ta.value=o.note||''; ta.setAttribute('aria-label','사진 아래 기록');
-            bt.className='pa-btns'; sv.type='button'; sv.className='main'; sv.textContent='💾 기록 저장'; rm.type='button'; rm.textContent='사진 삭제';
-            sv.addEventListener('click',function(){ o.note=ta.value.trim(); put(o,function(ok){ st.textContent=ok?'기록을 저장했어요.':'저장하지 못했어요.'; }); });
+            nt.className='pa-note';
+            bt.className='pa-btns'; sv.type='button'; sv.className='main'; sv.textContent='💾 기록 저장'; ed.type='button'; ed.className='pa-edit'; ed.textContent='✏️ 고치기'; rm.type='button'; rm.textContent='사진 삭제';
+            /* 저장된 기록은 작은 글씨로만 보여 주고, 쓰는 칸은 저장 전·고치기 때만 보임 (웹 프롬프트 Wmwxgtmv6) */
+            function mode(edit){ var has=!!(o.note&&o.note.length); if(!has) edit=true; nt.textContent=o.note||''; nt.hidden=edit; ta.hidden=!edit; sv.hidden=!edit; ed.hidden=edit; }
+            sv.addEventListener('click',function(){ o.note=ta.value.trim(); put(o,function(ok){ st.textContent=ok?'기록을 저장했어요.':'저장하지 못했어요.'; if(ok){ img.alt=o.note?('사진: '+o.note.slice(0,40)):'넣은 사진'; mode(false); } }); });
+            ed.addEventListener('click',function(){ ta.value=o.note||''; mode(true); ta.focus(); });
             rm.addEventListener('click',function(){ if(!confirm('이 사진과 기록을 지울까요?')) return; del(o.id,function(){ st.textContent='사진을 지웠어요.'; show(); }); });
-            bt.appendChild(sv); bt.appendChild(rm); bd.appendChild(s); bd.appendChild(ta); bd.appendChild(bt);
+            bt.appendChild(sv); bt.appendChild(ed); bt.appendChild(rm); bd.appendChild(s); bd.appendChild(nt); bd.appendChild(ta); bd.appendChild(bt);
+            mode(false);
             li.appendChild(img); li.appendChild(bd); grid.appendChild(li);
           });
         });
@@ -755,7 +763,6 @@
       <div class="od-panel nw-panel" id="nw-panel" role="region" aria-labelledby="nw-title" hidden>
         <div class="od-head"><h2 id="nw-title">📰 오늘의 뉴스 <small id="nw-date" style="font-size:.75rem;color:var(--muted);font-weight:600"></small></h2><button type="button" class="od-x" id="nw-close" aria-label="오늘의 뉴스 창 접기">✕</button></div>
         <ul class="nw-grid" id="nw-list">
-          <li data-say="작년 11월, 바람님은 액티브 합창단과 함께 1박 2일로 전국장애인합창대회 무대에 섰습니다."><button type="button" class="nw-say" title="작년 11월, 바람님은 액티브 합창단과 함께 1박 2일로 전국장애인합창대회 무대에 섰습니다."><span class="od-pic" aria-hidden="true">🎤</span>합창대회 🔊</button></li>
           <li data-say="오늘도 아침 뉴스, 은행, 출근, 수영, 저녁과 컴퓨터, 밤 10시 잠자리로 익숙한 하루를 보냅니다."><button type="button" class="nw-say" title="오늘도 아침 뉴스, 은행, 출근, 수영, 저녁과 컴퓨터, 밤 10시 잠자리로 익숙한 하루를 보냅니다."><span class="od-pic" aria-hidden="true">🗓</span>오늘 하루 🔊</button></li>
           <li data-say="YTN. 바람님이 아침마다 TV로 즐겨 보는 뉴스 채널입니다."><a href="https://www.ytn.co.kr/" target="_blank" rel="noopener" title="YTN. 바람님이 아침마다 TV로 즐겨 보는 뉴스 채널입니다."><span class="od-pic" aria-hidden="true">📺</span>YTN ↗</a></li>
           <li data-say="연합뉴스 최신 기사. 국내외 소식을 시간 순서대로 볼 수 있습니다."><a href="https://www.yna.co.kr/news" target="_blank" rel="noopener" title="연합뉴스 최신 기사. 국내외 소식을 시간 순서대로 볼 수 있습니다."><span class="od-pic" aria-hidden="true">📰</span>연합뉴스 ↗</a></li>
@@ -858,7 +865,7 @@
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 오늘의 뉴스를 아이콘 세로 창으로 만들어 보통 하루 위칸에 둠 (웹 프롬프트 Wmwxghsiv)</span>
+    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 오늘의 뉴스에서 합창대회를 빼고 사진 기록 글씨를 저장 후 작은 글씨로 보이게 함 (웹 프롬프트 Wmwxgtmv6)</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
 </footer>
