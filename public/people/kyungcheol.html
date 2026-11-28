@@ -591,7 +591,7 @@ html.kc-ok #kc-gate{display:none}
 
 <footer>
   <div class="wrap foot">
-    <span>현재 사이트 버전 · 2026-11-26 내 페이지: 음악 듣기 칸에서 노래가 나오지 않던 문제 고침 (웹 프롬프트 Wmwx71qu6)</span>
+    <span>현재 사이트 버전 · 2026-11-28 내 페이지: 프롬프트 창을 페이지 위쪽으로 올림 (웹 프롬프트 Wmwzriqfz)</span>
     <span>황경아</span>
     <span>개발자용 코드 저장소: <a href="https://github.com/sahmyook-team/sahmyook">github.com/sahmyook-team/sahmyook</a></span>
   </div>
@@ -630,6 +630,20 @@ html.kc-ok #kc-gate{display:none}
     c.setAttribute('aria-label','현재 시각');
     t.appendChild(c);
     (function tick(){ c.textContent='🕒 '+now(); setTimeout(tick,1000-(Date.now()%1000)); })();
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',hook); } else { hook(); }
+})();
+</script>
+<script>
+/* 내 페이지 전용: "프롬프트 창 · 터미널"을 페이지 아래쪽에서 위쪽(바로가기 버튼 바로 아래)으로 올림 (웹 프롬프트 Wmwzriqfz) */
+(function(){
+  var tries=0;
+  function hook(){
+    var t=document.getElementById('term-title');
+    var box=t && t.closest('section');
+    var nav=document.querySelector('main > nav[aria-label="전경철 바로가기"]');
+    if(!box || !nav){ if(++tries<100) setTimeout(hook,200); return; }
+    if(box.previousElementSibling!==nav) nav.after(box);
   }
   if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',hook); } else { hook(); }
 })();
