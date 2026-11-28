@@ -405,3 +405,4 @@
 [todo] Wmwzriqfz | 2026-11-28 10:59 | 전경철 | 이 프롬프트창을 위로 올려줘
 [running] Wmwzriqfz | 11:00 | 처리 중 — 전경철 페이지에서 웹 프롬프트 창을 페이지 위쪽으로 올리는 중
 [done] Wmwzriqfz | 2026-11-28 | 전경철 페이지의 '프롬프트 창 · 터미널'을 페이지 맨 아래에서 위쪽(바로가기 버튼 줄 바로 아래, 프로필 위)으로 올렸습니다. (https://sahmyook-social-316000002578.asia-northeast3.run.app/people/kyungcheol)
+[todo] Wmwzrn9sd | 2026-11-28 11:03 | 전경철 | 여기에 케비를 보여줄수 있어?
